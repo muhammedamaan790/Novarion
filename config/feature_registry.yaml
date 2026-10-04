@@ -1,0 +1,172 @@
+# NOVARION feature registry — single source of truth for model input features (plan §10, §11A).
+# Owner (single writer): ML lead. Changes via PR only; any change = new feature_schema_sha256.
+#
+# Verified against the downloaded source (data/schema_report.json, source sha256 739343…ff0b).
+# Units: from the published feature table of the dataset (arXiv:2001.09841, "Description of the features used
+# in the Z-Alizadeh-Sani dataset with their valid ranges"). Where the table prints no unit, unit_source = implied.
+#
+# Field meanings
+#   id                     canonical snake_case id (used in API, hashes, UI)
+#   source_column          exact column name in the source workbook
+#   group                  presentation group (6 groups; source has 4)
+#   kind                   binary | ordinal | nominal | continuous
+#   source_tokens          how the source encodes values (binary/ordinal/nominal)
+#   categories             canonical category tokens (ordinal: in order)
+#   canonical_unit         unit of the canonical value (continuous only); conversion: none in v1
+#   unit_unambiguous       true → an unlabelled imported value may be canonical_assumed (with confirmation)
+#   canonical_precision    decimals used for the canonical value everywhere (model, storage, hash) — NOT display
+#   display_precision      decimals shown in the UI
+#   hard_valid_range       physiologically impossible outside → BLOCK (wide by design; NOT the cohort range)
+#   required_for_prediction  always true for model features (CI enforces)
+#   allow_unknown          explicit UNKNOWN permitted (→ imputation + LOW confidence)
+#   editable               may be changed in case editing / live editing
+#   immutable_in_whatif    cannot be varied by the Tier-3 what-if analysis
+#   input_mode             entered | computed | constant (computed = derived for new cases; constant = auto-filled
+#                          with constant_value because the feature never varies in training; neither is ever typed)
+#   log1p                  pre-registered log1p transform for linear models (not detected from data)
+#   in_reduced_feature_set false → dropped in the `redundancy_reduced` feature-set option
+#   aliases                accepted import column names (exact match only; fuzzy matching is disabled)
+#   display                UI label (optional; default derived from id, acronyms upper-cased)
+
+schema_version: "1.0.0"
+source_dataset: "Extension of Z-Alizadeh Sani (UCI #411)"
+unknown_token: "__UNKNOWN__"
+
+leakage_denylist: [Cath, CAD, LAD, LCX, RCA]   # never in X for any target (plan §5.4)
+
+presentation_groups: [demographics, history, symptoms_exam, ecg, labs, echo]
+
+defaults:
+  required_for_prediction: true
+  allow_unknown: true
+  editable: true
+  immutable_in_whatif: false
+  input_mode: entered
+  log1p: false
+  in_reduced_feature_set: true
+  aliases: []
+
+features:
+  # ---------------- Demographics ----------------
+  - {id: age, source_column: Age, group: demographics, kind: continuous, canonical_unit: years, unit_source: implied,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [18, 110],
+     allow_unknown: false, immutable_in_whatif: true}
+  - {id: weight, source_column: Weight, group: demographics, kind: continuous, canonical_unit: kg, unit_source: implied,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [20, 300],
+     in_reduced_feature_set: false}
+  - {id: height, source_column: Length, group: demographics, kind: continuous, canonical_unit: cm, unit_source: implied,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [100, 230],
+     in_reduced_feature_set: false, aliases: [Length]}
+  - {id: sex, source_column: Sex, group: demographics, kind: binary,
+     source_tokens: {"Male": 1, "Fmale": 0, "Female": 0}, categories: [female, male],
+     allow_unknown: false, immutable_in_whatif: true}
+  - {id: bmi, source_column: BMI, group: demographics, kind: continuous, canonical_unit: kg/m2, unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 2, display_precision: 1, hard_valid_range: [10, 80],
+     input_mode: computed, derived_from: [weight, height], formula: "weight / (height/100)^2",
+     note: "Exactly weight/height^2 in all 303 source rows (D-002)."}
+
+  # ---------------- History / risk factors ----------------
+  - {id: diabetes, source_column: DM, group: history, kind: binary, source_tokens: {1: 1, 0: 0}, aliases: [DM]}
+  - {id: hypertension, source_column: HTN, group: history, kind: binary, source_tokens: {1: 1, 0: 0}, aliases: [HTN]}
+  - {id: current_smoker, source_column: Current Smoker, group: history, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: ex_smoker, display: "Ex-smoker", source_column: EX-Smoker, group: history, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: family_history, source_column: FH, group: history, kind: binary, source_tokens: {1: 1, 0: 0}, aliases: [FH]}
+  - {id: obesity, source_column: Obesity, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0},
+     input_mode: computed, derived_from: [bmi], formula: "bmi > 25", in_reduced_feature_set: false,
+     note: "Documented as 'Yes if BMI > 25'; 302/303 source rows agree (row 153: BMI = 25.0 marked Y). Training uses source values (D-002)."}
+  - {id: chronic_renal_failure, source_column: CRF, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}, aliases: [CRF]}
+  - {id: cerebrovascular_accident, source_column: CVA, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}, aliases: [CVA]}
+  - {id: airway_disease, source_column: Airway disease, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: thyroid_disease, source_column: Thyroid Disease, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: congestive_heart_failure, source_column: CHF, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}, aliases: [CHF]}
+  - {id: dyslipidemia, source_column: DLP, group: history, kind: binary, source_tokens: {"Y": 1, "N": 0}, aliases: [DLP]}
+
+  # ---------------- Symptoms & examination ----------------
+  - {id: blood_pressure, source_column: BP, group: symptoms_exam, kind: continuous, canonical_unit: mmHg,
+     unit_source: documented, unit_unambiguous: true, canonical_precision: 0, display_precision: 0,
+     hard_valid_range: [50, 260], aliases: [BP]}
+  - {id: pulse_rate, source_column: PR, group: symptoms_exam, kind: continuous, canonical_unit: beats/min,
+     unit_source: documented, unit_unambiguous: true, canonical_precision: 0, display_precision: 0,
+     hard_valid_range: [20, 250], aliases: [PR]}
+  - {id: edema, source_column: Edema, group: symptoms_exam, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: weak_peripheral_pulse, source_column: Weak Peripheral Pulse, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: lung_rales, source_column: Lung rales, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: systolic_murmur, source_column: Systolic Murmur, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: diastolic_murmur, source_column: Diastolic Murmur, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: typical_chest_pain, source_column: Typical Chest Pain, group: symptoms_exam, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: dyspnea, source_column: Dyspnea, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: function_class, display: "Function class", source_column: Function Class, group: symptoms_exam, kind: ordinal,
+     source_tokens: {0: 0, 1: 1, 2: 2, 3: 3}, categories: ["0", "1", "2", "3"],
+     note: "Source values are 0-3 (the published table lists 1-4; the file is authoritative)."}
+  - {id: atypical_chest_pain, source_column: Atypical, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: nonanginal_chest_pain, display: "Non-anginal chest pain", source_column: Nonanginal, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: exertional_chest_pain, source_column: Exertional CP, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0},
+     input_mode: constant, constant_value: 0,
+     note: "Constant 'N' in all 303 records; removed by the fold-local zero-variance step, so it can never affect a prediction. Auto-filled (never asked); a supplied 'Y' is reported and ignored (D-007)."}
+  - {id: low_threshold_angina, display: "Low-threshold angina", source_column: LowTH Ang, group: symptoms_exam, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+
+  # ---------------- ECG ----------------
+  - {id: q_wave, source_column: Q Wave, group: ecg, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: st_elevation, source_column: St Elevation, group: ecg, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: st_depression, source_column: St Depression, group: ecg, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: t_inversion, source_column: Tinversion, group: ecg, kind: binary, source_tokens: {1: 1, 0: 0}}
+  - {id: lvh, source_column: LVH, group: ecg, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: poor_r_progression, source_column: Poor R Progression, group: ecg, kind: binary, source_tokens: {"Y": 1, "N": 0}}
+  - {id: bundle_branch_block, source_column: BBB, group: ecg, kind: nominal,
+     source_tokens: {"N": "none", "LBBB": "lbbb", "RBBB": "rbbb"}, categories: [none, lbbb, rbbb], aliases: [BBB]}
+
+  # ---------------- Laboratory ----------------
+  - {id: fasting_blood_sugar, source_column: FBS, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [20, 1000], log1p: true, aliases: [FBS]}
+  - {id: creatinine, source_column: CR, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 2, display_precision: 2, hard_valid_range: [0.1, 20], log1p: true, aliases: [CR, Cr]}
+  - {id: triglycerides, source_column: TG, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [10, 5000], log1p: true, aliases: [TG]}
+  - {id: ldl, source_column: LDL, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [5, 500], aliases: [LDL]}
+  - {id: hdl, source_column: HDL, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 1, display_precision: 1, hard_valid_range: [5, 200], aliases: [HDL]}
+  - {id: bun, source_column: BUN, group: labs, kind: continuous, canonical_unit: mg/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [1, 200], log1p: true, aliases: [BUN]}
+  - {id: esr, source_column: ESR, group: labs, kind: continuous, canonical_unit: mm/h, unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [0, 200], log1p: true, aliases: [ESR]}
+  - {id: hemoglobin, source_column: HB, group: labs, kind: continuous, canonical_unit: g/dL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 1, display_precision: 1, hard_valid_range: [2, 25], aliases: [HB, Hb]}
+  - {id: potassium, source_column: K, group: labs, kind: continuous, canonical_unit: mEq/L, unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 1, display_precision: 1, hard_valid_range: [1.5, 9], aliases: [K]}
+  - {id: sodium, source_column: Na, group: labs, kind: continuous, canonical_unit: mEq/L, unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [100, 180], aliases: [Na]}
+  - {id: wbc, source_column: WBC, group: labs, kind: continuous, canonical_unit: cells/µL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [500, 100000], log1p: true,
+     aliases: [WBC], note: "Paper prints 'cells/ml'; values (3700-18000) correspond to cells per microlitre."}
+  - {id: lymphocytes_pct, display: "Lymphocytes (%)", source_column: Lymph, group: labs, kind: continuous, canonical_unit: "%", unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [1, 100], aliases: [Lymph]}
+  - {id: neutrophils_pct, display: "Neutrophils (%)", source_column: Neut, group: labs, kind: continuous, canonical_unit: "%", unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [0, 100], aliases: [Neut]}
+  - {id: platelets, source_column: PLT, group: labs, kind: continuous, canonical_unit: 10^3/µL, unit_source: documented,
+     unit_unambiguous: false, canonical_precision: 0, display_precision: 0, hard_valid_range: [5, 2000], log1p: true,
+     aliases: [PLT], note: "Paper prints '1000/ml'; values (25-742) correspond to 10^3 per microlitre."}
+
+  # ---------------- Echo ----------------
+  - {id: ejection_fraction, display: "Ejection fraction (TTE)", source_column: EF-TTE, group: echo, kind: continuous, canonical_unit: "%", unit_source: documented,
+     unit_unambiguous: true, canonical_precision: 0, display_precision: 0, hard_valid_range: [5, 90], aliases: [EF-TTE, EF]}
+  - {id: region_rwma, display: "Region with RWMA", source_column: Region RWMA, group: echo, kind: nominal,
+     source_tokens: {0: "0", 1: "1", 2: "2", 3: "3", 4: "4"}, categories: ["0", "1", "2", "3", "4"],
+     note: "Values 0-4; meaning (count vs region code) is not documented in the published table, so nominal by default (plan §5.2)."}
+  - {id: valvular_heart_disease, display: "Valvular heart disease", source_column: VHD, group: echo, kind: ordinal,
+     source_tokens: {"N": "none", "mild": "mild", "Moderate": "moderate", "Severe": "severe"},
+     categories: [none, mild, moderate, severe], aliases: [VHD]}
+
+cross_field_rules:
+  - {id: lymph_plus_neut, rule: "lymphocytes_pct + neutrophils_pct <= 100", action: BLOCK}
+  - {id: bmi_matches_formula, rule: "bmi computed from weight and height", action: COMPUTE}
+  - {id: obesity_matches_bmi, rule: "obesity computed as bmi > 25", action: COMPUTE}
+
+engineered_features:   # generated inside the fold-local feature pipeline only (plan §5.2-6)
+  - {id: nlr, display: "Neutrophil/lymphocyte ratio", derived_from: [neutrophils_pct, lymphocytes_pct],
+     formula: "neutrophils_pct / lymphocytes_pct", group: labs}
+  - {id: ldl_hdl_ratio, display: "LDL/HDL ratio", derived_from: [ldl, hdl], formula: "ldl / hdl", group: labs}
+  - {id: tg_hdl_ratio, display: "TG/HDL ratio", derived_from: [triglycerides, hdl], formula: "triglycerides / hdl", group: labs}
+  - {id: risk_factor_count, display: "Traditional risk-factor count",
+     derived_from: [diabetes, hypertension, current_smoker, family_history, dyslipidemia, obesity],
+     formula: "sum", group: history}

@@ -1,0 +1,243 @@
+{
+  "note": "Real cohort statistics (full cohort) used only to centre the contract mock engine. Not a model.",
+  "features": {
+    "age": {
+      "median": 58.0,
+      "iqr": 15.0
+    },
+    "weight": {
+      "median": 74.0,
+      "iqr": 16.0
+    },
+    "height": {
+      "median": 165.0,
+      "iqr": 13.0
+    },
+    "sex": {
+      "mean": 0.580858,
+      "mode": 1
+    },
+    "bmi": {
+      "median": 26.78,
+      "iqr": 4.895
+    },
+    "diabetes": {
+      "mean": 0.29703,
+      "mode": 0
+    },
+    "hypertension": {
+      "mean": 0.590759,
+      "mode": 1
+    },
+    "current_smoker": {
+      "mean": 0.207921,
+      "mode": 0
+    },
+    "ex_smoker": {
+      "mean": 0.033003,
+      "mode": 0
+    },
+    "family_history": {
+      "mean": 0.158416,
+      "mode": 0
+    },
+    "obesity": {
+      "mean": 0.69637,
+      "mode": 1
+    },
+    "chronic_renal_failure": {
+      "mean": 0.019802,
+      "mode": 0
+    },
+    "cerebrovascular_accident": {
+      "mean": 0.016502,
+      "mode": 0
+    },
+    "airway_disease": {
+      "mean": 0.036304,
+      "mode": 0
+    },
+    "thyroid_disease": {
+      "mean": 0.023102,
+      "mode": 0
+    },
+    "congestive_heart_failure": {
+      "mean": 0.0033,
+      "mode": 0
+    },
+    "dyslipidemia": {
+      "mean": 0.369637,
+      "mode": 0
+    },
+    "blood_pressure": {
+      "median": 130.0,
+      "iqr": 20.0
+    },
+    "pulse_rate": {
+      "median": 70.0,
+      "iqr": 10.0
+    },
+    "edema": {
+      "mean": 0.039604,
+      "mode": 0
+    },
+    "weak_peripheral_pulse": {
+      "mean": 0.016502,
+      "mode": 0
+    },
+    "lung_rales": {
+      "mean": 0.036304,
+      "mode": 0
+    },
+    "systolic_murmur": {
+      "mean": 0.135314,
+      "mode": 0
+    },
+    "diastolic_murmur": {
+      "mean": 0.029703,
+      "mode": 0
+    },
+    "typical_chest_pain": {
+      "mean": 0.541254,
+      "mode": 1
+    },
+    "dyspnea": {
+      "mean": 0.442244,
+      "mode": 0
+    },
+    "function_class": {
+      "mode": "0"
+    },
+    "atypical_chest_pain": {
+      "mean": 0.306931,
+      "mode": 0
+    },
+    "nonanginal_chest_pain": {
+      "mean": 0.052805,
+      "mode": 0
+    },
+    "exertional_chest_pain": {
+      "mean": 0.0,
+      "mode": 0
+    },
+    "low_threshold_angina": {
+      "mean": 0.006601,
+      "mode": 0
+    },
+    "q_wave": {
+      "mean": 0.052805,
+      "mode": 0
+    },
+    "st_elevation": {
+      "mean": 0.046205,
+      "mode": 0
+    },
+    "st_depression": {
+      "mean": 0.234323,
+      "mode": 0
+    },
+    "t_inversion": {
+      "mean": 0.29703,
+      "mode": 0
+    },
+    "lvh": {
+      "mean": 0.066007,
+      "mode": 0
+    },
+    "poor_r_progression": {
+      "mean": 0.029703,
+      "mode": 0
+    },
+    "bundle_branch_block": {
+      "mode": "none"
+    },
+    "fasting_blood_sugar": {
+      "median": 98.0,
+      "iqr": 41.5
+    },
+    "creatinine": {
+      "median": 1.0,
+      "iqr": 0.3
+    },
+    "triglycerides": {
+      "median": 122.0,
+      "iqr": 87.0
+    },
+    "ldl": {
+      "median": 100.0,
+      "iqr": 42.0
+    },
+    "hdl": {
+      "median": 39.0,
+      "iqr": 12.0
+    },
+    "bun": {
+      "median": 16.0,
+      "iqr": 7.0
+    },
+    "esr": {
+      "median": 15.0,
+      "iqr": 17.0
+    },
+    "hemoglobin": {
+      "median": 13.2,
+      "iqr": 2.0
+    },
+    "potassium": {
+      "median": 4.2,
+      "iqr": 0.6
+    },
+    "sodium": {
+      "median": 141.0,
+      "iqr": 4.0
+    },
+    "wbc": {
+      "median": 7100.0,
+      "iqr": 3000.0
+    },
+    "lymphocytes_pct": {
+      "median": 32.0,
+      "iqr": 13.0
+    },
+    "neutrophils_pct": {
+      "median": 60.0,
+      "iqr": 14.5
+    },
+    "platelets": {
+      "median": 210.0,
+      "iqr": 66.5
+    },
+    "ejection_fraction": {
+      "median": 50.0,
+      "iqr": 10.0
+    },
+    "region_rwma": {
+      "mode": "0"
+    },
+    "valvular_heart_disease": {
+      "mode": "mild"
+    }
+  },
+  "target_counts": {
+    "cad": {
+      "negative": 87,
+      "positive": 216,
+      "prevalence": 0.712871
+    },
+    "lad": {
+      "negative": 126,
+      "positive": 177,
+      "prevalence": 0.584158
+    },
+    "lcx": {
+      "negative": 184,
+      "positive": 119,
+      "prevalence": 0.392739
+    },
+    "rca": {
+      "negative": 189,
+      "positive": 114,
+      "prevalence": 0.376238
+    }
+  }
+}

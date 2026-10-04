@@ -1,0 +1,44 @@
+# NOVARION targets — single source of truth (owner: ML lead).
+# Prevalence is never hard-coded here; it comes from data/schema_report.json.
+
+schema_version: "1.0.0"
+
+targets:
+  - id: cad
+    display: "Overall CAD"
+    label_definition: 'Dataset label "Cath = CAD": coronary artery disease by angiography (>= 50% stenosis in at least one major vessel, per the dataset definition)'
+    source_column: Cath          # verified: no separate CAD column in the source (D-001 context)
+    positive_token: "CAD"
+    negative_token: "Normal"
+    anatomy_key: heart_myocardium
+  - id: lad
+    display: "LAD"
+    label_definition: "Dataset label: >= 50% stenosis of the left anterior descending artery by angiography"
+    source_column: LAD
+    positive_token: "Stenotic"
+    negative_token: "Normal"
+    anatomy_key: vessel_lad
+  - id: lcx
+    display: "LCX"
+    label_definition: "Dataset label: >= 50% stenosis of the left circumflex artery by angiography"
+    source_column: LCX
+    positive_token: "Stenotic"
+    negative_token: "Normal"
+    anatomy_key: vessel_lcx
+  - id: rca
+    display: "RCA"
+    label_definition: "Dataset label: >= 50% stenosis of the right coronary artery by angiography"
+    source_column: RCA
+    positive_token: "Stenotic"
+    negative_token: "Normal"
+    anatomy_key: vessel_rca
+
+# Pre-registered prototype confidence targets (engineering criteria, not clinical standards; plan §6.5)
+confidence:
+  target_ppv: 0.90
+  target_npv: 0.95
+  n_min_region: 15
+
+evidence_bands: [[0.0, 0.2], [0.2, 0.4], [0.4, 0.6], [0.6, 0.8], [0.8, 1.0]]   # last band closed on the right
+evidence_band_min_n: 20
+cohort_comparison_min_n: 20

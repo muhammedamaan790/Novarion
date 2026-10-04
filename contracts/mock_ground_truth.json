@@ -1,0 +1,15 @@
+{
+  "patient_id": "ZAS-0003",
+  "labels": {
+    "cad": 1,
+    "lad": 1,
+    "lcx": 0,
+    "rca": 0
+  },
+  "label_definitions": {
+    "cad": "Dataset label \"Cath = CAD\": coronary artery disease by angiography (>= 50% stenosis in at least one major vessel, per the dataset definition)",
+    "lad": "Dataset label: >= 50% stenosis of the left anterior descending artery by angiography",
+    "lcx": "Dataset label: >= 50% stenosis of the left circumflex artery by angiography",
+    "rca": "Dataset label: >= 50% stenosis of the right coronary artery by angiography"
+  }
+}

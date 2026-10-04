@@ -1,0 +1,9 @@
+{
+  "dataset": "Extension of Z-Alizadeh Sani dataset (UCI #411)",
+  "license": "CC BY 4.0",
+  "source_url": "https://archive.ics.uci.edu/static/public/411/extention+of+z+alizadeh+sani+dataset.zip",
+  "archive_member": "extention of Z-Alizadeh sani dataset.xlsx",
+  "archive_sha256": "e97af1a18733d64fa88caa0628e5fe7ce6b2e26ec4c7ee03baade92a6f1470e8",
+  "source_data_sha256": "739343245c2ba578b541370217531750d8e936022f928b83e0d91756caa3ff0b",
+  "pinned_at": "2026-10-04T06:16:44+00:00"
+}

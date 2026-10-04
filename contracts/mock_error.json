@@ -1,0 +1,19 @@
+{
+  "error_code": "TARGET_FAILED",
+  "message": "One or more targets failed; nothing was committed.",
+  "details": {
+    "failed_targets": [
+      "rca"
+    ]
+  },
+  "request_id": "7f56919f-d3af-57f8-b817-b6d3cfc0de6c",
+  "api_schema_version": "1.0.0",
+  "commit_status": "rejected",
+  "prediction_status": "unavailable",
+  "target_status": {
+    "cad": "computed_not_committed",
+    "lad": "computed_not_committed",
+    "lcx": "computed_not_committed",
+    "rca": "error"
+  }
+}

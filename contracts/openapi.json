@@ -1,0 +1,5148 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "NOVARION API",
+    "description": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging.",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v1/health/live": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Live",
+        "operationId": "health_live_api_v1_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthLive"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/health/ready": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Ready",
+        "operationId": "health_ready_api_v1_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthReady"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/meta": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Meta",
+        "operationId": "meta_api_v1_meta_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetaResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/patients": {
+      "get": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Patients",
+        "operationId": "patients_api_v1_patients_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/patients/{patient_id}": {
+      "get": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Patient",
+        "operationId": "patient_api_v1_patients__patient_id__get",
+        "parameters": [
+          {
+            "name": "patient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ZAS-\\d{4}$",
+              "title": "Patient Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientBundle"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/patients/{patient_id}/ground-truth": {
+      "get": {
+        "tags": [
+          "patients"
+        ],
+        "summary": "Ground Truth",
+        "operationId": "ground_truth_api_v1_patients__patient_id__ground_truth_get",
+        "parameters": [
+          {
+            "name": "patient_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^ZAS-\\d{4}$",
+              "title": "Patient Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GroundTruthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/validate": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Validate",
+        "operationId": "validate_api_v1_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/predict": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Predict",
+        "operationId": "predict_api_v1_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analyze/full": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Analyze Full",
+        "operationId": "analyze_full_api_v1_analyze_full_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeFullRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeFullResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/explain": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Explain",
+        "operationId": "explain_api_v1_explain_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExplainRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExplanationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evidence": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Evidence",
+        "operationId": "evidence_api_v1_evidence_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/evaluation": {
+      "get": {
+        "tags": [
+          "evidence"
+        ],
+        "summary": "Evaluation",
+        "operationId": "evaluation_api_v1_evaluation_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvaluationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/global-importance/{target}": {
+      "get": {
+        "tags": [
+          "evidence"
+        ],
+        "summary": "Global Importance",
+        "operationId": "global_importance_api_v1_global_importance__target__get",
+        "parameters": [
+          {
+            "name": "target",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ],
+              "type": "string",
+              "title": "Target"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalImportanceResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/models": {
+      "get": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Models",
+        "operationId": "models_api_v1_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/models/{version}/report": {
+      "get": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Model Report",
+        "operationId": "model_report_api_v1_models__version__report_get",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "title": "Version"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelReportResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalyzeFullRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision",
+            "default": 0
+          },
+          "dataset_record_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Record Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs"
+        ],
+        "title": "AnalyzeFullRequest",
+        "description": "Persistence path: predictions + all 4 explanations + evidence on one bundle handle; all-or-nothing."
+      },
+      "AnalyzeFullResponse": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "App Version"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "preprocessing_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Preprocessing Version"
+          },
+          "anatomy_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Anatomy Version"
+          },
+          "anatomy_asset_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Anatomy Asset Sha256"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "training_data_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Training Data Sha256"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "reference_context_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Reference Context Sha256"
+          },
+          "commit_status": {
+            "type": "string",
+            "const": "committed",
+            "title": "Commit Status",
+            "default": "committed"
+          },
+          "prediction_status": {
+            "type": "string",
+            "const": "complete",
+            "title": "Prediction Status",
+            "default": "complete"
+          },
+          "target_status": {
+            "additionalProperties": {
+              "type": "string",
+              "const": "complete"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Target Status"
+          },
+          "patient": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/PredictionQuality"
+          },
+          "targets": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TargetPrediction"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Targets"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "explanations": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ExplanationPayload"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Explanations"
+          },
+          "evidence": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EvidencePayload"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "app_version",
+          "model_version",
+          "preprocessing_version",
+          "anatomy_version",
+          "anatomy_asset_sha256",
+          "input_sha256",
+          "training_data_sha256",
+          "artifact_manifest_sha256",
+          "reference_context_sha256",
+          "target_status",
+          "patient",
+          "quality",
+          "targets",
+          "request_id",
+          "explanations",
+          "evidence"
+        ],
+        "title": "AnalyzeFullResponse",
+        "description": "Persisted Analysis: all outputs from ONE BundleHandle; reopening a case renders only this."
+      },
+      "AtypicalDetail": {
+        "properties": {
+          "flag": {
+            "type": "boolean",
+            "title": "Flag"
+          },
+          "distance_percentile": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Percentile"
+          },
+          "cutoff_percentile": {
+            "type": "integer",
+            "const": 95,
+            "title": "Cutoff Percentile",
+            "default": 95
+          },
+          "excluded_unknown_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Excluded Unknown Features"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "flag",
+          "distance_percentile"
+        ],
+        "title": "AtypicalDetail"
+      },
+      "AtypicalProfile": {
+        "properties": {
+          "flag": {
+            "type": "boolean",
+            "title": "Flag"
+          },
+          "distance_percentile": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Percentile"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "flag"
+        ],
+        "title": "AtypicalProfile"
+      },
+      "CohortComparison": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "percentile",
+              "binary_prevalence",
+              "category_frequency"
+            ],
+            "title": "Type"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "negative": {
+            "$ref": "#/components/schemas/GroupStat"
+          },
+          "positive": {
+            "$ref": "#/components/schemas/GroupStat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "negative",
+          "positive"
+        ],
+        "title": "CohortComparison"
+      },
+      "ConfidenceQualification": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "ppv",
+              "npv"
+            ],
+            "title": "Metric"
+          },
+          "target": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Target"
+          },
+          "lower_bound": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Lower Bound"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "N"
+          },
+          "source": {
+            "type": "string",
+            "const": "training_side_oof",
+            "title": "Source",
+            "default": "training_side_oof"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "target",
+          "lower_bound",
+          "n"
+        ],
+        "title": "ConfidenceQualification"
+      },
+      "ConfidenceThresholds": {
+        "properties": {
+          "negative_below": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Negative Below"
+          },
+          "positive_at_or_above": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive At Or Above"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "negative_below",
+          "positive_at_or_above"
+        ],
+        "title": "ConfidenceThresholds"
+      },
+      "Contribution": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "display": {
+            "type": "string",
+            "title": "Display"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          },
+          "display_value": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Display Value"
+          },
+          "contribution": {
+            "type": "number",
+            "title": "Contribution"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "up",
+              "down",
+              "neutral"
+            ],
+            "title": "Direction"
+          },
+          "strength": {
+            "type": "string",
+            "enum": [
+              "slight",
+              "moderate",
+              "strong"
+            ],
+            "title": "Strength"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "demographics",
+              "history",
+              "symptoms_exam",
+              "ecg",
+              "labs",
+              "echo"
+            ],
+            "title": "Group"
+          },
+          "value_status": {
+            "type": "string",
+            "enum": [
+              "provided",
+              "imputed",
+              "computed",
+              "derived"
+            ],
+            "title": "Value Status"
+          },
+          "imputation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Imputation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "relative_share": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Relative Share"
+          },
+          "cohort_comparison": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CohortComparison"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feature",
+          "display",
+          "value",
+          "display_value",
+          "contribution",
+          "direction",
+          "strength",
+          "group",
+          "value_status",
+          "relative_share"
+        ],
+        "title": "Contribution"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error_code": {
+            "type": "string",
+            "enum": [
+              "VALIDATION_FAILED",
+              "INPUT_OUT_OF_RANGE",
+              "UNSEEN_CATEGORY",
+              "UNIT_MISMATCH",
+              "INPUT_HASH_MISMATCH",
+              "ARTIFACT_MISMATCH",
+              "NOT_READY",
+              "TARGET_FAILED",
+              "PAYLOAD_TOO_LARGE",
+              "RATE_LIMITED",
+              "NOT_FOUND",
+              "QUALITY_GATE_BLOCKED",
+              "INTERNAL_ERROR"
+            ],
+            "title": "Error Code"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Message"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          },
+          "request_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "commit_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "rejected"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commit Status"
+          },
+          "prediction_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "unavailable"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction Status"
+          },
+          "target_status": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "string",
+                  "enum": [
+                    "complete",
+                    "computed_not_committed",
+                    "error"
+                  ]
+                },
+                "propertyNames": {
+                  "enum": [
+                    "cad",
+                    "lad",
+                    "lcx",
+                    "rca"
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Status"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "error_code",
+          "message"
+        ],
+        "title": "ErrorResponse",
+        "description": "The one error envelope for every endpoint. A rejected analysis carries NO prediction values (by schema)."
+      },
+      "EvaluationContext": {
+        "properties": {
+          "metric": {
+            "type": "string",
+            "enum": [
+              "ppv",
+              "npv"
+            ],
+            "title": "Metric"
+          },
+          "value": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Value"
+          },
+          "ci": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "type": "array",
+                "maxItems": 2,
+                "minItems": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ci"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "N"
+          },
+          "level": {
+            "type": "string",
+            "const": "cohort",
+            "title": "Level",
+            "default": "cohort"
+          },
+          "source": {
+            "type": "string",
+            "const": "prespecified_outer_repeat",
+            "title": "Source",
+            "default": "prespecified_outer_repeat"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "metric",
+          "value",
+          "n"
+        ],
+        "title": "EvaluationContext"
+      },
+      "EvaluationResponse": {
+        "properties": {
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "table1_scope": {
+            "type": "string",
+            "const": "outer-fold mean ± SD",
+            "title": "Table1 Scope",
+            "default": "outer-fold mean ± SD"
+          },
+          "table1": {
+            "items": {
+              "$ref": "#/components/schemas/Table1Row"
+            },
+            "type": "array",
+            "title": "Table1"
+          },
+          "table2_scope": {
+            "type": "string",
+            "const": "pooled OOF (prespecified repeat)",
+            "title": "Table2 Scope",
+            "default": "pooled OOF (prespecified repeat)"
+          },
+          "table2": {
+            "items": {
+              "$ref": "#/components/schemas/Table2Row"
+            },
+            "type": "array",
+            "title": "Table2"
+          },
+          "figures": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Figures"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_version",
+          "table1",
+          "table2"
+        ],
+        "title": "EvaluationResponse"
+      },
+      "EvidenceLedger": {
+        "properties": {
+          "band": {
+            "items": {
+              "type": "number",
+              "maximum": 1.0,
+              "minimum": 0.0
+            },
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Band"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "insufficient_evidence"
+            ],
+            "title": "Status"
+          },
+          "n": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N"
+          },
+          "positive_label_rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Positive Label Rate"
+          },
+          "description": {
+            "type": "string",
+            "const": "Empirical positive-label rate among validation patients in this probability band",
+            "title": "Description",
+            "default": "Empirical positive-label rate among validation patients in this probability band"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "band",
+          "status",
+          "n",
+          "positive_label_rate"
+        ],
+        "title": "EvidenceLedger"
+      },
+      "EvidencePayload": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "similar_patients": {
+            "$ref": "#/components/schemas/SimilarPatients"
+          },
+          "evidence_ledger": {
+            "$ref": "#/components/schemas/EvidenceLedger"
+          },
+          "atypical_profile": {
+            "$ref": "#/components/schemas/AtypicalDetail"
+          },
+          "stability_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StabilityInterval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "similar_patients",
+          "evidence_ledger",
+          "atypical_profile"
+        ],
+        "title": "EvidencePayload"
+      },
+      "EvidenceRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision",
+            "default": 0
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs",
+          "analysis_id",
+          "input_sha256",
+          "target",
+          "model_version",
+          "artifact_manifest_sha256"
+        ],
+        "title": "EvidenceRequest"
+      },
+      "EvidenceResponse": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "similar_patients": {
+            "$ref": "#/components/schemas/SimilarPatients"
+          },
+          "evidence_ledger": {
+            "$ref": "#/components/schemas/EvidenceLedger"
+          },
+          "atypical_profile": {
+            "$ref": "#/components/schemas/AtypicalDetail"
+          },
+          "stability_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StabilityInterval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "prediction_mode": {
+            "type": "string",
+            "enum": [
+              "oof",
+              "final_model"
+            ],
+            "title": "Prediction Mode"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "similar_patients",
+          "evidence_ledger",
+          "atypical_profile",
+          "analysis_id",
+          "request_id",
+          "model_version",
+          "artifact_manifest_sha256",
+          "prediction_mode"
+        ],
+        "title": "EvidenceResponse"
+      },
+      "ExplainRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision",
+            "default": 0
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs",
+          "analysis_id",
+          "input_sha256",
+          "target",
+          "model_version",
+          "artifact_manifest_sha256"
+        ],
+        "title": "ExplainRequest"
+      },
+      "ExplanationPayload": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "space": {
+            "type": "string",
+            "const": "calibrated_log_odds",
+            "title": "Space",
+            "default": "calibrated_log_odds"
+          },
+          "base_calibrated_logit": {
+            "type": "number",
+            "title": "Base Calibrated Logit"
+          },
+          "calibrated_logit": {
+            "type": "number",
+            "title": "Calibrated Logit"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Contributions"
+          },
+          "groups": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GroupContribution"
+            },
+            "propertyNames": {
+              "enum": [
+                "demographics",
+                "history",
+                "symptoms_exam",
+                "ecg",
+                "labs",
+                "echo"
+              ]
+            },
+            "type": "object",
+            "title": "Groups"
+          },
+          "strength_cutpoints": {
+            "$ref": "#/components/schemas/StrengthCutpoints"
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "default": "Contributions describe how this model used the inputs: associations learned from this cohort, not causes."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "base_calibrated_logit",
+          "calibrated_logit",
+          "contributions",
+          "groups",
+          "strength_cutpoints"
+        ],
+        "title": "ExplanationPayload"
+      },
+      "ExplanationResponse": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "space": {
+            "type": "string",
+            "const": "calibrated_log_odds",
+            "title": "Space",
+            "default": "calibrated_log_odds"
+          },
+          "base_calibrated_logit": {
+            "type": "number",
+            "title": "Base Calibrated Logit"
+          },
+          "calibrated_logit": {
+            "type": "number",
+            "title": "Calibrated Logit"
+          },
+          "contributions": {
+            "items": {
+              "$ref": "#/components/schemas/Contribution"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Contributions"
+          },
+          "groups": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GroupContribution"
+            },
+            "propertyNames": {
+              "enum": [
+                "demographics",
+                "history",
+                "symptoms_exam",
+                "ecg",
+                "labs",
+                "echo"
+              ]
+            },
+            "type": "object",
+            "title": "Groups"
+          },
+          "strength_cutpoints": {
+            "$ref": "#/components/schemas/StrengthCutpoints"
+          },
+          "caption": {
+            "type": "string",
+            "title": "Caption",
+            "default": "Contributions describe how this model used the inputs: associations learned from this cohort, not causes."
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "prediction_mode": {
+            "type": "string",
+            "enum": [
+              "oof",
+              "final_model"
+            ],
+            "title": "Prediction Mode"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "base_calibrated_logit",
+          "calibrated_logit",
+          "contributions",
+          "groups",
+          "strength_cutpoints",
+          "analysis_id",
+          "request_id",
+          "model_version",
+          "artifact_manifest_sha256",
+          "prediction_mode"
+        ],
+        "title": "ExplanationResponse"
+      },
+      "FeatureSpec": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "display": {
+            "type": "string",
+            "title": "Display"
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "demographics",
+              "history",
+              "symptoms_exam",
+              "ecg",
+              "labs",
+              "echo"
+            ],
+            "title": "Group"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "binary",
+              "ordinal",
+              "nominal",
+              "continuous"
+            ],
+            "title": "Kind"
+          },
+          "categories": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "canonical_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Unit"
+          },
+          "unit_unambiguous": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit Unambiguous"
+          },
+          "display_precision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Display Precision"
+          },
+          "hard_valid_range": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hard Valid Range"
+          },
+          "allow_unknown": {
+            "type": "boolean",
+            "title": "Allow Unknown"
+          },
+          "editable": {
+            "type": "boolean",
+            "title": "Editable"
+          },
+          "immutable_in_whatif": {
+            "type": "boolean",
+            "title": "Immutable In Whatif"
+          },
+          "input_mode": {
+            "type": "string",
+            "enum": [
+              "entered",
+              "computed",
+              "constant"
+            ],
+            "title": "Input Mode"
+          },
+          "constant_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Constant Value"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "display",
+          "group",
+          "kind",
+          "allow_unknown",
+          "editable",
+          "immutable_in_whatif",
+          "input_mode"
+        ],
+        "title": "FeatureSpec"
+      },
+      "GateTargetResult": {
+        "properties": {
+          "evaluable": {
+            "type": "boolean",
+            "title": "Evaluable"
+          },
+          "auc_champion": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Champion"
+          },
+          "auc_challenger": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auc Challenger"
+          },
+          "delta_auc_ci95": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Auc Ci95"
+          },
+          "brier_champion": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brier Champion"
+          },
+          "brier_challenger": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Brier Challenger"
+          },
+          "delta_brier_ci95": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delta Brier Ci95"
+          },
+          "cal_slope_ci95": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cal Slope Ci95"
+          },
+          "rules": {
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "type": "object",
+            "title": "Rules"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "evaluable",
+          "auc_champion",
+          "auc_challenger",
+          "delta_auc_ci95",
+          "brier_champion",
+          "brier_challenger",
+          "delta_brier_ci95",
+          "cal_slope_ci95",
+          "rules"
+        ],
+        "title": "GateTargetResult"
+      },
+      "GlobalImportanceFeature": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "display": {
+            "type": "string",
+            "title": "Display"
+          },
+          "mean_abs_contribution": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Mean Abs Contribution"
+          },
+          "points": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feature",
+          "display",
+          "mean_abs_contribution"
+        ],
+        "title": "GlobalImportanceFeature"
+      },
+      "GlobalImportanceResponse": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "OOF fold-specific model attribution distribution",
+              "final model"
+            ],
+            "title": "Scope"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/GlobalImportanceFeature"
+            },
+            "type": "array",
+            "title": "Features"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "scope",
+          "features"
+        ],
+        "title": "GlobalImportanceResponse"
+      },
+      "GroundTruthResponse": {
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "pattern": "^ZAS-\\d{4}$",
+            "title": "Patient Id"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ]
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Labels"
+          },
+          "label_definitions": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Label Definitions"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patient_id",
+          "labels",
+          "label_definitions"
+        ],
+        "title": "GroundTruthResponse"
+      },
+      "GroupContribution": {
+        "properties": {
+          "contribution": {
+            "type": "number",
+            "title": "Contribution"
+          },
+          "strength": {
+            "type": "string",
+            "enum": [
+              "slight",
+              "moderate",
+              "strong"
+            ],
+            "title": "Strength"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "contribution",
+          "strength"
+        ],
+        "title": "GroupContribution"
+      },
+      "GroupStat": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "insufficient_evidence"
+            ],
+            "title": "Status"
+          },
+          "percentile": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentile"
+          },
+          "rate": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rate"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "n",
+          "status"
+        ],
+        "title": "GroupStat"
+      },
+      "HealthLive": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "HealthLive"
+      },
+      "HealthReady": {
+        "properties": {
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "model_version": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d+\\.\\d+\\.\\d+$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ready"
+        ],
+        "title": "HealthReady"
+      },
+      "Imputation": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "enum": [
+              "median",
+              "mode"
+            ],
+            "title": "Method"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          },
+          "fit_scope": {
+            "type": "string",
+            "enum": [
+              "fold_outer_training",
+              "full_cohort"
+            ],
+            "title": "Fit Scope"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "method",
+          "value",
+          "fit_scope"
+        ],
+        "title": "Imputation"
+      },
+      "MetaResponse": {
+        "properties": {
+          "app_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "App Version"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "preprocessing_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Preprocessing Version"
+          },
+          "run_mode": {
+            "type": "string",
+            "enum": [
+              "live",
+              "local"
+            ],
+            "title": "Run Mode"
+          },
+          "promote_available": {
+            "type": "boolean",
+            "title": "Promote Available"
+          },
+          "unknown_token": {
+            "type": "string",
+            "title": "Unknown Token"
+          },
+          "targets": {
+            "items": {
+              "$ref": "#/components/schemas/TargetSpec"
+            },
+            "type": "array",
+            "title": "Targets"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/FeatureSpec"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "thresholds": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Thresholds"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Thresholds"
+          },
+          "anatomy_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Anatomy Version"
+          },
+          "anatomy_asset_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Anatomy Asset Sha256"
+          },
+          "anatomy_map": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Anatomy Map"
+          },
+          "evidence_bands": {
+            "items": {
+              "items": {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Evidence Bands"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "app_version",
+          "model_version",
+          "preprocessing_version",
+          "run_mode",
+          "promote_available",
+          "unknown_token",
+          "targets",
+          "features",
+          "thresholds",
+          "anatomy_version",
+          "anatomy_asset_sha256",
+          "anatomy_map",
+          "evidence_bands"
+        ],
+        "title": "MetaResponse"
+      },
+      "MetricSummary": {
+        "properties": {
+          "mean": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean"
+          },
+          "sd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sd"
+          },
+          "n_defined": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N Defined"
+          },
+          "n_na": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "N Na"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "mean",
+          "sd",
+          "n_defined",
+          "n_na"
+        ],
+        "title": "MetricSummary"
+      },
+      "ModelEntry": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Version"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "production",
+              "candidate",
+              "rejected",
+              "retired",
+              "replay"
+            ],
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "training_cases": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Training Cases"
+          },
+          "gate_status": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "INSUFFICIENT_EVIDENCE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gate Status"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "status",
+          "created_at",
+          "training_cases",
+          "artifact_manifest_sha256"
+        ],
+        "title": "ModelEntry"
+      },
+      "ModelReportResponse": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Version"
+          },
+          "champion_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Champion Version"
+          },
+          "gate_status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "INSUFFICIENT_EVIDENCE"
+            ],
+            "title": "Gate Status"
+          },
+          "evidence_label": {
+            "type": "string",
+            "const": "pre-promotion validation evidence",
+            "title": "Evidence Label",
+            "default": "pre-promotion validation evidence"
+          },
+          "targets": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/GateTargetResult"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Targets"
+          },
+          "gate_report_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Gate Report Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "champion_version",
+          "gate_status",
+          "targets",
+          "gate_report_sha256"
+        ],
+        "title": "ModelReportResponse"
+      },
+      "ModelsResponse": {
+        "properties": {
+          "production_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Production Version"
+          },
+          "models": {
+            "items": {
+              "$ref": "#/components/schemas/ModelEntry"
+            },
+            "type": "array",
+            "title": "Models"
+          },
+          "verified_new_cases": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Verified New Cases"
+          },
+          "eligible_cases": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Eligible Cases"
+          },
+          "pending_cases": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pending Cases"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "production_version",
+          "models",
+          "verified_new_cases",
+          "eligible_cases",
+          "pending_cases"
+        ],
+        "title": "ModelsResponse"
+      },
+      "PatientBundle": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "App Version"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "preprocessing_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Preprocessing Version"
+          },
+          "anatomy_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Anatomy Version"
+          },
+          "anatomy_asset_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Anatomy Asset Sha256"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "training_data_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Training Data Sha256"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "reference_context_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Reference Context Sha256"
+          },
+          "commit_status": {
+            "type": "string",
+            "const": "committed",
+            "title": "Commit Status",
+            "default": "committed"
+          },
+          "prediction_status": {
+            "type": "string",
+            "const": "complete",
+            "title": "Prediction Status",
+            "default": "complete"
+          },
+          "target_status": {
+            "additionalProperties": {
+              "type": "string",
+              "const": "complete"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Target Status"
+          },
+          "patient": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/PredictionQuality"
+          },
+          "targets": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TargetPrediction"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Targets"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
+          },
+          "source_oof_analysis_id": {
+            "type": "string",
+            "title": "Source Oof Analysis Id"
+          },
+          "patient_id": {
+            "type": "string",
+            "pattern": "^ZAS-\\d{4}$",
+            "title": "Patient Id"
+          },
+          "outer_folds": {
+            "additionalProperties": {
+              "type": "integer",
+              "maximum": 5.0,
+              "minimum": 1.0
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Outer Folds"
+          },
+          "canonical_inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Canonical Inputs"
+          },
+          "explanations": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ExplanationPayload"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Explanations"
+          },
+          "evidence": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EvidencePayload"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Evidence"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "app_version",
+          "model_version",
+          "preprocessing_version",
+          "anatomy_version",
+          "anatomy_asset_sha256",
+          "input_sha256",
+          "training_data_sha256",
+          "artifact_manifest_sha256",
+          "reference_context_sha256",
+          "target_status",
+          "patient",
+          "quality",
+          "targets",
+          "source_oof_analysis_id",
+          "patient_id",
+          "outer_folds",
+          "canonical_inputs",
+          "explanations",
+          "evidence"
+        ],
+        "title": "PatientBundle",
+        "description": "GET /patients/{id}: the complete cached OOF analysis. Never contains ground truth (LIVE mode)."
+      },
+      "PatientContext": {
+        "properties": {
+          "prediction_mode": {
+            "type": "string",
+            "enum": [
+              "oof",
+              "final_model"
+            ],
+            "title": "Prediction Mode"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "prediction_mode"
+        ],
+        "title": "PatientContext",
+        "description": "Which model produced every number. The case's origin (dataset / manual / import) is owned by the frontend\nCaseStore: the stateless server cannot know it (D-007)."
+      },
+      "PatientListItem": {
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "pattern": "^ZAS-\\d{4}$",
+            "title": "Patient Id"
+          },
+          "age": {
+            "type": "integer",
+            "title": "Age"
+          },
+          "sex": {
+            "type": "string",
+            "enum": [
+              "female",
+              "male"
+            ],
+            "title": "Sex"
+          },
+          "key_risk_factors": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "diabetes",
+                "hypertension",
+                "current_smoker",
+                "family_history",
+                "dyslipidemia",
+                "obesity"
+              ]
+            },
+            "type": "array",
+            "title": "Key Risk Factors"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patient_id",
+          "age",
+          "sex",
+          "key_risk_factors"
+        ],
+        "title": "PatientListItem"
+      },
+      "PatientListResponse": {
+        "properties": {
+          "patients": {
+            "items": {
+              "$ref": "#/components/schemas/PatientListItem"
+            },
+            "type": "array",
+            "title": "Patients"
+          },
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patients",
+          "count"
+        ],
+        "title": "PatientListResponse"
+      },
+      "PredictRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs",
+          "input_revision"
+        ],
+        "title": "PredictRequest",
+        "description": "Fast path. Strict: every entered feature must have a value or the UNKNOWN token."
+      },
+      "PredictionQuality": {
+        "properties": {
+          "atypical_profile": {
+            "$ref": "#/components/schemas/AtypicalProfile"
+          },
+          "out_of_range_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Out Of Range Features"
+          },
+          "unknown_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Unknown Inputs"
+          },
+          "class_conflict_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Class Conflict Note"
+          },
+          "notices": {
+            "items": {
+              "$ref": "#/components/schemas/QualityNotice"
+            },
+            "type": "array",
+            "title": "Notices"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "atypical_profile"
+        ],
+        "title": "PredictionQuality"
+      },
+      "PredictionResponse": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "app_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "App Version"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "preprocessing_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Preprocessing Version"
+          },
+          "anatomy_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Anatomy Version"
+          },
+          "anatomy_asset_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Anatomy Asset Sha256"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "training_data_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Training Data Sha256"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "reference_context_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Reference Context Sha256"
+          },
+          "commit_status": {
+            "type": "string",
+            "const": "committed",
+            "title": "Commit Status",
+            "default": "committed"
+          },
+          "prediction_status": {
+            "type": "string",
+            "const": "complete",
+            "title": "Prediction Status",
+            "default": "complete"
+          },
+          "target_status": {
+            "additionalProperties": {
+              "type": "string",
+              "const": "complete"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Target Status"
+          },
+          "patient": {
+            "$ref": "#/components/schemas/PatientContext"
+          },
+          "quality": {
+            "$ref": "#/components/schemas/PredictionQuality"
+          },
+          "targets": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/TargetPrediction"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Targets"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer",
+            "default": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "app_version",
+          "model_version",
+          "preprocessing_version",
+          "anatomy_version",
+          "anatomy_asset_sha256",
+          "input_sha256",
+          "training_data_sha256",
+          "artifact_manifest_sha256",
+          "reference_context_sha256",
+          "target_status",
+          "patient",
+          "quality",
+          "targets",
+          "request_id",
+          "input_revision"
+        ],
+        "title": "PredictionResponse",
+        "description": "/predict fast path: no SHAP, no evidence, no similarity."
+      },
+      "Provenance": {
+        "properties": {
+          "dataset_record_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Record Id"
+          },
+          "trusted_record": {
+            "type": "boolean",
+            "title": "Trusted Record",
+            "default": false
+          },
+          "input_hash_match": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Hash Match"
+          },
+          "prediction_mode": {
+            "type": "string",
+            "enum": [
+              "oof",
+              "final_model"
+            ],
+            "title": "Prediction Mode"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 256
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "prediction_mode"
+        ],
+        "title": "Provenance"
+      },
+      "QualityCounts": {
+        "properties": {
+          "recognized": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Recognized"
+          },
+          "unknown": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Unknown"
+          },
+          "out_of_range": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Out Of Range"
+          },
+          "missing_required": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Missing Required"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "recognized",
+          "unknown",
+          "out_of_range",
+          "missing_required"
+        ],
+        "title": "QualityCounts"
+      },
+      "QualityItem": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "missing_required",
+              "unknown_not_allowed",
+              "invalid_type",
+              "out_of_hard_range",
+              "cross_field_violation",
+              "unseen_category",
+              "unit_unknown",
+              "canonical_assumed_unit",
+              "unknown_input",
+              "computed_value_mismatch",
+              "outside_training_range",
+              "atypical_profile",
+              "exact_training_match",
+              "dataset_record_mismatch",
+              "constant_feature_ignored"
+            ],
+            "title": "Code"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "BLOCK",
+              "WARN",
+              "INFO"
+            ],
+            "title": "Severity"
+          },
+          "feature_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Id"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Message"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "title": "QualityItem"
+      },
+      "QualityNotice": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "exact_training_match",
+              "derived_from_training_record"
+            ],
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 256,
+            "title": "Message"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "QualityNotice"
+      },
+      "SimilarPatient": {
+        "properties": {
+          "patient_id": {
+            "type": "string",
+            "pattern": "^ZAS-\\d{4}$",
+            "title": "Patient Id"
+          },
+          "rank": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Rank"
+          },
+          "distance": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Distance"
+          },
+          "labels": {
+            "additionalProperties": {
+              "type": "integer",
+              "enum": [
+                0,
+                1
+              ]
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Labels"
+          },
+          "summary": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Summary"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "patient_id",
+          "rank",
+          "distance",
+          "labels",
+          "summary"
+        ],
+        "title": "SimilarPatient"
+      },
+      "SimilarPatients": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "const": "Similar public-dataset patients",
+            "title": "Title",
+            "default": "Similar public-dataset patients"
+          },
+          "subtitle": {
+            "type": "string",
+            "enum": [
+              "from this patient's outer-training cohort",
+              "from the training cohort"
+            ],
+            "title": "Subtitle"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "insufficient_evidence"
+            ],
+            "title": "Status"
+          },
+          "k_effective": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "K Effective"
+          },
+          "reference_size": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reference Size"
+          },
+          "patients": {
+            "items": {
+              "$ref": "#/components/schemas/SimilarPatient"
+            },
+            "type": "array",
+            "title": "Patients"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "subtitle",
+          "status",
+          "k_effective",
+          "reference_size",
+          "patients"
+        ],
+        "title": "SimilarPatients"
+      },
+      "StabilityInterval": {
+        "properties": {
+          "p10": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "P10"
+          },
+          "p90": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "P90"
+          },
+          "n_valid": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 80.0,
+            "title": "N Valid"
+          },
+          "label": {
+            "type": "string",
+            "const": "model stability interval",
+            "title": "Label",
+            "default": "model stability interval"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "p10",
+          "p90",
+          "n_valid"
+        ],
+        "title": "StabilityInterval"
+      },
+      "StrengthCutpoints": {
+        "properties": {
+          "q1": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Q1"
+          },
+          "q2": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Q2"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "q1",
+          "q2"
+        ],
+        "title": "StrengthCutpoints"
+      },
+      "Table1Row": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "model",
+              "always_negative",
+              "always_positive",
+              "prior"
+            ],
+            "title": "Kind"
+          },
+          "prevalence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Prevalence"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MetricSummary"
+            },
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "model",
+          "kind",
+          "prevalence",
+          "metrics"
+        ],
+        "title": "Table1Row"
+      },
+      "Table2Row": {
+        "properties": {
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "pct_high_positive": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pct High Positive"
+          },
+          "ppv": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ppv"
+          },
+          "ppv_ci": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ppv Ci"
+          },
+          "pct_high_negative": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pct High Negative"
+          },
+          "npv": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Npv"
+          },
+          "npv_ci": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Npv Ci"
+          },
+          "pct_low_confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Pct Low Confidence"
+          },
+          "accuracy_high_confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Accuracy High Confidence"
+          },
+          "fn_high_negative": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fn High Negative"
+          },
+          "fp_high_positive": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fp High Positive"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "target",
+          "pct_high_positive",
+          "ppv",
+          "ppv_ci",
+          "pct_high_negative",
+          "npv",
+          "npv_ci",
+          "pct_low_confidence",
+          "accuracy_high_confidence",
+          "fn_high_negative",
+          "fp_high_positive"
+        ],
+        "title": "Table2Row"
+      },
+      "TargetPrediction": {
+        "properties": {
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "anatomy_key": {
+            "type": "string",
+            "title": "Anatomy Key"
+          },
+          "predicted_class": {
+            "type": "string",
+            "enum": [
+              "positive",
+              "negative"
+            ],
+            "title": "Predicted Class"
+          },
+          "probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probability"
+          },
+          "calibrated_logit": {
+            "type": "number",
+            "title": "Calibrated Logit"
+          },
+          "operating_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Operating Threshold"
+          },
+          "model_confidence": {
+            "type": "string",
+            "enum": [
+              "high",
+              "low"
+            ],
+            "title": "Model Confidence"
+          },
+          "model_confidence_thresholds": {
+            "$ref": "#/components/schemas/ConfidenceThresholds"
+          },
+          "model_confidence_region": {
+            "type": "string",
+            "enum": [
+              "high_negative",
+              "low_confidence",
+              "high_positive"
+            ],
+            "title": "Model Confidence Region"
+          },
+          "model_confidence_reasons": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "unknown_input",
+                "atypical_profile",
+                "unstable",
+                "no_qualified_region",
+                "gray_zone"
+              ]
+            },
+            "type": "array",
+            "title": "Model Confidence Reasons"
+          },
+          "confidence_qualification": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ConfidenceQualification"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evaluation_context": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvaluationContext"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "stability_interval": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StabilityInterval"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "label",
+          "anatomy_key",
+          "predicted_class",
+          "probability",
+          "calibrated_logit",
+          "operating_threshold",
+          "model_confidence",
+          "model_confidence_thresholds",
+          "model_confidence_region",
+          "model_confidence_reasons",
+          "confidence_qualification",
+          "evaluation_context"
+        ],
+        "title": "TargetPrediction"
+      },
+      "TargetSpec": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Id"
+          },
+          "display": {
+            "type": "string",
+            "title": "Display"
+          },
+          "anatomy_key": {
+            "type": "string",
+            "title": "Anatomy Key"
+          },
+          "label_definition": {
+            "type": "string",
+            "title": "Label Definition"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "id",
+          "display",
+          "anatomy_key",
+          "label_definition"
+        ],
+        "title": "TargetSpec"
+      },
+      "Thresholds": {
+        "properties": {
+          "t_op": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "T Op"
+          },
+          "t_neg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "T Neg"
+          },
+          "t_pos": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "T Pos"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "t_op",
+          "t_neg",
+          "t_pos"
+        ],
+        "title": "Thresholds"
+      },
+      "ValidateRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision"
+          },
+          "dataset_record_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataset Record Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs",
+          "input_revision"
+        ],
+        "title": "ValidateRequest",
+        "description": "Quality gate. Blank (null) or missing values are reported as BLOCK items, not rejected with 422."
+      },
+      "ValidateResponse": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision"
+          },
+          "ready": {
+            "type": "boolean",
+            "title": "Ready"
+          },
+          "input_sha256": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Sha256"
+          },
+          "canonical_inputs": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Inputs"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/QualityItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/QualityCounts"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "input_revision",
+          "ready",
+          "input_sha256",
+          "canonical_inputs",
+          "items",
+          "counts",
+          "provenance"
+        ],
+        "title": "ValidateResponse"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "error_code": "ARTIFACT_MISMATCH",
+  "message": "The pinned model bundle is not the loaded bundle.",
+  "details": {
+    "loaded_model_version": "0.0.0",
+    "loaded_artifact_manifest_sha256": "af6d1136ab0c2aa932f95eed34f45c8f3b7ab4232dbea836695c778ebaba9f16"
+  },
+  "request_id": null,
+  "api_schema_version": "1.0.0",
+  "commit_status": null,
+  "prediction_status": null,
+  "target_status": null
+}

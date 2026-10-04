@@ -1,0 +1,16 @@
+# Local mode (authoritative judging setup): `docker compose up` → http://localhost:8080
+# Weights are host-mounted so promotions/rollbacks survive restarts (plan §10); build them with `make reproduce`.
+services:
+  backend:
+    build: {context: ., dockerfile: docker/backend.Dockerfile}
+    environment:
+      NOVARION_RUN_MODE: local
+    volumes:
+      - ./artifacts:/app/artifacts:ro
+      - ./registry:/app/registry:ro
+    ports: ["8000:8000"]
+  frontend:
+    build: {context: ., dockerfile: docker/frontend.Dockerfile}
+    depends_on:
+      backend: {condition: service_healthy}
+    ports: ["8080:80"]

@@ -1,0 +1,239 @@
+{
+  "manifest": {
+    "anatomy_version": "1.0.0",
+    "source": "BodyParts3D 4.0 (IS-A tree), Database Center for Life Science",
+    "source_url": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip",
+    "source_file_sha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e",
+    "retrieval_date": "2026-10-04",
+    "license": "CC BY 4.0",
+    "license_url": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+    "attribution": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
+    "derivative_status": "modified: element meshes merged per node, decimated, re-centred, rescaled, axis-converted",
+    "kind": "mesh",
+    "units": "normalized (heart largest extent = 1.0); source units mm",
+    "orientation": "+Y superior, +Z anterior (three.js convention); converted from BodyParts3D +Z superior, -Y anterior",
+    "scale_factor_from_mm": 0.008662261040701367,
+    "glb_path": "frontend/public/models/heart.glb",
+    "glb_sha256": "de34157d6a13d1f317bbe35239cf50719d49c37ec8905b474f645a368f2af427",
+    "triangles_total": 81992,
+    "nodes": [
+      {
+        "node": "vessel_lad",
+        "target_id": "lad",
+        "prediction_target": true,
+        "fma_concepts": [
+          {
+            "id": "FMA74912",
+            "name": "trunk of anterior interventricular branch of left coronary artery"
+          },
+          {
+            "id": "FMA13921",
+            "name": "branch of anterior interventricular branch of left coronary artery"
+          }
+        ],
+        "element_files": [
+          "FJ2631",
+          "FJ2632",
+          "FJ2633",
+          "FJ2634",
+          "FJ2635",
+          "FJ2636",
+          "FJ2637",
+          "FJ2638",
+          "FJ2639",
+          "FJ2640",
+          "FJ2641",
+          "FJ2642",
+          "FJ2643",
+          "FJ2644",
+          "FJ2645",
+          "FJ2646",
+          "FJ2647",
+          "FJ2648",
+          "FJ2732",
+          "FJ2733",
+          "FJ2734"
+        ],
+        "triangles_source": 10588,
+        "triangles": 8000,
+        "triangle_budget": 8000,
+        "bounds": [
+          [
+            0.06468,
+            -0.41055,
+            -0.03189
+          ],
+          [
+            0.50218,
+            0.26623,
+            0.42773
+          ]
+        ],
+        "materials": 1
+      },
+      {
+        "node": "vessel_lcx",
+        "target_id": "lcx",
+        "prediction_target": true,
+        "fma_concepts": [
+          {
+            "id": "FMA3895",
+            "name": "circumflex branch of left coronary artery"
+          }
+        ],
+        "element_files": [
+          "FJ2649",
+          "FJ2650",
+          "FJ2651",
+          "FJ2652",
+          "FJ2653",
+          "FJ2654"
+        ],
+        "triangles_source": 3018,
+        "triangles": 3018,
+        "triangle_budget": 8000,
+        "bounds": [
+          [
+            0.11207,
+            -0.33804,
+            -0.31537
+          ],
+          [
+            0.48,
+            0.25523,
+            0.16854
+          ]
+        ],
+        "materials": 1
+      },
+      {
+        "node": "vessel_rca",
+        "target_id": "rca",
+        "prediction_target": true,
+        "fma_concepts": [
+          {
+            "id": "FMA3802",
+            "name": "trunk of right coronary artery"
+          },
+          {
+            "id": "FMA66327",
+            "name": "branch of right coronary artery"
+          }
+        ],
+        "element_files": [
+          "FJ2667",
+          "FJ2668",
+          "FJ2670",
+          "FJ2671",
+          "FJ2672",
+          "FJ2673",
+          "FJ2674",
+          "FJ2675",
+          "FJ2676",
+          "FJ2677",
+          "FJ2692",
+          "FJ2693",
+          "FJ2694",
+          "FJ2695",
+          "FJ2696",
+          "FJ2697",
+          "FJ2698",
+          "FJ2699",
+          "FJ2700",
+          "FJ2714",
+          "FJ2715",
+          "FJ2716",
+          "FJ2717",
+          "FJ2718",
+          "FJ2719",
+          "FJ2720",
+          "FJ2721",
+          "FJ2722",
+          "FJ2723",
+          "FJ2735",
+          "FJ2736"
+        ],
+        "triangles_source": 15334,
+        "triangles": 8000,
+        "triangle_budget": 8000,
+        "bounds": [
+          [
+            -0.37395,
+            -0.4497,
+            -0.30106
+          ],
+          [
+            0.45153,
+            0.29649,
+            0.46022
+          ]
+        ],
+        "materials": 1
+      },
+      {
+        "node": "vessel_lm",
+        "target_id": null,
+        "prediction_target": false,
+        "fma_concepts": [
+          {
+            "id": "FMA3855",
+            "name": "trunk of left coronary artery"
+          }
+        ],
+        "element_files": [
+          "FJ2737"
+        ],
+        "triangles_source": 204,
+        "triangles": 204,
+        "triangle_budget": 2000,
+        "bounds": [
+          [
+            0.01708,
+            0.23479,
+            -0.0527
+          ],
+          [
+            0.1125,
+            0.2943,
+            0.00032
+          ]
+        ],
+        "materials": 1
+      },
+      {
+        "node": "heart_myocardium",
+        "target_id": "cad",
+        "prediction_target": true,
+        "fma_concepts": [
+          {
+            "id": "FMA13256",
+            "name": "wall of cardiac chamber"
+          }
+        ],
+        "element_files": [
+          "FJ2428",
+          "FJ2438",
+          "FJ2439"
+        ],
+        "triangles_source": 62770,
+        "triangles": 62770,
+        "triangle_budget": 80000,
+        "bounds": [
+          [
+            -0.5,
+            -0.45611,
+            -0.46098
+          ],
+          [
+            0.5,
+            0.45611,
+            0.46098
+          ]
+        ],
+        "materials": 1
+      }
+    ]
+  },
+  "anatomy_manifest_sha256": "594df6814d330d6d0905b389b66bca7c7c94c023a2221962aae7db84fa23bb25",
+  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e"
+}

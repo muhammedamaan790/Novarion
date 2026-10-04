@@ -1,0 +1,52 @@
+# NOVARION training configuration — pre-registered (plan §6.1–6.5). Owner (single writer): ML lead.
+# Any change = a new train_config_sha256 (recorded in every artifact manifest). Frozen at model freeze (plan §11A).
+
+schema_version: "1.0.0"
+
+seeds:                       # independent namespaces; per-fold seeds are derived by hashing (namespace, target, repeat, fold)
+  SPLIT_SEED: 20261004
+  TRAIN_SEED: 7
+  BOOTSTRAP_SEED: 11
+  SHAP_SEED: 13
+
+outer: {k: 5, repeats: 5}    # nested CV: outer stratified 5-fold x 5 repeats
+inner: {k: 5}                # inner stratified 5-fold for selection (its cross-fitted margins also feed Platt)
+evaluation_repeat_id: 0      # the prespecified complete outer repeat for patient-level analyses + OOF serving
+feasibility: {min_per_class_per_fold: 3}
+
+selection:
+  metric: roc_auc            # highest inner-CV mean AUC → 1-SE rule → simplest by complexity_rank
+  one_se: true
+  tiebreak: [brier, config_id]
+  calibration_guard: "platt_slope_a > 0"   # else the next eligible configuration is used (logged)
+
+# Engineering simplicity order (a deterministic project convention, not objective complexity).
+# complexity_rank = position after sorting by: family → within-family order → feature_set → class_weight.
+family_order: [lr, ebm, xgboost, catboost]
+feature_set_order: [redundancy_reduced, full]
+class_weight_order: [none, balanced]
+
+families:
+  lr:
+    grid: {penalty: [elasticnet, l2], C: [0.01, 0.1, 1, 10]}       # order: elasticnet first, then smaller C
+    fixed: {solver: saga, max_iter: 5000, tol: 1.0e-4, l1_ratio_elasticnet: 0.5}
+  ebm:
+    grid: {max_bins: [32, 64, 128]}                                  # order: fewer bins first
+    fixed: {interactions: 0, outer_bags: 4, inner_bags: 0, learning_rate: 0.01}
+  xgboost:
+    grid: {max_depth: [2, 3, 4], n_estimators: [100, 300]}           # order: shallower, then fewer trees
+    fixed: {learning_rate: 0.05, subsample: 0.8, colsample_bytree: 0.8, min_child_weight: 1, reg_lambda: 1,
+            objective: "binary:logistic", eval_metric: logloss, tree_method: hist}
+  catboost:
+    grid: {depth: [2, 3, 4], iterations: [200, 400]}                 # order: shallower, then fewer trees
+    fixed: {learning_rate: 0.05, l2_leaf_reg: 3, loss_function: Logloss}
+
+feature_sets:
+  full: "all registry features"
+  redundancy_reduced: "drops weight, height, obesity (in_reduced_feature_set: false; BMI carries the information, D-002)"
+
+thresholds:                   # Layer B (plan §6.5); targets/n_min live in targets.yaml (pre-registered)
+  candidate_grid: "sorted unique calibrated OOF probabilities of the training side, plus 0 and 1"
+  wilson_z: 1.959963984540054
+
+bootstrap_metric_ci: {replicates: 2000, min_valid: 1000}

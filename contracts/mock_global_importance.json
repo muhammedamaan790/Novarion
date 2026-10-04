@@ -1,0 +1,336 @@
+{
+  "target": "lad",
+  "scope": "OOF fold-specific model attribution distribution",
+  "features": [
+    {
+      "feature": "chronic_renal_failure",
+      "display": "Chronic renal failure",
+      "mean_abs_contribution": 0.266658,
+      "points": []
+    },
+    {
+      "feature": "valvular_heart_disease",
+      "display": "Valvular heart disease",
+      "mean_abs_contribution": 0.265916,
+      "points": []
+    },
+    {
+      "feature": "dyslipidemia",
+      "display": "Dyslipidemia",
+      "mean_abs_contribution": 0.252771,
+      "points": []
+    },
+    {
+      "feature": "lymphocytes_pct",
+      "display": "Lymphocytes (%)",
+      "mean_abs_contribution": 0.252729,
+      "points": []
+    },
+    {
+      "feature": "systolic_murmur",
+      "display": "Systolic murmur",
+      "mean_abs_contribution": 0.224274,
+      "points": []
+    },
+    {
+      "feature": "hdl",
+      "display": "HDL",
+      "mean_abs_contribution": 0.223713,
+      "points": []
+    },
+    {
+      "feature": "sex",
+      "display": "Sex",
+      "mean_abs_contribution": 0.223654,
+      "points": []
+    },
+    {
+      "feature": "congestive_heart_failure",
+      "display": "Congestive heart failure",
+      "mean_abs_contribution": 0.222735,
+      "points": []
+    },
+    {
+      "feature": "cerebrovascular_accident",
+      "display": "Cerebrovascular accident",
+      "mean_abs_contribution": 0.211719,
+      "points": []
+    },
+    {
+      "feature": "exertional_chest_pain",
+      "display": "Exertional chest pain",
+      "mean_abs_contribution": 0.210625,
+      "points": []
+    },
+    {
+      "feature": "q_wave",
+      "display": "Q wave",
+      "mean_abs_contribution": 0.209765,
+      "points": []
+    },
+    {
+      "feature": "pulse_rate",
+      "display": "Pulse rate",
+      "mean_abs_contribution": 0.193635,
+      "points": []
+    },
+    {
+      "feature": "dyspnea",
+      "display": "Dyspnea",
+      "mean_abs_contribution": 0.189524,
+      "points": []
+    },
+    {
+      "feature": "st_depression",
+      "display": "ST depression",
+      "mean_abs_contribution": 0.181128,
+      "points": []
+    },
+    {
+      "feature": "low_threshold_angina",
+      "display": "Low-threshold angina",
+      "mean_abs_contribution": 0.178952,
+      "points": []
+    },
+    {
+      "feature": "lvh",
+      "display": "LVH",
+      "mean_abs_contribution": 0.178477,
+      "points": []
+    },
+    {
+      "feature": "fasting_blood_sugar",
+      "display": "Fasting blood sugar",
+      "mean_abs_contribution": 0.174909,
+      "points": []
+    },
+    {
+      "feature": "bundle_branch_block",
+      "display": "Bundle branch block",
+      "mean_abs_contribution": 0.174501,
+      "points": []
+    },
+    {
+      "feature": "t_inversion",
+      "display": "T inversion",
+      "mean_abs_contribution": 0.170554,
+      "points": []
+    },
+    {
+      "feature": "bmi",
+      "display": "BMI",
+      "mean_abs_contribution": 0.165063,
+      "points": []
+    },
+    {
+      "feature": "age",
+      "display": "Age",
+      "mean_abs_contribution": 0.153409,
+      "points": []
+    },
+    {
+      "feature": "hemoglobin",
+      "display": "Hemoglobin",
+      "mean_abs_contribution": 0.15095,
+      "points": []
+    },
+    {
+      "feature": "atypical_chest_pain",
+      "display": "Atypical chest pain",
+      "mean_abs_contribution": 0.150807,
+      "points": []
+    },
+    {
+      "feature": "ejection_fraction",
+      "display": "Ejection fraction (TTE)",
+      "mean_abs_contribution": 0.145057,
+      "points": []
+    },
+    {
+      "feature": "family_history",
+      "display": "Family history",
+      "mean_abs_contribution": 0.142172,
+      "points": []
+    },
+    {
+      "feature": "lung_rales",
+      "display": "Lung rales",
+      "mean_abs_contribution": 0.138041,
+      "points": []
+    },
+    {
+      "feature": "wbc",
+      "display": "WBC",
+      "mean_abs_contribution": 0.137854,
+      "points": []
+    },
+    {
+      "feature": "sodium",
+      "display": "Sodium",
+      "mean_abs_contribution": 0.137045,
+      "points": []
+    },
+    {
+      "feature": "platelets",
+      "display": "Platelets",
+      "mean_abs_contribution": 0.136481,
+      "points": []
+    },
+    {
+      "feature": "obesity",
+      "display": "Obesity",
+      "mean_abs_contribution": 0.129921,
+      "points": []
+    },
+    {
+      "feature": "bun",
+      "display": "BUN",
+      "mean_abs_contribution": 0.123835,
+      "points": []
+    },
+    {
+      "feature": "neutrophils_pct",
+      "display": "Neutrophils (%)",
+      "mean_abs_contribution": 0.11347,
+      "points": []
+    },
+    {
+      "feature": "edema",
+      "display": "Edema",
+      "mean_abs_contribution": 0.110743,
+      "points": []
+    },
+    {
+      "feature": "st_elevation",
+      "display": "ST elevation",
+      "mean_abs_contribution": 0.10469,
+      "points": []
+    },
+    {
+      "feature": "ldl",
+      "display": "LDL",
+      "mean_abs_contribution": 0.101691,
+      "points": []
+    },
+    {
+      "feature": "nonanginal_chest_pain",
+      "display": "Non-anginal chest pain",
+      "mean_abs_contribution": 0.100709,
+      "points": []
+    },
+    {
+      "feature": "thyroid_disease",
+      "display": "Thyroid disease",
+      "mean_abs_contribution": 0.099,
+      "points": []
+    },
+    {
+      "feature": "poor_r_progression",
+      "display": "Poor R progression",
+      "mean_abs_contribution": 0.092905,
+      "points": []
+    },
+    {
+      "feature": "hypertension",
+      "display": "Hypertension",
+      "mean_abs_contribution": 0.083555,
+      "points": []
+    },
+    {
+      "feature": "typical_chest_pain",
+      "display": "Typical chest pain",
+      "mean_abs_contribution": 0.083024,
+      "points": []
+    },
+    {
+      "feature": "diabetes",
+      "display": "Diabetes",
+      "mean_abs_contribution": 0.080526,
+      "points": []
+    },
+    {
+      "feature": "height",
+      "display": "Height",
+      "mean_abs_contribution": 0.07902,
+      "points": []
+    },
+    {
+      "feature": "current_smoker",
+      "display": "Current smoker",
+      "mean_abs_contribution": 0.075942,
+      "points": []
+    },
+    {
+      "feature": "creatinine",
+      "display": "Creatinine",
+      "mean_abs_contribution": 0.074684,
+      "points": []
+    },
+    {
+      "feature": "triglycerides",
+      "display": "Triglycerides",
+      "mean_abs_contribution": 0.070954,
+      "points": []
+    },
+    {
+      "feature": "potassium",
+      "display": "Potassium",
+      "mean_abs_contribution": 0.068648,
+      "points": []
+    },
+    {
+      "feature": "weight",
+      "display": "Weight",
+      "mean_abs_contribution": 0.064806,
+      "points": []
+    },
+    {
+      "feature": "blood_pressure",
+      "display": "Blood pressure",
+      "mean_abs_contribution": 0.059885,
+      "points": []
+    },
+    {
+      "feature": "airway_disease",
+      "display": "Airway disease",
+      "mean_abs_contribution": 0.052087,
+      "points": []
+    },
+    {
+      "feature": "function_class",
+      "display": "Function class",
+      "mean_abs_contribution": 0.049973,
+      "points": []
+    },
+    {
+      "feature": "weak_peripheral_pulse",
+      "display": "Weak peripheral pulse",
+      "mean_abs_contribution": 0.02398,
+      "points": []
+    },
+    {
+      "feature": "diastolic_murmur",
+      "display": "Diastolic murmur",
+      "mean_abs_contribution": 0.022631,
+      "points": []
+    },
+    {
+      "feature": "ex_smoker",
+      "display": "Ex-smoker",
+      "mean_abs_contribution": 0.010405,
+      "points": []
+    },
+    {
+      "feature": "region_rwma",
+      "display": "Region with RWMA",
+      "mean_abs_contribution": 0.005237,
+      "points": []
+    },
+    {
+      "feature": "esr",
+      "display": "ESR",
+      "mean_abs_contribution": 0.001697,
+      "points": []
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Data (raw files are downloaded + checksum-verified; never committed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Node
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+frontend/src/api/types.check.ts
+
+# Generated test artifacts (E2E screenshots)
+results/ui/
+
+# Model weights + training caches: reproducible via `make reproduce`; shipped as GitHub Release assets (plan §15)
+artifacts/
+results/nested/
+results/final/
+results/train_log.txt
+
+# Secrets — never committed
+.env
+.env.*
+*.pem
+*.key
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

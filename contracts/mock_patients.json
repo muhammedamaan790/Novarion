@@ -1,0 +1,30 @@
+{
+  "patients": [
+    {
+      "patient_id": "ZAS-0003",
+      "age": 54,
+      "sex": "male",
+      "key_risk_factors": [
+        "current_smoker"
+      ]
+    },
+    {
+      "patient_id": "ZAS-0004",
+      "age": 66,
+      "sex": "female",
+      "key_risk_factors": [
+        "hypertension",
+        "obesity"
+      ]
+    },
+    {
+      "patient_id": "ZAS-0006",
+      "age": 50,
+      "sex": "male",
+      "key_risk_factors": [
+        "current_smoker"
+      ]
+    }
+  ],
+  "count": 3
+}

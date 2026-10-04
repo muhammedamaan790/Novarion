@@ -1,0 +1,13 @@
+{
+ "production_version": "0.1.0",
+ "models": [
+  {
+   "version": "0.1.0",
+   "status": "production",
+   "created_at": "2026-10-04T12:46:03Z",
+   "training_cases": 303,
+   "artifact_manifest_sha256": "c2ca0436b153ae680d739f2944b41b5e22bd7c02a65278f9b824dadc73cdb541",
+   "path": "artifacts/models/v0.1.0"
+  }
+ ]
+}

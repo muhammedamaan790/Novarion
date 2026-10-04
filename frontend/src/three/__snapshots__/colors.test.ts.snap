@@ -1,0 +1,20 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`probability → colour transfer function (plan §11A) > pins the legend swatches (i = 0, .25, .5, .75, 1) 1`] = `
+[
+  [
+    "#fcc687",
+    "#f1a562",
+    "#e58340",
+    "#d85f21",
+    "#c83406",
+  ],
+  [
+    "#a9d9f1",
+    "#83bed9",
+    "#5ba3c1",
+    "#2d89aa",
+    "#006f92",
+  ],
+]
+`;

@@ -1,0 +1,113 @@
+{
+  "version": "0.1.0",
+  "champion_version": "0.0.0",
+  "gate_status": "FAIL",
+  "evidence_label": "pre-promotion validation evidence",
+  "targets": {
+    "cad": {
+      "evaluable": true,
+      "auc_champion": 0.8,
+      "auc_challenger": 0.81,
+      "delta_auc_ci95": [
+        -0.02,
+        0.04
+      ],
+      "brier_champion": 0.18,
+      "brier_challenger": 0.17,
+      "delta_brier_ci95": [
+        -0.03,
+        0.01
+      ],
+      "cal_slope_ci95": [
+        0.7,
+        1.3
+      ],
+      "rules": {
+        "delta_auc_noninferior": true,
+        "delta_brier": true,
+        "delta_brier_ci": true,
+        "calibration_slope": true,
+        "calibration_in_large": true
+      }
+    },
+    "lad": {
+      "evaluable": true,
+      "auc_champion": 0.8,
+      "auc_challenger": 0.81,
+      "delta_auc_ci95": [
+        -0.02,
+        0.04
+      ],
+      "brier_champion": 0.18,
+      "brier_challenger": 0.17,
+      "delta_brier_ci95": [
+        -0.03,
+        0.01
+      ],
+      "cal_slope_ci95": [
+        0.7,
+        1.3
+      ],
+      "rules": {
+        "delta_auc_noninferior": true,
+        "delta_brier": true,
+        "delta_brier_ci": true,
+        "calibration_slope": true,
+        "calibration_in_large": true
+      }
+    },
+    "lcx": {
+      "evaluable": true,
+      "auc_champion": 0.8,
+      "auc_challenger": 0.77,
+      "delta_auc_ci95": [
+        -0.09,
+        0.02
+      ],
+      "brier_champion": 0.18,
+      "brier_challenger": 0.19,
+      "delta_brier_ci95": [
+        -0.01,
+        0.03
+      ],
+      "cal_slope_ci95": [
+        0.7,
+        1.3
+      ],
+      "rules": {
+        "delta_auc_noninferior": false,
+        "delta_brier": true,
+        "delta_brier_ci": true,
+        "calibration_slope": true,
+        "calibration_in_large": true
+      }
+    },
+    "rca": {
+      "evaluable": true,
+      "auc_champion": 0.8,
+      "auc_challenger": 0.81,
+      "delta_auc_ci95": [
+        -0.02,
+        0.04
+      ],
+      "brier_champion": 0.18,
+      "brier_challenger": 0.17,
+      "delta_brier_ci95": [
+        -0.03,
+        0.01
+      ],
+      "cal_slope_ci95": [
+        0.7,
+        1.3
+      ],
+      "rules": {
+        "delta_auc_noninferior": true,
+        "delta_brier": true,
+        "delta_brier_ci": true,
+        "calibration_slope": true,
+        "calibration_in_large": true
+      }
+    }
+  },
+  "gate_report_sha256": "86ec89d14edb0487e9da1e6401d141f05760e3eb6a2ebee65e55ce626ba24868"
+}

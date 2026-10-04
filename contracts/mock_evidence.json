@@ -1,0 +1,176 @@
+{
+  "target": "lad",
+  "similar_patients": {
+    "title": "Similar public-dataset patients",
+    "subtitle": "from the training cohort",
+    "status": "ok",
+    "k_effective": 10,
+    "reference_size": 303,
+    "patients": [
+      {
+        "patient_id": "ZAS-0195",
+        "rank": 1,
+        "distance": 0.0945,
+        "labels": {
+          "cad": 1,
+          "lad": 1,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 52
+        }
+      },
+      {
+        "patient_id": "ZAS-0108",
+        "rank": 2,
+        "distance": 0.1469,
+        "labels": {
+          "cad": 1,
+          "lad": 0,
+          "lcx": 0,
+          "rca": 1
+        },
+        "summary": {
+          "age": 65
+        }
+      },
+      {
+        "patient_id": "ZAS-0300",
+        "rank": 3,
+        "distance": 0.1542,
+        "labels": {
+          "cad": 1,
+          "lad": 0,
+          "lcx": 1,
+          "rca": 1
+        },
+        "summary": {
+          "age": 75
+        }
+      },
+      {
+        "patient_id": "ZAS-0303",
+        "rank": 4,
+        "distance": 0.1779,
+        "labels": {
+          "cad": 0,
+          "lad": 0,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 78
+        }
+      },
+      {
+        "patient_id": "ZAS-0242",
+        "rank": 5,
+        "distance": 0.2024,
+        "labels": {
+          "cad": 0,
+          "lad": 0,
+          "lcx": 1,
+          "rca": 0
+        },
+        "summary": {
+          "age": 49
+        }
+      },
+      {
+        "patient_id": "ZAS-0072",
+        "rank": 6,
+        "distance": 0.2306,
+        "labels": {
+          "cad": 0,
+          "lad": 1,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 63
+        }
+      },
+      {
+        "patient_id": "ZAS-0252",
+        "rank": 7,
+        "distance": 0.2766,
+        "labels": {
+          "cad": 0,
+          "lad": 1,
+          "lcx": 0,
+          "rca": 1
+        },
+        "summary": {
+          "age": 60
+        }
+      },
+      {
+        "patient_id": "ZAS-0093",
+        "rank": 8,
+        "distance": 0.3784,
+        "labels": {
+          "cad": 1,
+          "lad": 0,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 72
+        }
+      },
+      {
+        "patient_id": "ZAS-0104",
+        "rank": 9,
+        "distance": 0.4648,
+        "labels": {
+          "cad": 1,
+          "lad": 0,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 73
+        }
+      },
+      {
+        "patient_id": "ZAS-0035",
+        "rank": 10,
+        "distance": 0.4953,
+        "labels": {
+          "cad": 0,
+          "lad": 0,
+          "lcx": 0,
+          "rca": 0
+        },
+        "summary": {
+          "age": 53
+        }
+      }
+    ]
+  },
+  "evidence_ledger": {
+    "band": [
+      0.4,
+      0.6
+    ],
+    "status": "ok",
+    "n": 20,
+    "positive_label_rate": 0.55,
+    "description": "Empirical positive-label rate among validation patients in this probability band"
+  },
+  "atypical_profile": {
+    "flag": false,
+    "distance_percentile": 8.3,
+    "cutoff_percentile": 95,
+    "excluded_unknown_features": [],
+    "message": null
+  },
+  "stability_interval": null,
+  "analysis_id": "da664a95-ad73-5f6b-bcc4-2155e38d2e14",
+  "request_id": "0ea414b4-4021-5f10-97ca-cceaae1b04e3",
+  "api_schema_version": "1.0.0",
+  "model_version": "0.0.0",
+  "artifact_manifest_sha256": "af6d1136ab0c2aa932f95eed34f45c8f3b7ab4232dbea836695c778ebaba9f16",
+  "prediction_mode": "final_model"
+}

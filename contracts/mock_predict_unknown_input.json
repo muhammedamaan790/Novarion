@@ -1,0 +1,124 @@
+{
+  "analysis_id": "8ae8160e-7ce8-50d3-8473-19d0edb7e3bc",
+  "api_schema_version": "1.0.0",
+  "app_version": "0.1.0",
+  "model_version": "0.0.0",
+  "preprocessing_version": "0.0.0",
+  "anatomy_version": "1.0.0",
+  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e",
+  "input_sha256": "fda86cbb2f23b68eac1d983f891553e469b6c781a9b86f20c57d929eaa9e765b",
+  "training_data_sha256": "4c39a3bba3564d27e1078adfabafaf9fa30f38cfe55ab9cd8ebc4c1eea68d5d6",
+  "artifact_manifest_sha256": "af6d1136ab0c2aa932f95eed34f45c8f3b7ab4232dbea836695c778ebaba9f16",
+  "reference_context_sha256": "4e86e7275b3b0e17a60db36c9fa3224b8377fa89e3d8aa49ee3d69b3cfd74326",
+  "commit_status": "committed",
+  "prediction_status": "complete",
+  "target_status": {
+    "cad": "complete",
+    "lad": "complete",
+    "lcx": "complete",
+    "rca": "complete"
+  },
+  "patient": {
+    "prediction_mode": "final_model"
+  },
+  "quality": {
+    "atypical_profile": {
+      "flag": false,
+      "distance_percentile": 63.9
+    },
+    "out_of_range_features": [],
+    "unknown_inputs": [
+      "ldl"
+    ],
+    "class_conflict_note": null,
+    "notices": []
+  },
+  "targets": {
+    "cad": {
+      "label": "Overall CAD",
+      "anatomy_key": "heart_myocardium",
+      "predicted_class": "negative",
+      "probability": 0.10639097456454144,
+      "calibrated_logit": -2.1281475999999997,
+      "operating_threshold": 0.6,
+      "model_confidence": "low",
+      "model_confidence_thresholds": {
+        "negative_below": 0.3,
+        "positive_at_or_above": 0.85
+      },
+      "model_confidence_region": "high_negative",
+      "model_confidence_reasons": [
+        "unknown_input"
+      ],
+      "confidence_qualification": null,
+      "evaluation_context": null,
+      "stability_interval": null
+    },
+    "lad": {
+      "label": "LAD",
+      "anatomy_key": "vessel_lad",
+      "predicted_class": "negative",
+      "probability": 0.39038031616457425,
+      "calibrated_logit": -0.44571385999999996,
+      "operating_threshold": 0.5,
+      "model_confidence": "low",
+      "model_confidence_thresholds": {
+        "negative_below": 0.25,
+        "positive_at_or_above": 0.8
+      },
+      "model_confidence_region": "low_confidence",
+      "model_confidence_reasons": [
+        "unknown_input",
+        "gray_zone"
+      ],
+      "confidence_qualification": null,
+      "evaluation_context": null,
+      "stability_interval": null
+    },
+    "lcx": {
+      "label": "LCX",
+      "anatomy_key": "vessel_lcx",
+      "predicted_class": "positive",
+      "probability": 0.7123496825256883,
+      "calibrated_logit": 0.906823351,
+      "operating_threshold": 0.45,
+      "model_confidence": "low",
+      "model_confidence_thresholds": {
+        "negative_below": 0.2,
+        "positive_at_or_above": null
+      },
+      "model_confidence_region": "low_confidence",
+      "model_confidence_reasons": [
+        "unknown_input",
+        "no_qualified_region"
+      ],
+      "confidence_qualification": null,
+      "evaluation_context": null,
+      "stability_interval": null
+    },
+    "rca": {
+      "label": "RCA",
+      "anatomy_key": "vessel_rca",
+      "predicted_class": "positive",
+      "probability": 0.5179077927407678,
+      "calibrated_logit": 0.07166182300000007,
+      "operating_threshold": 0.45,
+      "model_confidence": "low",
+      "model_confidence_thresholds": {
+        "negative_below": 0.2,
+        "positive_at_or_above": 0.75
+      },
+      "model_confidence_region": "low_confidence",
+      "model_confidence_reasons": [
+        "unknown_input",
+        "gray_zone"
+      ],
+      "confidence_qualification": null,
+      "evaluation_context": null,
+      "stability_interval": null
+    }
+  },
+  "disclaimer": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging.",
+  "request_id": "371d93f5-4778-510b-8efa-76c6d886bb50",
+  "input_revision": 5
+}

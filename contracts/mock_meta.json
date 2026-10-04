@@ -1,0 +1,1268 @@
+{
+  "app_version": "0.1.0",
+  "api_schema_version": "1.0.0",
+  "model_version": "0.0.0",
+  "preprocessing_version": "0.0.0",
+  "run_mode": "live",
+  "promote_available": false,
+  "unknown_token": "__UNKNOWN__",
+  "targets": [
+    {
+      "id": "cad",
+      "display": "Overall CAD",
+      "anatomy_key": "heart_myocardium",
+      "label_definition": "Dataset label \"Cath = CAD\": coronary artery disease by angiography (>= 50% stenosis in at least one major vessel, per the dataset definition)"
+    },
+    {
+      "id": "lad",
+      "display": "LAD",
+      "anatomy_key": "vessel_lad",
+      "label_definition": "Dataset label: >= 50% stenosis of the left anterior descending artery by angiography"
+    },
+    {
+      "id": "lcx",
+      "display": "LCX",
+      "anatomy_key": "vessel_lcx",
+      "label_definition": "Dataset label: >= 50% stenosis of the left circumflex artery by angiography"
+    },
+    {
+      "id": "rca",
+      "display": "RCA",
+      "anatomy_key": "vessel_rca",
+      "label_definition": "Dataset label: >= 50% stenosis of the right coronary artery by angiography"
+    }
+  ],
+  "features": [
+    {
+      "id": "age",
+      "display": "Age",
+      "group": "demographics",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "years",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        18.0,
+        110.0
+      ],
+      "allow_unknown": false,
+      "editable": true,
+      "immutable_in_whatif": true,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "weight",
+      "display": "Weight",
+      "group": "demographics",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "kg",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        20.0,
+        300.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "height",
+      "display": "Height",
+      "group": "demographics",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "cm",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        100.0,
+        230.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "sex",
+      "display": "Sex",
+      "group": "demographics",
+      "kind": "binary",
+      "categories": [
+        "female",
+        "male"
+      ],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": false,
+      "editable": true,
+      "immutable_in_whatif": true,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "bmi",
+      "display": "BMI",
+      "group": "demographics",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "kg/m2",
+      "unit_unambiguous": true,
+      "display_precision": 1,
+      "hard_valid_range": [
+        10.0,
+        80.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "computed",
+      "constant_value": null
+    },
+    {
+      "id": "diabetes",
+      "display": "Diabetes",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "hypertension",
+      "display": "Hypertension",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "current_smoker",
+      "display": "Current smoker",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "ex_smoker",
+      "display": "Ex-smoker",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "family_history",
+      "display": "Family history",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "obesity",
+      "display": "Obesity",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "computed",
+      "constant_value": null
+    },
+    {
+      "id": "chronic_renal_failure",
+      "display": "Chronic renal failure",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "cerebrovascular_accident",
+      "display": "Cerebrovascular accident",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "airway_disease",
+      "display": "Airway disease",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "thyroid_disease",
+      "display": "Thyroid disease",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "congestive_heart_failure",
+      "display": "Congestive heart failure",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "dyslipidemia",
+      "display": "Dyslipidemia",
+      "group": "history",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "blood_pressure",
+      "display": "Blood pressure",
+      "group": "symptoms_exam",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mmHg",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        50.0,
+        260.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "pulse_rate",
+      "display": "Pulse rate",
+      "group": "symptoms_exam",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "beats/min",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        20.0,
+        250.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "edema",
+      "display": "Edema",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "weak_peripheral_pulse",
+      "display": "Weak peripheral pulse",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "lung_rales",
+      "display": "Lung rales",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "systolic_murmur",
+      "display": "Systolic murmur",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "diastolic_murmur",
+      "display": "Diastolic murmur",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "typical_chest_pain",
+      "display": "Typical chest pain",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "dyspnea",
+      "display": "Dyspnea",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "function_class",
+      "display": "Function class",
+      "group": "symptoms_exam",
+      "kind": "ordinal",
+      "categories": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "atypical_chest_pain",
+      "display": "Atypical chest pain",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "nonanginal_chest_pain",
+      "display": "Non-anginal chest pain",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "exertional_chest_pain",
+      "display": "Exertional chest pain",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "constant",
+      "constant_value": 0
+    },
+    {
+      "id": "low_threshold_angina",
+      "display": "Low-threshold angina",
+      "group": "symptoms_exam",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "q_wave",
+      "display": "Q wave",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "st_elevation",
+      "display": "ST elevation",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "st_depression",
+      "display": "ST depression",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "t_inversion",
+      "display": "T inversion",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "lvh",
+      "display": "LVH",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "poor_r_progression",
+      "display": "Poor R progression",
+      "group": "ecg",
+      "kind": "binary",
+      "categories": [],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "bundle_branch_block",
+      "display": "Bundle branch block",
+      "group": "ecg",
+      "kind": "nominal",
+      "categories": [
+        "none",
+        "lbbb",
+        "rbbb"
+      ],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "fasting_blood_sugar",
+      "display": "Fasting blood sugar",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        20.0,
+        1000.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "creatinine",
+      "display": "Creatinine",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 2,
+      "hard_valid_range": [
+        0.1,
+        20.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "triglycerides",
+      "display": "Triglycerides",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        10.0,
+        5000.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "ldl",
+      "display": "LDL",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        5.0,
+        500.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "hdl",
+      "display": "HDL",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 1,
+      "hard_valid_range": [
+        5.0,
+        200.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "bun",
+      "display": "BUN",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mg/dL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        1.0,
+        200.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "esr",
+      "display": "ESR",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mm/h",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        0.0,
+        200.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "hemoglobin",
+      "display": "Hemoglobin",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "g/dL",
+      "unit_unambiguous": false,
+      "display_precision": 1,
+      "hard_valid_range": [
+        2.0,
+        25.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "potassium",
+      "display": "Potassium",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mEq/L",
+      "unit_unambiguous": true,
+      "display_precision": 1,
+      "hard_valid_range": [
+        1.5,
+        9.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "sodium",
+      "display": "Sodium",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "mEq/L",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        100.0,
+        180.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "wbc",
+      "display": "WBC",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "cells/µL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        500.0,
+        100000.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "lymphocytes_pct",
+      "display": "Lymphocytes (%)",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "%",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        1.0,
+        100.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "neutrophils_pct",
+      "display": "Neutrophils (%)",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "%",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        0.0,
+        100.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "platelets",
+      "display": "Platelets",
+      "group": "labs",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "10^3/µL",
+      "unit_unambiguous": false,
+      "display_precision": 0,
+      "hard_valid_range": [
+        5.0,
+        2000.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "ejection_fraction",
+      "display": "Ejection fraction (TTE)",
+      "group": "echo",
+      "kind": "continuous",
+      "categories": [],
+      "canonical_unit": "%",
+      "unit_unambiguous": true,
+      "display_precision": 0,
+      "hard_valid_range": [
+        5.0,
+        90.0
+      ],
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "region_rwma",
+      "display": "Region with RWMA",
+      "group": "echo",
+      "kind": "nominal",
+      "categories": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    },
+    {
+      "id": "valvular_heart_disease",
+      "display": "Valvular heart disease",
+      "group": "echo",
+      "kind": "ordinal",
+      "categories": [
+        "none",
+        "mild",
+        "moderate",
+        "severe"
+      ],
+      "canonical_unit": null,
+      "unit_unambiguous": null,
+      "display_precision": null,
+      "hard_valid_range": null,
+      "allow_unknown": true,
+      "editable": true,
+      "immutable_in_whatif": false,
+      "input_mode": "entered",
+      "constant_value": null
+    }
+  ],
+  "thresholds": {
+    "cad": {
+      "t_op": 0.6,
+      "t_neg": 0.3,
+      "t_pos": 0.85
+    },
+    "lad": {
+      "t_op": 0.5,
+      "t_neg": 0.25,
+      "t_pos": 0.8
+    },
+    "lcx": {
+      "t_op": 0.45,
+      "t_neg": 0.2,
+      "t_pos": null
+    },
+    "rca": {
+      "t_op": 0.45,
+      "t_neg": 0.2,
+      "t_pos": 0.75
+    }
+  },
+  "anatomy_version": "1.0.0",
+  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e",
+  "anatomy_map": {
+    "schema_version": "1.0.0",
+    "asset": "frontend/public/models/heart.glb",
+    "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB).",
+    "targets": {
+      "cad": {
+        "nodes": [
+          "heart_myocardium"
+        ],
+        "label": "Overall CAD",
+        "camera_preset": "overview"
+      },
+      "lad": {
+        "nodes": [
+          "vessel_lad"
+        ],
+        "label": "LAD",
+        "camera_preset": "lad_anterior",
+        "label_anchor": [
+          0.3034,
+          -0.1381,
+          0.3665
+        ]
+      },
+      "lcx": {
+        "nodes": [
+          "vessel_lcx"
+        ],
+        "label": "LCX",
+        "camera_preset": "lcx_left_lateral",
+        "label_anchor": [
+          0.3934,
+          -0.0881,
+          -0.1964
+        ]
+      },
+      "rca": {
+        "nodes": [
+          "vessel_rca"
+        ],
+        "label": "RCA",
+        "camera_preset": "rca_right_inferior",
+        "label_anchor": [
+          -0.1211,
+          -0.2148,
+          0.4003
+        ]
+      }
+    },
+    "non_target_nodes": {
+      "vessel_lm": {
+        "label": "Left main coronary artery",
+        "message": "Left main: not a prediction target"
+      }
+    },
+    "click_behavior": {
+      "vessel_lad": "select:lad",
+      "vessel_lcx": "select:lcx",
+      "vessel_rca": "select:rca",
+      "heart_myocardium": "select:cad",
+      "vessel_lm": "info:vessel_lm",
+      "background": "select:null"
+    },
+    "camera_presets": {
+      "overview": {
+        "position": [
+          0.0,
+          0.25,
+          2.6
+        ],
+        "target": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
+      },
+      "lad_anterior": {
+        "position": [
+          0.9,
+          0.3,
+          2.0
+        ],
+        "target": [
+          0.28,
+          -0.05,
+          0.2
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
+      },
+      "lcx_left_lateral": {
+        "position": [
+          2.0,
+          0.4,
+          -0.8
+        ],
+        "target": [
+          0.3,
+          -0.05,
+          -0.1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
+      },
+      "rca_right_inferior": {
+        "position": [
+          -1.5,
+          -0.7,
+          1.6
+        ],
+        "target": [
+          0.0,
+          -0.15,
+          0.1
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
+      },
+      "posterior": {
+        "position": [
+          0.0,
+          0.25,
+          -2.6
+        ],
+        "target": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
+      }
+    },
+    "color_transfer": {
+      "space": "oklch",
+      "warm": {
+        "light": [
+          0.86,
+          0.1,
+          70
+        ],
+        "deep": [
+          0.55,
+          0.19,
+          35
+        ]
+      },
+      "cool": {
+        "light": [
+          0.86,
+          0.06,
+          230
+        ],
+        "deep": [
+          0.5,
+          0.11,
+          225
+        ]
+      },
+      "low_confidence_chroma_factor": 0.5,
+      "formula": "positive: i=(p-t_op)/(1-t_op); negative: i=(t_op-p)/t_op; clamp [0,1]; L=L_light-i*(L_light-L_deep); C=C_light+i*(C_deep-C_light); h=h_light+i*(h_deep-h_light); LOW: C*=low_confidence_chroma_factor"
+    },
+    "view_presets": [
+      {
+        "id": "overview",
+        "label": "Anterior"
+      },
+      {
+        "id": "lcx_left_lateral",
+        "label": "Left lateral"
+      },
+      {
+        "id": "rca_right_inferior",
+        "label": "Inferior / right"
+      },
+      {
+        "id": "posterior",
+        "label": "Posterior"
+      }
+    ]
+  },
+  "evidence_bands": [
+    [
+      0.0,
+      0.2
+    ],
+    [
+      0.2,
+      0.4
+    ],
+    [
+      0.4,
+      0.6
+    ],
+    [
+      0.6,
+      0.8
+    ],
+    [
+      0.8,
+      1.0
+    ]
+  ],
+  "disclaimer": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
+}

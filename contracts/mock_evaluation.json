@@ -1,0 +1,790 @@
+{
+  "model_version": "0.0.0",
+  "table1_scope": "outer-fold mean ± SD",
+  "table1": [
+    {
+      "target": "cad",
+      "model": "mock_model",
+      "kind": "model",
+      "prevalence": 0.712871,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5707,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.6433,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.5194,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.7183,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.6471,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.6247,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "cad",
+      "model": "always_negative",
+      "kind": "always_negative",
+      "prevalence": 0.712871,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.517,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.8872,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "recall": {
+          "mean": 0.616,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "brier": {
+          "mean": 0.879,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "cad",
+      "model": "always_positive",
+      "kind": "always_positive",
+      "prevalence": 0.712871,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.8564,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.5603,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.5938,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.5555,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.6305,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.6506,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "cad",
+      "model": "prior",
+      "kind": "prior",
+      "prevalence": 0.712871,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5415,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.8746,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.7097,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.6381,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.779,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.8939,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lad",
+      "model": "mock_model",
+      "kind": "model",
+      "prevalence": 0.584158,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.511,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.5804,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.6667,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.6876,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.849,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.788,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lad",
+      "model": "always_negative",
+      "kind": "always_negative",
+      "prevalence": 0.584158,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.7992,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.6332,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "recall": {
+          "mean": 0.7679,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "brier": {
+          "mean": 0.6507,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lad",
+      "model": "always_positive",
+      "kind": "always_positive",
+      "prevalence": 0.584158,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.8498,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.6857,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.6326,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.6638,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.623,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.6303,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lad",
+      "model": "prior",
+      "kind": "prior",
+      "prevalence": 0.584158,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.6199,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.5709,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.8766,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.8197,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.6091,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.5492,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lcx",
+      "model": "mock_model",
+      "kind": "model",
+      "prevalence": 0.392739,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.861,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.7149,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.5504,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.6089,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.8628,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.8331,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lcx",
+      "model": "always_negative",
+      "kind": "always_negative",
+      "prevalence": 0.392739,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5217,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.5342,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "recall": {
+          "mean": 0.8967,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "brier": {
+          "mean": 0.8845,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lcx",
+      "model": "always_positive",
+      "kind": "always_positive",
+      "prevalence": 0.392739,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5833,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.7508,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.6255,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.5077,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.501,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.8259,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "lcx",
+      "model": "prior",
+      "kind": "prior",
+      "prevalence": 0.392739,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.8962,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.7106,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.8068,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.7727,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.7382,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.8073,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "rca",
+      "model": "mock_model",
+      "kind": "model",
+      "prevalence": 0.376238,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5377,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.7806,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.682,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.881,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.6715,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.5026,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "rca",
+      "model": "always_negative",
+      "kind": "always_negative",
+      "prevalence": 0.376238,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5627,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.8442,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "recall": {
+          "mean": 0.5352,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": null,
+          "sd": null,
+          "n_defined": 0,
+          "n_na": 5
+        },
+        "brier": {
+          "mean": 0.7137,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "rca",
+      "model": "always_positive",
+      "kind": "always_positive",
+      "prevalence": 0.376238,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.7475,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.5306,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.7501,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.5799,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.5785,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.6529,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    },
+    {
+      "target": "rca",
+      "model": "prior",
+      "kind": "prior",
+      "prevalence": 0.376238,
+      "metrics": {
+        "roc_auc": {
+          "mean": 0.5857,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "accuracy": {
+          "mean": 0.6295,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "precision": {
+          "mean": 0.6774,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "recall": {
+          "mean": 0.6955,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "f1": {
+          "mean": 0.73,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        },
+        "brier": {
+          "mean": 0.8708,
+          "sd": 0.04,
+          "n_defined": 5,
+          "n_na": 0
+        }
+      }
+    }
+  ],
+  "table2_scope": "pooled OOF (prespecified repeat)",
+  "table2": [
+    {
+      "target": "cad",
+      "pct_high_positive": 0.3786,
+      "ppv": 0.93,
+      "ppv_ci": [
+        0.88,
+        0.97
+      ],
+      "pct_high_negative": 0.1525,
+      "npv": 0.95,
+      "npv_ci": [
+        0.89,
+        0.99
+      ],
+      "pct_low_confidence": 0.4689,
+      "accuracy_high_confidence": 0.94,
+      "fn_high_negative": 2,
+      "fp_high_positive": 3
+    },
+    {
+      "target": "lad",
+      "pct_high_positive": 0.3804,
+      "ppv": 0.93,
+      "ppv_ci": [
+        0.88,
+        0.97
+      ],
+      "pct_high_negative": 0.2645,
+      "npv": 0.95,
+      "npv_ci": [
+        0.89,
+        0.99
+      ],
+      "pct_low_confidence": 0.3551,
+      "accuracy_high_confidence": 0.94,
+      "fn_high_negative": 2,
+      "fp_high_positive": 3
+    },
+    {
+      "target": "lcx",
+      "pct_high_positive": 0.3987,
+      "ppv": 0.93,
+      "ppv_ci": [
+        0.88,
+        0.97
+      ],
+      "pct_high_negative": 0.2589,
+      "npv": 0.95,
+      "npv_ci": [
+        0.89,
+        0.99
+      ],
+      "pct_low_confidence": 0.3424,
+      "accuracy_high_confidence": 0.94,
+      "fn_high_negative": 2,
+      "fp_high_positive": 3
+    },
+    {
+      "target": "rca",
+      "pct_high_positive": 0.2359,
+      "ppv": 0.93,
+      "ppv_ci": [
+        0.88,
+        0.97
+      ],
+      "pct_high_negative": 0.1908,
+      "npv": 0.95,
+      "npv_ci": [
+        0.89,
+        0.99
+      ],
+      "pct_low_confidence": 0.5733,
+      "accuracy_high_confidence": 0.94,
+      "fn_high_negative": 2,
+      "fp_high_positive": 3
+    }
+  ],
+  "figures": {}
+}

@@ -1,0 +1,218 @@
+{
+  "schema_version": "1.0.0",
+  "asset": "frontend/public/models/heart.glb",
+  "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB).",
+  "targets": {
+    "cad": {
+      "nodes": [
+        "heart_myocardium"
+      ],
+      "label": "Overall CAD",
+      "camera_preset": "overview"
+    },
+    "lad": {
+      "nodes": [
+        "vessel_lad"
+      ],
+      "label": "LAD",
+      "camera_preset": "lad_anterior",
+      "label_anchor": [
+        0.3034,
+        -0.1381,
+        0.3665
+      ]
+    },
+    "lcx": {
+      "nodes": [
+        "vessel_lcx"
+      ],
+      "label": "LCX",
+      "camera_preset": "lcx_left_lateral",
+      "label_anchor": [
+        0.3934,
+        -0.0881,
+        -0.1964
+      ]
+    },
+    "rca": {
+      "nodes": [
+        "vessel_rca"
+      ],
+      "label": "RCA",
+      "camera_preset": "rca_right_inferior",
+      "label_anchor": [
+        -0.1211,
+        -0.2148,
+        0.4003
+      ]
+    }
+  },
+  "non_target_nodes": {
+    "vessel_lm": {
+      "label": "Left main coronary artery",
+      "message": "Left main: not a prediction target"
+    }
+  },
+  "click_behavior": {
+    "vessel_lad": "select:lad",
+    "vessel_lcx": "select:lcx",
+    "vessel_rca": "select:rca",
+    "heart_myocardium": "select:cad",
+    "vessel_lm": "info:vessel_lm",
+    "background": "select:null"
+  },
+  "camera_presets": {
+    "overview": {
+      "position": [
+        0.0,
+        0.25,
+        2.6
+      ],
+      "target": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
+    },
+    "lad_anterior": {
+      "position": [
+        0.9,
+        0.3,
+        2.0
+      ],
+      "target": [
+        0.28,
+        -0.05,
+        0.2
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
+    },
+    "lcx_left_lateral": {
+      "position": [
+        2.0,
+        0.4,
+        -0.8
+      ],
+      "target": [
+        0.3,
+        -0.05,
+        -0.1
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
+    },
+    "rca_right_inferior": {
+      "position": [
+        -1.5,
+        -0.7,
+        1.6
+      ],
+      "target": [
+        0.0,
+        -0.15,
+        0.1
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
+    },
+    "posterior": {
+      "position": [
+        0.0,
+        0.25,
+        -2.6
+      ],
+      "target": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
+    }
+  },
+  "color_transfer": {
+    "space": "oklch",
+    "warm": {
+      "light": [
+        0.86,
+        0.1,
+        70
+      ],
+      "deep": [
+        0.55,
+        0.19,
+        35
+      ]
+    },
+    "cool": {
+      "light": [
+        0.86,
+        0.06,
+        230
+      ],
+      "deep": [
+        0.5,
+        0.11,
+        225
+      ]
+    },
+    "low_confidence_chroma_factor": 0.5,
+    "formula": "positive: i=(p-t_op)/(1-t_op); negative: i=(t_op-p)/t_op; clamp [0,1]; L=L_light-i*(L_light-L_deep); C=C_light+i*(C_deep-C_light); h=h_light+i*(h_deep-h_light); LOW: C*=low_confidence_chroma_factor"
+  },
+  "view_presets": [
+    {
+      "id": "overview",
+      "label": "Anterior"
+    },
+    {
+      "id": "lcx_left_lateral",
+      "label": "Left lateral"
+    },
+    {
+      "id": "rca_right_inferior",
+      "label": "Inferior / right"
+    },
+    {
+      "id": "posterior",
+      "label": "Posterior"
+    }
+  ]
+}

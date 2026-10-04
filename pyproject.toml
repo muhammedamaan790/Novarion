@@ -1,0 +1,59 @@
+[project]
+name = "novarion"
+version = "0.1.0"
+description = "Novarion — coronary case-review system (Multimodal AI Hackathon 2026, Track A). Decision support / educational prototype only."
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+# Training-side dependencies (never installed in the inference image)
+train = [
+    "scikit-learn>=1.5",
+    "xgboost>=2.1",
+    "catboost>=1.2",
+    "interpret>=0.6",
+    "shap>=0.46",
+    "pandera>=0.20",
+    "rfc8785>=0.1",
+]
+# Inference-side dependencies (only these go into the backend image)
+inference = [
+    "scikit-learn>=1.5",
+    "xgboost>=2.1",
+    "catboost>=1.2",
+    "interpret>=0.6",
+    "shap>=0.46",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic>=2.8",
+    "rfc8785>=0.1",
+]
+assets = [
+    "trimesh>=4.4",
+    "fast-simplification>=0.1",
+    "rfc8785>=0.1.4",
+]
+dev = [
+    "httpx>=0.27",
+    "pytest>=8.3",
+    "ruff>=0.6",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["ml", "backend"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["novarion_ml"]

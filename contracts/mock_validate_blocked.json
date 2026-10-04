@@ -1,0 +1,51 @@
+{
+  "request_id": "55032827-4551-5c8b-9525-2c6ba80aef2f",
+  "api_schema_version": "1.0.0",
+  "input_revision": 4,
+  "ready": false,
+  "input_sha256": null,
+  "canonical_inputs": null,
+  "items": [
+    {
+      "code": "missing_required",
+      "severity": "BLOCK",
+      "feature_id": "age",
+      "message": "A value or an explicit UNKNOWN is required.",
+      "details": {}
+    },
+    {
+      "code": "unknown_input",
+      "severity": "WARN",
+      "feature_id": "fasting_blood_sugar",
+      "message": "Marked UNKNOWN: will be imputed (not measured) and forces LOW model confidence.",
+      "details": {}
+    },
+    {
+      "code": "out_of_hard_range",
+      "severity": "BLOCK",
+      "feature_id": "ldl",
+      "message": "Outside the valid range [5, 500] mg/dL.",
+      "details": {
+        "value": 9000,
+        "range": [
+          5,
+          500
+        ],
+        "unit": "mg/dL"
+      }
+    }
+  ],
+  "counts": {
+    "recognized": 51,
+    "unknown": 1,
+    "out_of_range": 1,
+    "missing_required": 1
+  },
+  "provenance": {
+    "dataset_record_id": null,
+    "trusted_record": false,
+    "input_hash_match": null,
+    "prediction_mode": "final_model",
+    "message": null
+  }
+}
