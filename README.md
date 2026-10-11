@@ -8,6 +8,12 @@
 
 ## Status
 
+Audit update (11 October 2026): the contributor branch includes reproduced ML, evidence, API and browser fixes.
+See [deep audit and next work](docs/deep-audit.md) and [scientific research](docs/scientific-research.md).
+The trained weights and fold outputs are absent from this checkout; the historical results below have not been
+independently reproduced by the audit. Corrected training/calibration and OOF ledgers require a fresh versioned
+bundle build. Older bundles retain predictions and explanations, while their unsafe OOF ledger rates are withheld.
+
 | Component | Status |
 |---|---|
 | Specification (master plan) | Specified |
@@ -15,7 +21,7 @@
 | Day-2 data verification (`data/schema_report.json`) | **Implemented** |
 | Feature registry + canonical loader + leakage guard | **Implemented** (unit tests pass) |
 | 3D anatomy asset (`heart.glb`, `anatomy_manifest.json`, `anatomy_map.json`, pinned label anchors) | **Implemented** (QA tests pass) |
-| API contract v0 (`backend/app/schemas.py` → `contracts/openapi.json`), strict JSON, error envelope | **Implemented** (contract tests pass) |
+| API contract v1 (`backend/app/schemas.py` → `contracts/openapi.json`), strict JSON, error envelope | **Implemented** (contract tests pass) |
 | Contract mocks (`contracts/mock_*.json`, `NOVARION_MOCK=1` server) | **Implemented** — toy engine, model `0.0.0`, *not a model* (D-006) |
 | Canonical `input_sha256` + 50 frozen golden vectors + train/serve parity | **Implemented** |
 | Training pipeline: registry encoder, 92-config grid, nested CV (5×5 outer, 5 inner), 1-SE selection, Platt (a > 0 guard), Layer A/B thresholds, final models | **Implemented** (`scripts/train.py`; ML unit tests pass) |
@@ -29,15 +35,17 @@
 
 ## Results (development bundle v0.1.0 · nested CV, 5 × 5 outer folds · full tables: `results/tables.md`)
 
-| Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | High-confidence share (pooled OOF) |
+| Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | Threshold-qualified share (pooled OOF) |
 |---|---|---|---|---|---|
 | CAD | 71.3% | 0.930 ± 0.035 | 0.860 ± 0.051 | 0.095 | 62% high-positive (PPV 95%), 38% LOW |
 | LAD | 58.4% | 0.838 ± 0.046 | 0.758 ± 0.044 | 0.161 | 100% LOW (no qualified region) |
 | LCX | 39.3% | 0.721 ± 0.067 | 0.666 ± 0.067 | 0.209 | 100% LOW (no qualified region) |
 | RCA | 37.6% | 0.736 ± 0.037 | 0.666 ± 0.042 | 0.200 | 100% LOW (no qualified region) |
 
-Every prediction is still a binary STENOSIS / NO STENOSIS call; LOW means the score is outside a region that met the
+Every vessel prediction is still a binary STENOSIS / NO STENOSIS call. A HIGH badge requires a region meeting the
 pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 Wilson bound in training-side validation (targets fixed before results, D-008).
+The app also forces LOW for unknown/atypical inputs or absent held-out evidence. The table above measures
+threshold regions before those additional app gates; it is not the measured coverage of the displayed HIGH badge.
 Reproduce: `make reproduce` (≈ 1.5 h on 10 CPU cores; ~2.75 h wall here because the laptop slept mid-run).
 
 Nothing is called "working" until it reaches **Verified** (E2E flows + fresh-clone + second-machine + performance tests).

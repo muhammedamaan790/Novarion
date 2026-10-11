@@ -3,6 +3,9 @@
 Reviewed on 11 October 2026 against main commit `f0d531b3fd11e1c608c515d5080c3d3474effdef`.
 Contributor branch: `nikil/progress-audit`.
 
+This records the initial inspection and first contribution. The subsequent deeper audit, additional fixes and
+latest validation boundaries are in [deep-audit.md](deep-audit.md) and [scientific-research.md](scientific-research.md).
+
 ## Conclusion
 
 Keep the existing implementation. It contains a substantial data/ML pipeline, a typed backend, and an interactive anatomical heart dashboard. The first contribution is to make this existing loop reliable and reproducible. Adding a learning loop or redesigning the whole app should wait until the official submission works from another machine.

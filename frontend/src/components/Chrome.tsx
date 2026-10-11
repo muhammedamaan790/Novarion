@@ -12,12 +12,12 @@ export function DisclaimerBanner() {
 
 export function Header({ meta, ready, mock }: { meta: Meta | undefined; ready: boolean | undefined; mock: boolean }) {
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2">
+    <header className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-white px-4 py-2">
       <div>
         <span className="text-base font-extrabold tracking-[0.2em] text-slate-900">NOVARION</span>
         <span className="ml-3 text-xs text-slate-500">coronary case review</span>
       </div>
-      <div className="flex items-center gap-2 text-[11px]">
+      <div className="flex flex-wrap items-center gap-2 text-[11px]">
         {mock && (
           <span className="rounded bg-fuchsia-100 px-2 py-0.5 font-bold tracking-wide text-fuchsia-900" data-testid="mock-chip">
             MOCK DATA · NOT A MODEL

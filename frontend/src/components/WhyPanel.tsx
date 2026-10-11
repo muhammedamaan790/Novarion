@@ -138,6 +138,9 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
       {evidence && (
         <div>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Evidence</h3>
+          {(analysis.quality.notices ?? []).filter((notice) => notice.code === "legacy_oof_ledger_withheld").map((notice) => (
+            <p key={notice.code} role="note" className="mb-1 text-xs text-amber-800">{notice.message}</p>
+          ))}
           <p className="text-xs text-slate-700">
             {evidence.evidence_ledger.status === "ok"
               ? `Empirical positive-label rate in this public-dataset probability band (${pct(evidence.evidence_ledger.band[0]!)}–${pct(evidence.evidence_ledger.band[1]!)}): ${pct(evidence.evidence_ledger.positive_label_rate ?? 0)} (n = ${evidence.evidence_ledger.n})`

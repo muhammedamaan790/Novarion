@@ -50,10 +50,13 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<ApiResult<
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new ApiError(response.status, body as ErrorResponse | null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new ApiError(response.status, null); // a proxy's HTML/null response is not a successful analysis
+  }
   return { data: body as T, mock: response.headers.get("X-Novarion-Mock") === "1" };
 }
 
-const get = <T>(path: string) => send<T>(path);
+const get = <T>(path: string, signal?: AbortSignal) => send<T>(path, { signal });
 const post = <T>(path: string, body: unknown, signal?: AbortSignal) =>
   send<T>(path, { method: "POST", body: JSON.stringify(body), signal });
 
@@ -79,7 +82,7 @@ export const api = {
   ready: () => get<Schemas["HealthReady"]>("/health/ready"),
   meta: () => get<Meta>("/meta"),
   patients: () => get<Schemas["PatientListResponse"]>("/patients"),
-  patient: (id: string) => get<PatientBundle>(`/patients/${encodeURIComponent(id)}`),
+  patient: (id: string, signal?: AbortSignal) => get<PatientBundle>(`/patients/${encodeURIComponent(id)}`, signal),
   groundTruth: (id: string) => get<Schemas["GroundTruthResponse"]>(`/patients/${encodeURIComponent(id)}/ground-truth`),
   validate: (req: CaseRequest, signal?: AbortSignal) =>
     post<ValidateResponse>("/validate", { request_id: newRequestId(), api_schema_version: API_SCHEMA_VERSION, ...req }, signal),

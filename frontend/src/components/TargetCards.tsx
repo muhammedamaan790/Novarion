@@ -14,9 +14,9 @@ function ConfidenceBlock({ p }: { p: TargetPrediction }) {
         </span>
         {ev && (
           <p className="mt-1 text-slate-600">
-            Evaluation {ev.metric.toUpperCase()} {pct(ev.value)}
-            {ev.ci ? ` (95% CI ${pct(ev.ci[0]!)}–${pct(ev.ci[1]!)})` : ""} · qualified against the pre-registered
-            target: YES
+            Threshold-region evaluation {ev.metric.toUpperCase()} {pct(ev.value)}
+            {ev.ci ? ` (95% CI ${pct(ev.ci[0]!)}–${pct(ev.ci[1]!)})` : ""}, before input-quality gates.
+            {" "}Qualification uses training-side validation.
           </p>
         )}
       </div>
@@ -28,7 +28,7 @@ function ConfidenceBlock({ p }: { p: TargetPrediction }) {
         LOW MODEL CONFIDENCE
       </span>
       <p className="mt-1 text-slate-600">
-        The prediction remains available, but this score is outside a qualified high-confidence region. Reason:{" "}
+        This prediction does not meet all HIGH-confidence requirements. Reason:{" "}
         {p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ")}.
       </p>
     </div>
@@ -85,6 +85,11 @@ export function TargetCards({ analysis, meta }: { analysis: DisplayAnalysis | nu
       <p className="text-[11px] text-slate-500" title={TOOLTIPS.independence}>
         Four independent models · probabilities are not constrained to nest ⓘ
       </p>
+      {(analysis.quality.notices ?? []).map((notice) => (
+        <p key={notice.code} role="note" className="rounded bg-amber-50 p-2 text-[11px] text-amber-900">
+          {notice.message}
+        </p>
+      ))}
       {TARGET_IDS.map((t) => {
         const p = analysis.targets[t];
         return p ? <Card key={t} target={t} p={p} transfer={transfer} /> : null; // App commits only complete analyses
