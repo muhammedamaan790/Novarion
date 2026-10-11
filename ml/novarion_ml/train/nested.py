@@ -150,6 +150,7 @@ def run_outer_fold(target: str, repeat: int, fold: int, train_ids: np.ndarray, t
         "best_inner_auc": selection.best_auc, "se_best": selection.se_best, "n_eligible": len(selection.eligible),
         "guard_log": selection.guard_log, "platt": selection.platt.to_json(), "thresholds": thresholds.to_json(),
         "test": _jsonable(scored), "inner": [r.summary() for r in results], "benchmarks": benchmarks,
+        "training_oof_prob": selection.platt.prob(selection.oof_margin).tolist(),
         "dropped_features": model.encoder.dropped_,
     }
     if keep_model:
