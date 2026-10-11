@@ -101,17 +101,22 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
 
   // Debounced validate → predict. Each edit bumps the revision; only the latest revision may commit.
   useEffect(() => {
-    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
-    if (filled === 0) return;
     const rev = ++revision.current;
+    const controller = new AbortController();
+    inflight.current?.abort();
+    inflight.current = controller;
+    setAnalysis(null); // an edited input must never keep the previous prediction or vessel colours
+    const isCurrent = () => !controller.signal.aborted && rev === revision.current;
+    const cleanup = () => {
+      controller.abort(); // also invalidate responses when the form unmounts or becomes empty
+    };
+    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
+    if (filled === 0) return cleanup;
     const timer = window.setTimeout(async () => {
-      inflight.current?.abort();
-      const controller = new AbortController();
-      inflight.current = controller;
       setStatus("updating");
       try {
         const v = await api.validate({ inputs, input_revision: rev, dataset_record_id: sourceRecord }, controller.signal);
-        if (rev !== revision.current) return;
+        if (!isCurrent()) return;
         setValidation(v.data);
         if (!v.data.ready) {
           setAnalysis(null); // fail closed: never keep colours from an older input
@@ -119,18 +124,21 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
           return;
         }
         const p = await api.predict({ inputs, input_revision: rev }, controller.signal);
-        if (rev !== revision.current || p.data.input_revision !== rev) return; // stale response: discard
+        if (!isCurrent() || p.data.input_revision !== rev) return; // stale response: discard
         setAnalysis({ ...p.data, explanations: {}, evidence: {}, requestInputs: inputs });
         setStatus("idle");
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
-        if (rev === revision.current) {
+        if (isCurrent()) {
           setAnalysis(null);
           setStatus(err instanceof ApiError || err instanceof Error ? "error" : "idle");
         }
       }
     }, DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      cleanup();
+    };
   }, [inputs, sourceRecord, features, setAnalysis]);
 
   const prefill = async (patientId: string) => {
