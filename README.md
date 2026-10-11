@@ -30,6 +30,7 @@ bundle build. Older bundles retain predictions and explanations, while their uns
 | Versioned model bundle + OOF demo bundle (303 patients) + non-circular manifests + registry pointer | **Implemented** (`scripts/build_bundle.py`; integrity + tamper tests) |
 | Real API (`BundleService`): startup integrity, `/predict`, `/analyze/full`, `/explain`, `/evidence`, `/validate`, `/patients`, `/evaluation` | **Implemented** (fails closed without a verified bundle) |
 | Frontend V0: 3D heart, probability colouring + recolour easing + LOW hatch, 3D ↔ panel selection, presets, isolation, cards, Why panel, deep links, keyboard, **new-case registry form with live prediction** | **Implemented** (Playwright Flow A + Flow B, mock and real backend) |
+| Model evaluation dashboard: four targets, baselines/benchmarks, calibration, confidence-region coverage and limitations | **Implemented** on contributor branch ([guide and validation](docs/evaluation-dashboard.md)); current browser verification uses contract mocks, not trained-model metrics |
 | CI (GitHub Actions), Docker skeleton (`docker-compose.yml`), `Makefile` | **Implemented** — Docker not yet verified (engine was not running) |
 | Case workflow (CaseStore/IndexedDB, import, review, snapshot, history), stability bootstrap, learning loop, Model Center | Specified (not yet implemented) |
 

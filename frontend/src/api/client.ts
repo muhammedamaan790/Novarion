@@ -7,6 +7,7 @@ export const TARGET_IDS: readonly TargetId[] = ["cad", "lad", "lcx", "rca"];
 export const VESSELS: readonly TargetId[] = ["lad", "lcx", "rca"];
 
 export type Meta = Schemas["MetaResponse"];
+export type Evaluation = Schemas["EvaluationResponse"];
 export type PatientBundle = Schemas["PatientBundle"];
 export type TargetPrediction = Schemas["TargetPrediction"];
 export type ExplanationPayload = Schemas["ExplanationPayload"];
@@ -81,6 +82,7 @@ function pinnedBody(analysis: DisplayAnalysis, target: TargetId) {
 export const api = {
   ready: () => get<Schemas["HealthReady"]>("/health/ready"),
   meta: () => get<Meta>("/meta"),
+  evaluation: (signal?: AbortSignal) => get<Evaluation>("/evaluation", signal),
   patients: () => get<Schemas["PatientListResponse"]>("/patients"),
   patient: (id: string, signal?: AbortSignal) => get<PatientBundle>(`/patients/${encodeURIComponent(id)}`, signal),
   groundTruth: (id: string) => get<Schemas["GroundTruthResponse"]>(`/patients/${encodeURIComponent(id)}/ground-truth`),
