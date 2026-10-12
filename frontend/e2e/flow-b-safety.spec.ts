@@ -29,7 +29,7 @@ test("editing an input clears old predictions while validation is pending", asyn
   await page.goto("/");
   await page.getByTestId("tab-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0003");
-  await expect(page.getByTestId("case-status")).toContainText("Prediction up to date");
+  await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 30_000 });
   await expect(page.getByTestId("predictions")).toBeVisible();
 
   let release!: () => void;

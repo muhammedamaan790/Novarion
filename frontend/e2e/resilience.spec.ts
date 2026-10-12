@@ -38,8 +38,14 @@ test("rapid edits: debounced, and only the final value is predicted", async ({ p
   page.on("request", (r) => {
     if (r.url().endsWith("/api/v1/predict")) sent.push(r.postDataJSON().inputs.pulse_rate);
   });
-  const pulse = page.getByTestId("field-pulse_rate");
-  for (const v of [61, 62, 63, 64, 65, 66, 67, 68]) await pulse.fill(String(v)); // faster than the 300 ms debounce
+  // eight edits inside ONE browser task: genuinely faster than the 300 ms debounce on any machine (slow CI included)
+  await page.getByTestId("field-pulse_rate").evaluate((el: HTMLInputElement) => {
+    const setValue = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
+    for (const v of [61, 62, 63, 64, 65, 66, 67, 68]) {
+      setValue.call(el, String(v));
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  });
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.waitForTimeout(800);
   expect(sent.at(-1)).toBe(68);

@@ -20,7 +20,8 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["list"], ["html", { open: "never" }]] : "list",
   timeout: 60_000,
   expect: { timeout: 10_000 }, // the real backend computes explanations on demand; give it headroom under load
-  workers: real ? 1 : undefined, // headless software WebGL: parallel browsers starve each other on one CPU
+  // headless software WebGL: parallel browsers starve each other on a small CPU (real backend, 2-core CI runners)
+  workers: real || process.env.CI ? 1 : undefined,
   use: { baseURL: external ?? `http://127.0.0.1:${webPort}`, browserName, channel, viewport: { width: 1440, height: 900 } },
   webServer: external ? undefined : [
     {
