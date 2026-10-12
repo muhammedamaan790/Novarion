@@ -16,6 +16,8 @@ const webPort = process.env.E2E_WEB_PORT ?? "5173";
 
 export default defineConfig({
   testDir: "e2e",
+  // On CI, every failure also becomes a GitHub annotation (readable on the run page and via the public API).
+  reporter: process.env.CI ? [["github"], ["list"], ["html", { open: "never" }]] : "list",
   timeout: 60_000,
   expect: { timeout: 10_000 }, // the real backend computes explanations on demand; give it headroom under load
   workers: real ? 1 : undefined, // headless software WebGL: parallel browsers starve each other on one CPU
