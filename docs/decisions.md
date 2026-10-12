@@ -431,6 +431,24 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   - a release secret scan (`scripts/secret_scan.py`) runs in the test suite, with tests that prove it detects
     planted samples;
   - a release manifest generator (`scripts/release_manifest.py`).
+- **Fresh-clone reproduction (plan Days 18–19): passed.** A full `make reproduce` on a fresh GitHub clone took 229 min
+  on this laptop: fresh UCI download (checksum verified), nested CV, final models, evaluation, stability, bundle and
+  replay. It matched this checkout exactly on every check in `scripts/compare_reproduction.py`
+  (`results/reproduction.json`):
+  - all 100 outer folds and their selected configurations;
+  - the deployed configurations;
+  - Tables 1–2;
+  - the 24 golden predictions;
+  - the stability intervals and the replay study.
+
+  The maximum difference was 0. The D-019 recomputed fold scores also equal the scores a real retrain stores.
+- **Line-ending defect found by the reproduction:** config hashes were taken over raw bytes, so a Windows (CRLF) and a
+  Linux (LF) checkout of the same commit got different train-config, split-manifest and cache-key hashes. Fixes:
+  - text provenance hashes now use LF-normalized content (`novarion_ml/hashing.py`), identical for LF files;
+  - `.gitattributes` checks text out as LF everywhere;
+  - `scripts/migrate_cache_key.py` re-stamped the 105 stored records. It did so only after proving that each was
+    produced from the current config content (stored key = the old raw-byte key of today's files);
+  - a dry-run bundle build reproduces v1.0.2's golden set.
 - **Tier 3 (built because Tiers 1, 1P and 2 are complete):**
   - **what-if sensitivity / ICE** (`POST /sensitivity`):
     - pinned to final-model analyses; dataset patients keep their OOF model;

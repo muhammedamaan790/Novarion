@@ -1,4 +1,5 @@
-Real backend (Docker stack, model v1.0.1), 2026-10-07:
-edge:    33 passed
-chrome:  33 passed (1.5m)
-firefox: 33 passed (1.8m)
+Real backend (model v1.0.2), dev servers on alternate ports, 2026-10-13:
+edge:    49 passed (4.3m)
+chrome:  49 passed (2.6m)
+firefox: 49 passed (3.0m)
+mock backend (edge): 49 passed (1.8m)

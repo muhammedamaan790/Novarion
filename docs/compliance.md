@@ -4,7 +4,7 @@ Audit of NOVARION against the Track A brief (Cardiovascular Risk Visualization &
 evidence: the code, a test or a measured result. Status: **Met**, **Met (interpreted)** where the brief is open and
 our reading is stated, or **Open** where work remains.
 
-Audited 2026-10-07 and updated 2026-10-12 against production model **v1.0.2**: the same models as the frozen
+Audited 2026-10-07 and updated 2026-10-13 against production model **v1.0.2**: the same models as the frozen
 v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 ## Prediction
@@ -36,6 +36,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | 3a CAD status and vessel probabilities beside the canvas | Four cards in the right panel, each with the binary call, probability and model confidence (screenshot `docs/img/command-center-lad.png`). | Met |
 | 3b SHAP/LIME explanation | Exact additive SHAP in calibrated log-odds: linear SHAP, TreeSHAP or EBM terms. The sum rule is tested for every served explanation (`tests/test_ml_core.py`, `tests/test_bundle.py`). | Met |
 | 3c Measurements and their relative contribution | The Why panel's measurement table shows each value, its contribution, a relative-share column and cohort percentiles; a compare-all-vessels heatmap sits alongside. | Met |
+| What-if and robustness (plan Tier 3) | `POST /sensitivity` ICE curves for new/edited cases (age and sex locked; "model sensitivity, not treatment simulation"), Unknown inputs that could flip the class, model-family agreement (Table 3b), a 1,000-shuffle label-permutation test (Table 1b, p = 0.001 for every target) and stability bars on the cards. | Met |
 | Explanation dashboard | The Model Evidence page carries Tables 1–2, ROC/PR curves with bootstrap bands, reliability, threshold sweep and family benchmarks. | Met |
 
 ## Assets, safety and technology
@@ -59,11 +60,13 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Gate | Result |
 |---|---|
-| Python tests | 173 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases. |
-| Frontend unit tests | 19 pass (vitest), plus typecheck and lint. |
-| Browser E2E | 43 flows pass against the real model in Edge (2026-10-12). They include axe accessibility checks, failure injection, offline mode, WebGL fallback, the learning loop and the PR #1 regression suites. The earlier 33-flow suite also passed on the Docker stack in Chrome and Firefox (`results/browser_matrix_log.txt`). One case export/import flow failed once in a slow full run and passed 5/5 on repeat (timing flake). |
-| Fresh-clone reproduction · GitHub CI | **Open.** The work is pushed; CI runs on GitHub, and the fresh-clone test is still to do. |
-| Second-machine test · rehearsals · outside-user usability test | **Open** (team). |
+| Python tests | 180 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases, sensitivity, concurrency, budgets, secret scan. |
+| Frontend unit tests | 24 pass (vitest), plus typecheck, lint and generated-API sync. |
+| Browser E2E | 49 flows pass against the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`), and against the mock. They include axe accessibility checks (also on the no-WebGL fallback), failure injection, offline mode, WebGL fallback and context loss, storage damage and deletion, what-if, the learning loop, a same-origin privacy check and the PR #1 regression suites. |
+| GitHub CI | **Met.** Python, frontend and e2e jobs green on `main` (fresh Linux runners, CI-safe single worker). |
+| Fresh-clone reproduction | **Met.** A full `make reproduce` on a fresh clone with freshly downloaded data matched every fold, metric, golden prediction, stability interval and replay result exactly (`results/reproduction.json`, D-020). |
+| Performance and memory | **Met.** `/predict` p95 67 ms; 3D median 59.9 fps on integrated graphics; backend RSS 178 → 184 MB peak; offline bundle 3.5 MB gzipped (budget 25 MB); JS heap 13 MB after 30 patients (`results/perf.json`). |
+| Second-machine test · rehearsals · outside-user usability test | **Open** (team). `scripts/compare_reproduction.py --other PATH` checks a second machine's run. |
 
 ## Claims we deliberately do not make
 

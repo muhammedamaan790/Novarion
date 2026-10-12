@@ -1,0 +1,44 @@
+{
+ "method": "5-fold CV ROC-AUC of the deployed configuration vs label-permutation null (fixed folds; selection not repeated)",
+ "permutations": 1000,
+ "wording": "p-value under the label-permutation null; evidence against the null under the test assumptions",
+ "targets": {
+  "cad": {
+   "config_id": "lr[penalty=l2,C=0.01]|fs=redundancy_reduced|cw=balanced",
+   "observed_cv_auc": 0.9355317884729649,
+   "null_mean": 0.5024081016804832,
+   "null_sd": 0.04976553145366338,
+   "null_p99": 0.6196540028834585,
+   "null_max": 0.6460215278112142,
+   "p_value": 0.000999000999000999
+  },
+  "lad": {
+   "config_id": "lr[penalty=elasticnet,C=0.1]|fs=redundancy_reduced|cw=none",
+   "observed_cv_auc": 0.84363663003663,
+   "null_mean": 0.49970457200817225,
+   "null_sd": 0.04905596392585818,
+   "null_p99": 0.6147052146778084,
+   "null_max": 0.6564576263395321,
+   "p_value": 0.000999000999000999
+  },
+  "lcx": {
+   "config_id": "xgboost[max_depth=2,n_estimators=100]|fs=full|cw=none",
+   "observed_cv_auc": 0.7140066697131914,
+   "null_mean": 0.4979903619910985,
+   "null_sd": 0.04879928026384543,
+   "null_p99": 0.6011081851743556,
+   "null_max": 0.6204843029920429,
+   "p_value": 0.000999000999000999
+  },
+  "rca": {
+   "config_id": "lr[penalty=elasticnet,C=0.1]|fs=redundancy_reduced|cw=none",
+   "observed_cv_auc": 0.7300572363501425,
+   "null_mean": 0.4986937615224452,
+   "null_sd": 0.04730221095433435,
+   "null_p99": 0.6108576385131265,
+   "null_max": 0.6506545878457644,
+   "p_value": 0.000999000999000999
+  }
+ },
+ "runtime_seconds": 216.9
+}

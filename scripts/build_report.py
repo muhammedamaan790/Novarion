@@ -17,7 +17,7 @@ SHOTS = ROOT / "results" / "ui" / "real"
 TARGETS = ("cad", "lad", "lcx", "rca")
 NAME = {"cad": "CAD", "lad": "LAD", "lcx": "LCX", "rca": "RCA"}
 GROUPS = ("demographics", "history", "symptoms_exam", "ecg", "labs", "echo")
-TEST_COUNTS = {"python": 173, "vitest": 19, "e2e": 43}  # measured counts of the last full runs (update with them)
+TEST_COUNTS = {"python": 180, "vitest": 24, "e2e": 49}  # measured counts of the last full runs (update with them)
 GROUP_LABEL = {"demographics": "Demogr.", "history": "History", "symptoms_exam": "Symptoms/exam", "ecg": "ECG",
                "labs": "Labs", "echo": "Echo"}
 
@@ -97,6 +97,10 @@ def main() -> None:
     replay_rows = [[NAME[k]] + [f"{p['auc_mean']:.3f} ± {p['auc_sd']:.3f}" for p in replay["learning_curve"][k]]
                    for k in TARGETS]
     gate_pass = sum(f["PASS"] for f in replay["gate_frequencies"].values())
+    perm = load(ROOT / "results" / "permutation.json")
+    agree = load(ROOT / "results" / "model_agreement.json")["targets"]
+    memory = perf["memory"]
+    repro = load(ROOT / "results" / "reproduction.json")
     gate_total = sum(sum(f.values()) for f in replay["gate_frequencies"].values())
 
     body = f"""
@@ -175,6 +179,13 @@ always-positive baseline ({m(t['cad']['baselines']['always_positive'], 'accuracy
 <p class="cap"><b>Table 3 — family benchmarks (same selection rule within one family; ROC-AUC, outer-fold mean ± SD)
 and families selected across the 25 outer folds.</b></p>
 {table(["Target", "Selected", "LR", "EBM", "XGBoost", "CatBoost", "Selected family counts"], bench_rows, "small")}
+<p><b>Robustness.</b> A label-permutation test ({perm['permutations']} shuffles; 5-fold CV AUC of each deployed
+configuration) puts every target above all shuffled-label runs (p = {perm['targets']['lcx']['p_value']:.3f} for each,
+the smallest attainable; null AUC ≈ 0.50 ± 0.05; "evidence against the null under the test assumptions"). When the four
+model families disagree on a held-out patient, the selected model errs far more often (CAD
+{pct(agree['cad']['selected_error_rate_when_disagree'])} vs {pct(agree['cad']['selected_error_rate_when_agree'])},
+LAD {pct(agree['lad']['selected_error_rate_when_disagree'])} vs {pct(agree['lad']['selected_error_rate_when_agree'])}),
+so family disagreement is a useful descriptive cue for hard cases.</p>
 <p class="cap"><b>Table 4 — feature-group ablation (descriptive): ΔROC-AUC when a group is removed and the
 training-side procedure is re-run on the same 25 folds, logistic-regression family.</b></p>
 {table(["Target", "Full", *[f"− {GROUP_LABEL[g]}" for g in GROUPS]], abl_rows, "small")}
@@ -202,7 +213,10 @@ id to its node, camera preset and offline-computed label anchor; tests assert th
 rotate/zoom/pan, five camera presets, click a vessel in 3D or its card (one store action, so 3D and panels can never
 disagree), isolation, keyboard shortcuts, deep links, hover tooltips, compare mode. Colour is a monotone function of the
 calibrated probability within each predicted class (OKLCH, threshold as zero point); the whole named vessel is tinted —
-no lesion is implied. Rendering is on-demand, so the 3D stays responsive without a dedicated GPU. <b>Interpretability:</b>
+no lesion is implied. Rendering is on-demand, so the 3D stays responsive without a dedicated GPU. <b>What-if:</b> for a
+new or edited case, one input at a time is varied across its training range (age and sex locked) and the probability
+curve is drawn against the threshold, labelled "model sensitivity, not treatment simulation"; Unknown inputs that could
+flip the predicted class are listed. <b>Interpretability:</b>
 per-vessel contributions with strength words, presentation-group sums, a measurement table with each value's percentile
 or prevalence among that target's positive and negative training patients (n shown; "insufficient evidence" below 20),
 similar public-dataset patients, an empirical evidence ledger, and a Model Evidence page with ROC/PR/reliability/
@@ -242,11 +256,13 @@ displayed outcome.</p>
 modified bundle. A golden prediction set guards future patch releases; demo patients are picked by an outcome-blind hash
 rule. Tests: {TEST_COUNTS['python']} backend/ML (leakage, contract, additivity,
 calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop), {TEST_COUNTS['vitest']} frontend
-unit tests and {TEST_COUNTS['e2e']} browser end-to-end flows, passing against the real model (axe accessibility checks
-included; the earlier 33-flow suite also on the Docker stack in Chrome and Firefox). Measured: <code>/predict</code> p95
+unit tests and {TEST_COUNTS['e2e']} browser end-to-end flows, passing against the real model in Edge, Chrome and Firefox
+(axe accessibility checks included). Measured: <code>/predict</code> p95
 {perf['api']['endpoints']['predict']['p95_ms']:.0f} ms; 3D median {perf['fps']['median_fps']:.1f} fps on Intel Iris Xe integrated
-graphics. If the backend is unreachable, a hash-verified static bundle keeps every dataset-patient flow working
-offline. <b>Limitations:</b> one public, single-source cohort of 303 patients
+graphics; backend memory {memory['rss_after_start_mb']:.0f} MB after start, {memory['rss_peak_mb']:.0f} MB peak. If the backend
+is unreachable, a hash-verified static bundle keeps every dataset-patient flow working offline. <b>Reproduced:</b> a
+full run on a fresh clone (fresh data download) matched every fold, metric, golden prediction, stability interval and
+replay result exactly ({'passed' if repro['pass'] else 'FAILED'}; <code>results/reproduction.json</code>). <b>Limitations:</b> one public, single-source cohort of 303 patients
 with high prevalence (PPV/NPV do not transfer); internal validation only; contributions are associations, not causes;
 the anatomy is a reference model. <b>Credits:</b> dataset UCI #411 (CC BY 4.0); anatomy BodyParts3D, © The Database
 Center for Life Science (CC BY 4.0).</p>

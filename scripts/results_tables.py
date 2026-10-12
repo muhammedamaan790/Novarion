@@ -51,6 +51,21 @@ def main() -> None:
                  "defined folds. Benchmarks = the same selection rule restricted to one model family (descriptive "
                  "only)."), ""]
 
+    perm_path = ROOT / "results" / "permutation.json"
+    if perm_path.exists():  # scripts/permutation_test.py (plan Tier 3)
+        perm = json.loads(perm_path.read_text(encoding="utf-8"))
+        out += [(f"## Table 1b — label-permutation test · {perm['permutations']} shuffles · deployed configuration, "
+                "5-fold CV ROC-AUC"), "",
+                ("p-value under the label-permutation null; evidence against the null under the test assumptions. "
+                 "Conditional on the selected configuration (selection is not repeated under the null)."), ""]
+        out.append("| Target | CV ROC-AUC | Null mean ± SD | Null max | p |")
+        out.append("|" + "---|" * 5)
+        for t in TARGETS:
+            r = perm["targets"][t]
+            out.append(f"| {t.upper()} | {r['observed_cv_auc']:.3f} | {r['null_mean']:.3f} ± {r['null_sd']:.3f} | "
+                       f"{r['null_max']:.3f} | {r['p_value']:.4f} |")
+        out.append("")
+
     out += ["## Table 2 — threshold-only confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI", "",
             ("Threshold regions are measured before the app's additional input-quality gates; these percentages do not "
              "measure displayed HIGH-confidence coverage."), ""]

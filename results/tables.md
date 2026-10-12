@@ -39,6 +39,17 @@
 
 Undefined metrics (e.g. precision with no predicted positives) are NA, never 0; means are over defined folds. Benchmarks = the same selection rule restricted to one model family (descriptive only).
 
+## Table 1b — label-permutation test · 1000 shuffles · deployed configuration, 5-fold CV ROC-AUC
+
+p-value under the label-permutation null; evidence against the null under the test assumptions. Conditional on the selected configuration (selection is not repeated under the null).
+
+| Target | CV ROC-AUC | Null mean ± SD | Null max | p |
+|---|---|---|---|---|
+| CAD | 0.936 | 0.502 ± 0.050 | 0.646 | 0.0010 |
+| LAD | 0.844 | 0.500 ± 0.049 | 0.656 | 0.0010 |
+| LCX | 0.714 | 0.498 ± 0.049 | 0.620 | 0.0010 |
+| RCA | 0.730 | 0.499 ± 0.047 | 0.651 | 0.0010 |
+
 ## Table 2 — threshold-only confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI
 
 Threshold regions are measured before the app's additional input-quality gates; these percentages do not measure displayed HIGH-confidence coverage.
