@@ -4601,7 +4601,8 @@
             "type": "string",
             "enum": [
               "exact_training_match",
-              "derived_from_training_record"
+              "derived_from_training_record",
+              "legacy_oof_ledger_withheld"
             ],
             "title": "Code"
           },
@@ -5246,6 +5247,7 @@
                 "unknown_input",
                 "atypical_profile",
                 "unstable",
+                "no_validation_evidence",
                 "no_qualified_region",
                 "gray_zone"
               ]

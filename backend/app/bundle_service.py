@@ -76,6 +76,13 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _matches_config(path: Path, expected: str) -> bool:
+    """Allow Git's LF/CRLF conversion only; any other serving-config change invalidates the bundle."""
+    raw = path.read_bytes()
+    lf = raw.replace(b"\r\n", b"\n")
+    return expected in {hashlib.sha256(data).hexdigest() for data in (raw, lf, lf.replace(b"\n", b"\r\n"))}
+
+
 def _thresholds(d: dict[str, Any]) -> Thresholds:
     def q(x):
         return None if x is None else Qualification(**x)
@@ -95,8 +102,13 @@ def verify_bundle(bundle_dir: Path) -> tuple[dict[str, Any], str, dict[str, Any]
             raise IntegrityError(f"missing artifact {rel}")
         if _sha(path) != expected:
             raise IntegrityError(f"artifact hash mismatch: {rel}")
-    if _sha(CONFIG_DIR / "anatomy_map.json") != manifest["anatomy_map_sha256"]:
-        raise IntegrityError("anatomy_map.json differs from the map this bundle was built with")
+    for name, key in (
+        ("anatomy_map.json", "anatomy_map_sha256"),
+        ("feature_registry.yaml", "feature_schema_sha256"),
+        ("targets.yaml", "target_schema_sha256"),
+    ):
+        if not _matches_config(CONFIG_DIR / name, manifest[key]):
+            raise IntegrityError(f"{name} differs from the serving configuration this bundle was built with")
     index_doc = json.loads((bundle_dir / "demo_bundle" / "index.json").read_text(encoding="utf-8"))
     index = index_doc["index"]
     if hashlib.sha256(rfc8785.dumps(index)).hexdigest() != index_doc["demo_bundle_sha256"]:
@@ -113,7 +125,13 @@ def verify_bundle(bundle_dir: Path) -> tuple[dict[str, Any], str, dict[str, Any]
 def production_bundle_dir() -> Path:
     registry = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
     entry = next(m for m in registry["models"] if m["version"] == registry["production_version"])
-    return ROOT / entry["path"]
+    directory = ROOT / entry["path"]
+    doc = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+    if doc["artifact_manifest_sha256"] != entry["artifact_manifest_sha256"]:
+        raise IntegrityError("production registry points to a different artifact manifest")
+    if doc["manifest"]["model_version"] != entry["version"]:
+        raise IntegrityError("production registry version differs from the bundle version")
+    return directory
 
 
 class BundleService(InferenceService):
@@ -249,7 +267,17 @@ class BundleService(InferenceService):
         return PatientListResponse(patients=items, count=len(items))
 
     def patient(self, patient_id: str) -> PatientBundle:
-        return PatientBundle(**self._patient_file(patient_id)["bundle"], app_version=APP_VERSION)
+        payload = self._patient_file(patient_id)["bundle"]
+        if self.manifest.get("oof_ledger_method") != "outer_training_inner_crossfit":
+            # Old reference-band membership used global OOF scores whose fits could include this query's label.
+            # Preserve the actual held-out predictions/SHAP; never present that legacy ledger as held-out evidence.
+            for evidence in payload["evidence"].values():
+                evidence["evidence_ledger"].update(status="insufficient_evidence", n=0, positive_label_rate=None)
+            payload["quality"].setdefault("notices", []).append({
+                "code": "legacy_oof_ledger_withheld",
+                "message": "Probability-band evidence withheld: this older bundle needs rebuilding with fold-safe evidence.",
+            })
+        return PatientBundle(**payload, app_version=APP_VERSION)
 
     def ground_truth(self, patient_id: str) -> GroundTruthResponse:
         return GroundTruthResponse(

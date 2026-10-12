@@ -31,6 +31,7 @@ export const REASON_TEXT: Record<string, string> = {
   unknown_input: "an input was marked UNKNOWN",
   atypical_profile: "atypical profile compared with the reference cohort",
   unstable: "the model is unstable for this patient",
+  no_validation_evidence: "this confidence region has no held-out validation estimate",
   no_qualified_region: "no qualified high-confidence region for this target",
   gray_zone: "near the operating threshold",
 };

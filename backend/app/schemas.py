@@ -44,8 +44,10 @@ PatientId = Annotated[str, Field(pattern=r"^ZAS-\d{4}$")]
 SemVer = Annotated[str, Field(pattern=r"^\d+\.\d+\.\d+$")]
 InputValue = StrictInt | StrictFloat | StrictStr | None
 
-CONFIDENCE_REASON_ORDER = ("unknown_input", "atypical_profile", "unstable", "no_qualified_region", "gray_zone")
-ConfidenceReason = Literal["unknown_input", "atypical_profile", "unstable", "no_qualified_region", "gray_zone"]
+CONFIDENCE_REASON_ORDER = ("unknown_input", "atypical_profile", "unstable", "no_validation_evidence",
+                           "no_qualified_region", "gray_zone")
+ConfidenceReason = Literal["unknown_input", "atypical_profile", "unstable", "no_validation_evidence",
+                           "no_qualified_region", "gray_zone"]
 
 ADDITIVITY_RTOL, ADDITIVITY_ATOL = 1e-6, 1e-5
 
@@ -328,7 +330,7 @@ class AtypicalProfile(Strict):
 
 
 class QualityNotice(Strict):
-    code: Literal["exact_training_match", "derived_from_training_record"]
+    code: Literal["exact_training_match", "derived_from_training_record", "legacy_oof_ledger_withheld"]
     message: ShortStr
 
 

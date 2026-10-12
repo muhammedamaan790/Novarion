@@ -31,6 +31,7 @@ import numpy as np
 import rfc8785
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "ml"))
 
 from novarion_ml.calibrate.platt import Platt
@@ -44,10 +45,10 @@ from novarion_ml.uncertainty.reference import Ledger, ReferenceContext
 
 
 def _version_arg() -> str:
-    """`--version X.Y.Z` (default 1.0.1 = 1.0.0 + stability intervals, D-017; 0.1.0 was the dev bundle)."""
+    """`--version X.Y.Z` (default 1.0.2 = 1.0.1 + fold-safe evidence ledgers, D-019; 0.1.0 was the dev bundle)."""
     if "--version" in sys.argv:
         return sys.argv[sys.argv.index("--version") + 1]
-    return "1.0.1"
+    return "1.0.2"
 
 
 VERSION = _version_arg()
@@ -81,9 +82,32 @@ def py(v):
     return int(v) if isinstance(v, float) and v.is_integer() else v
 
 
+def fold_training_ledger(record: dict, labels) -> Ledger:
+    """The query outer-test fold must influence neither the model nor evidence-band membership."""
+    ids = record["train_ids"]
+    values = record.get("training_oof_prob")
+    if values is None or len(values) != len(ids):
+        raise ValueError("Legacy or incomplete outer-fold cache has no training-side OOF probabilities. "
+                         "Rerun scripts/train.py nested; global OOF scores are unsafe for fold evidence ledgers.")
+    probs = np.asarray(values, dtype=float)
+    if not np.isfinite(probs).all() or ((probs < 0) | (probs > 1)).any():
+        raise ValueError("Invalid training-side OOF ledger probabilities.")
+    return Ledger(probs, labels.loc[ids].to_numpy())
+
+
+def validated_output_dir(out: Path) -> Path:
+    """Recursive replacement is confined to versioned artifacts or dedicated in-repo scratch builds."""
+    root = ROOT.resolve()
+    target = out.resolve()
+    allowed = [root / "artifacts" / "models", root / "work" / "bundle-builds"]
+    if not any(target != base and target.is_relative_to(base) for base in allowed):
+        raise ValueError("Bundle output must be below artifacts/models or work/bundle-builds in this repository.")
+    return target
+
+
 def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = None) -> None:
     warnings.filterwarnings("ignore")
-    OUT = out  # local override for dry runs (scratch directories)
+    OUT = validated_output_dir(out)  # dry runs belong under work/bundle-builds
     RESULTS = results
     registry = default_registry()
     targets_cfg = load_targets()
@@ -100,13 +124,40 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
     refctx_args = {"n_min_compare": targets_cfg["cohort_comparison_min_n"],
                    "evidence_bands": targets_cfg["evidence_bands"], "band_min_n": targets_cfg["evidence_band_min_n"]}
 
-    if OUT.exists():
-        shutil.rmtree(OUT)
-    OUT.mkdir(parents=True)
-
     # ---------------------------------------------------------------- evaluation-repeat OOF predictions (ledger)
     fold_records = {t: [json.loads((RESULTS / "nested" / t / f"r{ev_repeat}f{k}.json").read_text(encoding="utf-8"))
                         for k in range(train.outer_k)] for t in TARGETS}
+    from scripts.train import all_folds, cache_key, validate_fold_record
+
+    key = cache_key()
+    if metrics.get("cache_key") != key:
+        raise ValueError("Evaluation is stale: rerun nested, final and evaluate before bundle assembly.")
+    folds = all_folds(X, Y)
+    for t in TARGETS:
+        expected = [f for f in folds[t] if f.repeat == ev_repeat]
+        for record, fold in zip(fold_records[t], expected, strict=True):
+            validate_fold_record(record, fold, t, key, Y[t])
+        summary = json.loads((RESULTS / "final" / f"{t}.json").read_text(encoding="utf-8"))
+        if summary.get("cache_key") != key:
+            raise ValueError(f"Final {t} model is stale: rerun scripts/train.py final before bundle assembly.")
+    # Frozen v1.0 fits predate `training_oof_prob`: take it from scripts/fold_ledger_oof.py, which proved it reproduces
+    # each fold's stored Platt fit (D-019). Records that already carry it are used as they are.
+    recomputed_path = RESULTS / "fold_ledger_oof.json"
+    if recomputed_path.exists():
+        recomputed = json.loads(recomputed_path.read_text(encoding="utf-8"))["folds"]
+        for t in TARGETS:
+            for rec in fold_records[t]:
+                extra = recomputed.get(f"{t}:{rec['fold']}")
+                if "training_oof_prob" not in rec and extra:
+                    if extra["train_ids"] != rec["train_ids"]:
+                        raise ValueError(f"{t} k{rec['fold'] + 1}: recomputed ledger belongs to different training rows")
+                    rec["training_oof_prob"] = extra["training_oof_prob"]
+    # Validate evidence inputs before touching any previously built bundle.
+    fold_ledgers = {(t, rec["fold"]): fold_training_ledger(rec, Y[t])
+                    for t in TARGETS for rec in fold_records[t]}
+    if OUT.exists():
+        shutil.rmtree(OUT)
+    OUT.mkdir(parents=True)
     oof_prob = {t: {} for t in TARGETS}
     fold_of = {t: {} for t in TARGETS}
     for t in TARGETS:
@@ -131,7 +182,7 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
             d.mkdir(parents=True)
             model = joblib.load(RESULTS / "nested" / "models" / f"{t}_r{ev_repeat}_f{k}.joblib")
             train_ids = rec["train_ids"]
-            ref = ReferenceContext(X.loc[train_ids], labels, {t: ledger(t, train_ids)},
+            ref = ReferenceContext(X.loc[train_ids], labels, {t: fold_ledgers[(t, k)]},
                                    scope=f"{t} fold k{k + 1} outer-training (eval repeat {ev_repeat})", **refctx_args)
             platt = Platt(rec["platt"]["a"], rec["platt"]["b"])
             thr = thresholds_from_json(rec["thresholds"])
@@ -264,6 +315,8 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
         "reference_context_sha256": {f"{t}:{k if k == 'final' else f'k{k + 1}'}": v for (t, k), v in refctx_sha.items()},
         "selected": {t: json.loads((RESULTS / "final" / f"{t}.json").read_text())["selected"] for t in TARGETS},
         "files": files, "git_sha": git_sha or None, "seeds": train.seeds, "evaluation_repeat_id": ev_repeat,
+        "oof_ledger_method": "outer_training_inner_crossfit",
+        "training_cache_key": key,
         "libraries": {"python": platform.python_version(), "numpy": np.__version__, "scikit-learn": sklearn.__version__,
                       "xgboost": xgboost.__version__, "catboost": catboost.__version__,
                       "interpret": interpret.__version__},

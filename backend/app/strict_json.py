@@ -7,6 +7,7 @@ strings > 256 chars. (The standard json.loads silently keeps the last duplicate 
 from __future__ import annotations
 
 import json
+import math
 from collections.abc import Callable
 from typing import Any
 
@@ -43,6 +44,8 @@ def _check_shape(value: Any, depth: int = 1) -> None:
             _check_shape(v, depth + 1)
     elif isinstance(value, str) and len(value) > MAX_STRING_CHARS:
         raise ApiError("VALIDATION_FAILED", "String too long.", {"reason": "string_length", "max": MAX_STRING_CHARS})
+    elif isinstance(value, float) and not math.isfinite(value):
+        raise ApiError("VALIDATION_FAILED", "Non-finite numbers are not allowed.", {"reason": "non_finite"})
 
 
 def _lenient_request_id(raw: bytes) -> Any:
@@ -61,7 +64,9 @@ def parse_strict_json(raw: bytes) -> Any:
         raise ApiError("PAYLOAD_TOO_LARGE", "Request body too large.", {"max_bytes": MAX_BODY_BYTES})
     try:
         value = json.loads(raw, object_pairs_hook=_no_duplicates, parse_constant=_reject_constant)
-    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+    except RecursionError as exc:
+        raise ApiError("VALIDATION_FAILED", "JSON nesting too deep.", {"reason": "depth"}) from exc
+    except ValueError as exc:
         raise ApiError("VALIDATION_FAILED", "Malformed JSON.", {"reason": "malformed_json"}) from exc
     _check_shape(value)
     return value
@@ -71,8 +76,12 @@ class StrictJSONRequest(Request):
     async def body(self) -> bytes:
         if not hasattr(self, "_body"):
             declared = self.headers.get("content-length")
-            if declared and declared.isdigit() and int(declared) > MAX_BODY_BYTES:
-                raise ApiError("PAYLOAD_TOO_LARGE", "Request body too large.", {"max_bytes": MAX_BODY_BYTES})
+            if declared:
+                digits = declared.lstrip("0")
+                if digits.isascii() and digits.isdecimal() and (
+                    len(digits) > len(str(MAX_BODY_BYTES)) or int(digits) > MAX_BODY_BYTES
+                ):
+                    raise ApiError("PAYLOAD_TOO_LARGE", "Request body too large.", {"max_bytes": MAX_BODY_BYTES})
             chunks, size = [], 0
             async for chunk in self.stream():
                 size += len(chunk)

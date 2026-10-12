@@ -51,10 +51,25 @@ N_JOBS = max(1, (os.cpu_count() or 2) - 1)
 
 
 def cache_key() -> str:
-    parts = [default_train_config().sha256]
+    parts = [default_train_config().sha256]  # code changes need an explicit rerun (D-019)
     for name in ("feature_registry.yaml", "targets.yaml", "data_source.json"):
         parts.append(hashlib.sha256((CONFIG_DIR / name).read_bytes()).hexdigest())
     return hashlib.sha256("|".join(parts).encode()).hexdigest()
+
+
+def validate_fold_record(record: dict, fold, target: str, key: str, labels) -> None:
+    """Reject stale or misidentified results before stamping an evaluation with current provenance."""
+    expected = {"target": target, "repeat": fold.repeat, "fold": fold.fold, "cache_key": key,
+                "train_ids": [int(i) for i in fold.train_ids], "test_ids": [int(i) for i in fold.test_ids],
+                "y_test": [int(v) for v in labels.loc[fold.test_ids]]}
+    for field, value in expected.items():
+        if record.get(field) != value:
+            raise ValueError(f"Stale or incompatible {target} r{fold.repeat}f{fold.fold}: {field} mismatch. "
+                             "Rerun scripts/train.py nested before evaluation or bundle assembly.")
+    n = len(fold.test_ids)
+    for field in ("prob", "margin", "cal_logit", "pred", "region"):
+        if len(record.get("test", {}).get(field, [])) != n:
+            raise ValueError(f"Incomplete {target} r{fold.repeat}f{fold.fold}: test.{field} length mismatch.")
 
 
 def load_data():
@@ -155,8 +170,11 @@ def evaluate() -> None:
     folds = all_folds(X, Y)
     report: dict = {"train_config_sha256": train.sha256, "cache_key": cache_key(), "targets": {}}
     rows = []
+    key = cache_key()
     for t in TARGETS:
         records = [json.loads(_fold_path(t, f.repeat, f.fold).read_text(encoding="utf-8")) for f in folds[t]]
+        for record, fold in zip(records, folds[t], strict=True):
+            validate_fold_record(record, fold, t, key, Y[t])
         model_folds, base_folds = [], {"always_negative": [], "always_positive": [], "prior": []}
         bench_folds: dict[str, list] = {fam: [] for fam in train.raw["family_order"]}
         for rec in records:
@@ -186,7 +204,8 @@ def evaluate() -> None:
             "model": summarize(model_folds),
             "baselines": {k: summarize(v, list(v[0].keys()) if v else []) for k, v in base_folds.items()},
             "benchmarks": {fam: summarize(v) for fam, v in bench_folds.items() if v},
-            "table2_scope": "pooled OOF (prespecified repeat)", "table2": table2,
+            "table2_scope": "pooled OOF (prespecified repeat), threshold-only before app input-quality gates",
+            "table2": table2,
             "selected_families": families,
             "calibration_guard_events": sum(len(r["guard_log"]) for r in records),
             "folds_without_high_positive_region": sum(r["thresholds"]["t_pos"] is None for r in records),
