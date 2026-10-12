@@ -17,7 +17,7 @@ SHOTS = ROOT / "results" / "ui" / "real"
 TARGETS = ("cad", "lad", "lcx", "rca")
 NAME = {"cad": "CAD", "lad": "LAD", "lcx": "LCX", "rca": "RCA"}
 GROUPS = ("demographics", "history", "symptoms_exam", "ecg", "labs", "echo")
-TEST_COUNTS = {"python": 180, "vitest": 24, "e2e": 49}  # measured counts of the last full runs (update with them)
+TEST_COUNTS = {"python": 190, "vitest": 24, "e2e": 50}  # measured counts of the last full runs (update with them)
 GROUP_LABEL = {"demographics": "Demogr.", "history": "History", "symptoms_exam": "Symptoms/exam", "ecg": "ECG",
                "labs": "Labs", "echo": "Echo"}
 
@@ -101,6 +101,25 @@ def main() -> None:
     agree = load(ROOT / "results" / "model_agreement.json")["targets"]
     memory = perf["memory"]
     repro = load(ROOT / "results" / "reproduction.json")
+    clin = load(ROOT / "results" / "clinical_evaluation.json")
+    cb = clin["clinical_baseline"]
+    vs_df, vs_refit = cb["novarion_vs_published_df"], cb["novarion_vs_df_inputs_refit"]
+    cal = cb["calibration"]
+    band_rows = [[html.escape(band), (f"{pct(cb['esc_pretest_bands']['novarion'][band]['share'])} "
+                        f"({pct(cb['esc_pretest_bands']['novarion'][band]['observed_cad_rate'])})"),
+                  (f"{pct(cb['esc_pretest_bands']['published_df'][band]['share'])} "
+                  f"({pct(cb['esc_pretest_bands']['published_df'][band]['observed_cad_rate'])})")]
+                 for band in cb["esc_pretest_bands"]["novarion"]]
+    clin_rows = [["NOVARION", f"{vs_df['auc_new']:.3f}", f"{cal['novarion']['calibration_in_the_large']:+.3f}",
+                  f"{cal['novarion']['ece']:.3f}", "—"],
+                 ["Updated Diamond–Forrester (published)", f"{vs_df['auc_old']:.3f}",
+                  f"{cal['published_df']['calibration_in_the_large']:+.3f}", f"{cal['published_df']['ece']:.3f}",
+                  f"{vs_df['delta_auc']:+.3f} [{vs_df['delta_auc_ci95'][0]:.3f}, {vs_df['delta_auc_ci95'][1]:.3f}]"],
+                 ["Same three inputs, refit on our folds", f"{vs_refit['auc_old']:.3f}",
+                  f"{cal['df_inputs_refit']['calibration_in_the_large']:+.3f}", f"{cal['df_inputs_refit']['ece']:.3f}",
+                  f"{vs_refit['delta_auc']:+.3f} [{vs_refit['delta_auc_ci95'][0]:.3f}, {vs_refit['delta_auc_ci95'][1]:.3f}]"]]
+    sub = clin["subgroups"]
+    old_auc = {t: sub[t]["age >= 65"]["auc"] for t in ("cad", "lad", "lcx", "rca")}
     gate_total = sum(sum(f.values()) for f in replay["gate_frequencies"].values())
 
     body = f"""
@@ -179,6 +198,22 @@ always-positive baseline ({m(t['cad']['baselines']['always_positive'], 'accuracy
 <p class="cap"><b>Table 3 — family benchmarks (same selection rule within one family; ROC-AUC, outer-fold mean ± SD)
 and families selected across the 25 outer folds.</b></p>
 {table(["Target", "Selected", "LR", "EBM", "XGBoost", "CatBoost", "Selected family counts"], bench_rows, "small")}
+<p><b>Against the guideline pretest score.</b> Reviews of cardiovascular AI ask for comparison with established
+clinical scores, calibration beyond AUC and subgroup reporting (Parizad et al., Vasc Health Risk Manag 2026). For CAD
+we compared NOVARION with the updated Diamond–Forrester pretest probability (age × sex × chest-pain type; ESC 2013)
+on the {cb['n']} patients with a chest-pain type, using the same out-of-fold predictions.</p>
+<p class="cap"><b>Table 6 — CAD versus the guideline pretest score. Scope: pooled OOF (prespecified repeat), paired
+patient bootstrap 95% CI.</b> Calibration-in-the-large = observed − mean predicted.</p>
+{table(["Model", "AUC", "Calibration-in-the-large", "ECE", "ΔAUC of NOVARION [95% CI]"], clin_rows, "small")}
+{table(["ESC pretest band", "NOVARION: share (observed CAD)", "Diamond–Forrester: share (observed CAD)"], band_rows, "small narrow")}
+<p>The extra measurements add discrimination beyond age, sex and chest-pain type, and NOVARION is better calibrated
+on this high-prevalence cohort; the published score leaves {pct(cb['esc_pretest_bands']['published_df']['intermediate (15-85%)']['share'])}
+of patients in the intermediate band, NOVARION {pct(cb['esc_pretest_bands']['novarion']['intermediate (15-85%)']['share'])}. The bands are
+descriptive only: NOVARION recommends no tests or treatment, and its low band still holds
+{pct(cb['esc_pretest_bands']['novarion']['low (<15%)']['observed_cad_rate'])} observed CAD. <b>Subgroups</b> (sex, age; full
+table in <code>results/tables.md</code>): discrimination is similar by sex but lower in patients aged 65 and over (AUC
+CAD {old_auc['cad']:.2f}, LAD {old_auc['lad']:.2f}, LCX {old_auc['lcx']:.2f}, RCA {old_auc['rca']:.2f}), with wide
+intervals. A TRIPOD+AI checklist maps every reporting item (<code>docs/tripod_ai.md</code>).</p>
 <p><b>Robustness.</b> A label-permutation test ({perm['permutations']} shuffles; 5-fold CV AUC of each deployed
 configuration) puts every target above all shuffled-label runs (p = {perm['targets']['lcx']['p_value']:.3f} for each,
 the smallest attainable; null AUC ≈ 0.50 ± 0.05; "evidence against the null under the test assumptions"). When the four
@@ -263,7 +298,7 @@ graphics; backend memory {memory['rss_after_start_mb']:.0f} MB after start, {mem
 is unreachable, a hash-verified static bundle keeps every dataset-patient flow working offline. <b>Reproduced:</b> a
 full run on a fresh clone (fresh data download) matched every fold, metric, golden prediction, stability interval and
 replay result exactly ({'passed' if repro['pass'] else 'FAILED'}; <code>results/reproduction.json</code>). <b>Limitations:</b> one public, single-source cohort of 303 patients
-with high prevalence (PPV/NPV do not transfer); internal validation only; contributions are associations, not causes;
+with high prevalence (PPV/NPV do not transfer); internal validation only; weaker performance in patients aged 65 and over; contributions are associations, not causes;
 the anatomy is a reference model. <b>Credits:</b> dataset UCI #411 (CC BY 4.0); anatomy BodyParts3D, © The Database
 Center for Life Science (CC BY 4.0).</p>
 """

@@ -115,6 +115,66 @@ def main() -> None:
                        f"{r['probability_range_median']:.2f} | {pct(r['selected_error_rate_when_agree'])} | "
                        f"{pct(r['selected_error_rate_when_disagree'])} (n = {r['n_disagree']}) |")
         out.append("")
+    clin_path = ROOT / "results" / "clinical_evaluation.json"
+    if clin_path.exists():  # scripts/clinical_evaluation.py (D-021)
+        ce = json.loads(clin_path.read_text(encoding="utf-8"))
+        cb = ce["clinical_baseline"]
+        out += [("## Table 6 — CAD versus the guideline pretest score · pooled OOF (prespecified repeat), "
+                f"n = {cb['n']} patients with a chest-pain type"), "",
+                ("Updated Diamond-Forrester pretest probability (age × sex × chest-pain type; ESC 2013, Genders 2011), "
+                 "applied as published, and a logistic regression on the same three inputs refit inside the same outer "
+                 f"folds. {cb['population']}. Paired patient bootstrap ({ce['bootstrap']} replicates)."), ""]
+        out.append("| Comparison | AUC NOVARION | AUC comparator | ΔAUC [95% CI] | Continuous NRI [95% CI] | IDI [95% CI] |")
+        out.append("|" + "---|" * 6)
+        for key, label in (("novarion_vs_published_df", "vs published Diamond-Forrester"),
+                           ("novarion_vs_df_inputs_refit", "vs the same 3 inputs, refit")):
+            r = cb[key]
+            f3 = lambda v: f"{v:+.3f}"
+            out.append(f"| {label} | {r['auc_new']:.3f} | {r['auc_old']:.3f} | {f3(r['delta_auc'])} "
+                       f"[{r['delta_auc_ci95'][0]:.3f}, {r['delta_auc_ci95'][1]:.3f}] | {r['nri']:+.2f} "
+                       f"[{r['nri_ci95'][0]:.2f}, {r['nri_ci95'][1]:.2f}] | {f3(r['idi'])} "
+                       f"[{r['idi_ci95'][0]:.3f}, {r['idi_ci95'][1]:.3f}] |")
+        out += ["", "| Calibration (same patients) | Brier | Calibration-in-the-large (obs − pred) | ECE | Slope |",
+                "|---|---|---|---|---|"]
+        for name, label in (("novarion", "NOVARION"), ("published_df", "Published Diamond-Forrester"),
+                            ("df_inputs_refit", "Same 3 inputs, refit")):
+            c = cb["calibration"][name]
+            out.append(f"| {label} | {c['brier']:.3f} | {c['calibration_in_the_large']:+.3f} | {c['ece']:.3f} | "
+                       f"{c['calibration_slope']:.2f} |")
+        out += ["", "| ESC pretest band | NOVARION: share (observed CAD) | Published D-F: share (observed CAD) |",
+                "|---|---|---|"]
+        for band in cb["esc_pretest_bands"]["novarion"]:
+            a_, b_ = cb["esc_pretest_bands"]["novarion"][band], cb["esc_pretest_bands"]["published_df"][band]
+            out.append(f"| {band} | {pct(a_['share'])} ({pct(a_['observed_cad_rate'])}) | "
+                       f"{pct(b_['share'])} ({pct(b_['observed_cad_rate'])}) |")
+        out += ["", ("Bands are the ESC 2013 pretest categories, shown descriptively: NOVARION does not recommend "
+                     "tests or treatment."), ""]
+        out += ["## Table 7 — subgroup performance · pooled OOF (prespecified repeat), patient bootstrap 95% CI", "",
+                ("Descriptive only: 303 patients from one centre, so intervals are wide and no fairness claim is made. "
+                 "Cells with fewer than 10 patients in either class are suppressed."), ""]
+        out.append("| Target | Subgroup | n (positive) | AUC [95% CI] | Sens. | Spec. | Calibration-in-the-large |")
+        out.append("|" + "---|" * 7)
+        for t in TARGETS:
+            for g, r in ce["subgroups"][t].items():
+                if "auc" in r:
+                    out.append(f"| {t.upper()} | {g} | {r['n']} ({r['n_positive']}) | {r['auc']:.3f} "
+                               f"[{r['auc_ci95'][0]:.3f}, {r['auc_ci95'][1]:.3f}] | {pct(r['sensitivity'])} | "
+                               f"{pct(r['specificity'])} | {r['calibration_in_the_large']:+.3f} |")
+                else:
+                    out.append(f"| {t.upper()} | {g} | {r['n']} ({r['n_positive']}) | {r['status']} | — | — | — |")
+        dca = ce["decision_curves"]
+        idx = [dca["thresholds"].index(x) for x in (0.15, 0.3, 0.5, 0.7, 0.85)]
+        out += ["", "## Table 8 — decision-curve net benefit · pooled OOF (research metric, no clinical recommendation)",
+                "", "| Target | Strategy | " + " | ".join(f"t = {dca['thresholds'][i]:.2f}" for i in idx) + " |",
+                "|" + "---|" * (len(idx) + 2)]
+        for t in TARGETS:
+            for key, label in (("model", "model"), ("treat_all", "treat all")):
+                out.append(f"| {t.upper()} | {label} | " + " | ".join(f"{dca[t][key][i]:+.3f}" for i in idx) + " |")
+        out.append("| CAD (chest-pain patients) | published Diamond-Forrester | "
+                   + " | ".join(f"{dca['cad_published_df'][i]:+.3f}" for i in idx) + " |")
+        out.append("| CAD (chest-pain patients) | model | "
+                   + " | ".join(f"{dca['cad_model_same_patients'][i]:+.3f}" for i in idx) + " |")
+        out.append("")
     out += ["## Model selection across outer folds", ""]
     for t in TARGETS:
         r = m["targets"][t]

@@ -464,3 +464,42 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Tier 3 deliberately not built:**
   - conformal prediction (marked experimental in the plan);
   - the ensemble benchmark (the plan rules out new ML sophistication).
+
+## D-021 — Clinical-standard evaluation, prompted by an umbrella review of cardiovascular AI
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **Context:** Parizad et al. (*Vasc Health Risk Manag* 2026) review 48 studies of AI for cardiovascular risk
+  prediction. It is a literature review, not a system, but it names the field's recurring reporting gaps:
+  - comparison with traditional clinical scores;
+  - calibration beyond AUC;
+  - fairness and subgroup analysis;
+  - clinical utility;
+  - transparent reporting (TRIPOD-AI);
+  - external validation.
+
+  We already covered calibration and explainability. Its headline numbers are internally inconsistent, so we cite
+  it for its qualitative conclusions only.
+- **Added (no model, threshold, API or prediction change), via `scripts/clinical_evaluation.py`, on the frozen
+  out-of-fold predictions:**
+  - **A guideline comparator for CAD.** The updated Diamond–Forrester pretest probability (ESC 2013, from Genders et
+    al. 2011; ≥ 50% stenosis), applied as published, and the same three inputs refit inside the same outer folds. On
+    the 273 patients with a chest-pain type:
+    - AUC 0.935 vs 0.852, ΔAUC +0.083 [0.042, 0.127]; vs the refit 0.890, ΔAUC +0.045 [0.012, 0.083];
+    - continuous NRI ≈ +1.0 and IDI +0.12 to +0.29;
+    - calibration-in-the-large +0.013 (NOVARION) vs +0.158 (published score);
+    - the published score leaves 89% of patients in the ESC intermediate band (15–85%), NOVARION 27%.
+
+    The bands are reported descriptively, and the 30 patients without chest pain are outside the published table.
+    The transcribed table is unit-tested against published values.
+  - **Subgroups** (sex; age < 50, 50–64, ≥ 65) for all four targets: AUC with a bootstrap CI, sensitivity,
+    specificity and calibration-in-the-large, with suppression below 10 per class. The honest finding is weaker
+    discrimination in patients aged 65 and over (CAD 0.88, LAD 0.70, LCX 0.59, RCA 0.69), with wide intervals. No
+    fairness claim is made.
+  - **Expected calibration error and decision-curve net benefit**, reported as research metrics with no
+    recommendation.
+  - **Where it shows:** Tables 6–8 in `results/tables.md`, a "versus the guideline pretest score" and subgroup
+    section on the Model Evidence page (static file, works offline), a report paragraph with Table 6, and
+    `docs/tripod_ai.md`, which maps every TRIPOD+AI item with its status and the gaps stated plainly.
+- **Release:** the model, bundle and API are unchanged, so the model stays v1.0.2. These are evidence and
+  documentation additions on top of the v1.0.2 release commit.

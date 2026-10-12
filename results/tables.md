@@ -85,6 +85,75 @@ For each held-out patient, LR, EBM, XGBoost and CatBoost (Table 3 benchmarks) ea
 | LCX | 67.3% (n = 204) | 0.13 | 28.9% | 42.4% (n = 99) |
 | RCA | 67.3% (n = 204) | 0.11 | 30.4% | 33.3% (n = 99) |
 
+## Table 6 — CAD versus the guideline pretest score · pooled OOF (prespecified repeat), n = 273 patients with a chest-pain type
+
+Updated Diamond-Forrester pretest probability (age × sex × chest-pain type; ESC 2013, Genders 2011), applied as published, and a logistic regression on the same three inputs refit inside the same outer folds. 273 of 303 patients with a chest-pain type (Diamond-Forrester's domain); 30 without chest pain are outside the published table. Paired patient bootstrap (2000 replicates).
+
+| Comparison | AUC NOVARION | AUC comparator | ΔAUC [95% CI] | Continuous NRI [95% CI] | IDI [95% CI] |
+|---|---|---|---|---|---|
+| vs published Diamond-Forrester | 0.935 | 0.852 | +0.083 [0.042, 0.127] | +1.01 [0.75, 1.24] | +0.293 [0.230, 0.351] |
+| vs the same 3 inputs, refit | 0.935 | 0.890 | +0.045 [0.012, 0.083] | +0.98 [0.75, 1.20] | +0.121 [0.068, 0.172] |
+
+| Calibration (same patients) | Brier | Calibration-in-the-large (obs − pred) | ECE | Slope |
+|---|---|---|---|---|
+| NOVARION | 0.089 | +0.013 | 0.059 | 0.88 |
+| Published Diamond-Forrester | 0.157 | +0.158 | 0.168 | 1.60 |
+| Same 3 inputs, refit | 0.103 | +0.002 | 0.046 | 0.98 |
+
+| ESC pretest band | NOVARION: share (observed CAD) | Published D-F: share (observed CAD) |
+|---|---|---|
+| low (<15%) | 13.6% (13.5%) | 5.1% (21.4%) |
+| intermediate (15-85%) | 27.1% (44.6%) | 88.6% (73.6%) |
+| high (>85%) | 59.3% (98.1%) | 6.2% (94.1%) |
+
+Bands are the ESC 2013 pretest categories, shown descriptively: NOVARION does not recommend tests or treatment.
+
+## Table 7 — subgroup performance · pooled OOF (prespecified repeat), patient bootstrap 95% CI
+
+Descriptive only: 303 patients from one centre, so intervals are wide and no fairness claim is made. Cells with fewer than 10 patients in either class are suppressed.
+
+| Target | Subgroup | n (positive) | AUC [95% CI] | Sens. | Spec. | Calibration-in-the-large |
+|---|---|---|---|---|---|---|
+| CAD | all | 303 (216) | 0.931 [0.901, 0.957] | 86.1% | 86.2% | +0.008 |
+| CAD | female | 127 (86) | 0.949 [0.906, 0.982] | 86.0% | 92.7% | -0.010 |
+| CAD | male | 176 (130) | 0.915 [0.866, 0.955] | 86.2% | 80.4% | +0.020 |
+| CAD | age < 50 | 58 (29) | 0.910 [0.824, 0.971] | 69.0% | 96.6% | +0.024 |
+| CAD | age 50-64 | 150 (104) | 0.934 [0.893, 0.969] | 86.5% | 89.1% | +0.013 |
+| CAD | age >= 65 | 95 (83) | 0.877 [0.764, 0.961] | 91.6% | 50.0% | -0.010 |
+| LAD | all | 303 (177) | 0.813 [0.760, 0.860] | 76.8% | 72.2% | +0.000 |
+| LAD | female | 127 (67) | 0.797 [0.709, 0.873] | 71.6% | 75.0% | -0.012 |
+| LAD | male | 176 (110) | 0.825 [0.758, 0.888] | 80.0% | 69.7% | +0.009 |
+| LAD | age < 50 | 58 (22) | 0.876 [0.756, 0.964] | 59.1% | 88.9% | -0.008 |
+| LAD | age 50-64 | 150 (84) | 0.804 [0.729, 0.872] | 70.2% | 72.7% | +0.005 |
+| LAD | age >= 65 | 95 (71) | 0.696 [0.563, 0.813] | 90.1% | 45.8% | -0.002 |
+| LCX | all | 303 (119) | 0.732 [0.672, 0.785] | 76.5% | 60.3% | +0.006 |
+| LCX | female | 127 (42) | 0.724 [0.628, 0.812] | 76.2% | 63.5% | -0.026 |
+| LCX | male | 176 (77) | 0.734 [0.654, 0.806] | 76.6% | 57.6% | +0.029 |
+| LCX | age < 50 | 58 (12) | 0.697 [0.512, 0.859] | 25.0% | 84.8% | -0.036 |
+| LCX | age 50-64 | 150 (52) | 0.714 [0.630, 0.796] | 69.2% | 64.3% | -0.013 |
+| LCX | age >= 65 | 95 (55) | 0.590 [0.470, 0.707] | 94.5% | 22.5% | +0.062 |
+| RCA | all | 303 (114) | 0.732 [0.671, 0.786] | 64.9% | 70.9% | +0.003 |
+| RCA | female | 127 (39) | 0.782 [0.690, 0.865] | 71.8% | 76.1% | -0.044 |
+| RCA | male | 176 (75) | 0.691 [0.613, 0.769] | 61.3% | 66.3% | +0.037 |
+| RCA | age < 50 | 58 (11) | 0.805 [0.655, 0.927] | 63.6% | 83.0% | -0.084 |
+| RCA | age 50-64 | 150 (60) | 0.724 [0.638, 0.803] | 51.7% | 75.6% | +0.056 |
+| RCA | age >= 65 | 95 (43) | 0.685 [0.568, 0.789] | 83.7% | 51.9% | -0.026 |
+
+## Table 8 — decision-curve net benefit · pooled OOF (research metric, no clinical recommendation)
+
+| Target | Strategy | t = 0.15 | t = 0.30 | t = 0.50 | t = 0.70 | t = 0.85 |
+|---|---|---|---|---|---|---|
+| CAD | model | +0.666 | +0.628 | +0.597 | +0.518 | +0.468 |
+| CAD | treat all | +0.662 | +0.590 | +0.426 | +0.043 | -0.914 |
+| LAD | model | +0.514 | +0.458 | +0.340 | +0.160 | +0.004 |
+| LAD | treat all | +0.511 | +0.406 | +0.168 | -0.386 | -1.772 |
+| LCX | model | +0.294 | +0.194 | +0.069 | -0.029 | +0.003 |
+| LCX | treat all | +0.286 | +0.132 | -0.215 | -1.024 | -3.048 |
+| RCA | model | +0.280 | +0.176 | +0.066 | -0.004 | -0.002 |
+| RCA | treat all | +0.266 | +0.109 | -0.248 | -1.079 | -3.158 |
+| CAD (chest-pain patients) | published Diamond-Forrester | +0.669 | +0.620 | +0.491 | +0.274 | +0.038 |
+| CAD (chest-pain patients) | model | +0.675 | +0.636 | +0.615 | +0.537 | +0.520 |
+
 ## Model selection across outer folds
 
 - **CAD**: families selected {'lr': 24, 'ebm': 1}; calibration-guard events 0; folds without a high-positive region 0/25, without a high-negative region 25/25.

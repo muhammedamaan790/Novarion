@@ -69,10 +69,15 @@ Scope: logistic-regression family of the pre-registered grid; same 25 outer fold
 | LCX stenosis | 0.714 | -0.056 | +0.017 | -0.032 | +0.007 | -0.018 | +0.009 |
 | RCA stenosis | 0.743 | -0.030 | -0.020 | -0.023 | +0.003 | -0.030 | +0.005 |
 
+## Comparison with the guideline pretest score (CAD)
+
+On the 273 patients with a chest-pain type, out-of-fold CAD AUC 0.935 vs 0.852 for the updated Diamond–Forrester score (ΔAUC +0.083 [0.042, 0.127]) and 0.890 for the same three inputs refit on the same folds (ΔAUC +0.045). Subgroup results by sex and age: `results/tables.md` Table 7; reporting checklist: `docs/tripod_ai.md`.
+
 ## Limitations
 
 - Single public cohort of 303 patients (high CAD prevalence, 71%); PPV/NPV do not transfer to populations with different prevalence.
 - Internal validation only; no external or temporal validation.
+- Lower discrimination in patients aged 65 and over (Table 7), with wide intervals; no fairness claim is made.
 - One discordant label record (D-001: LAD stenotic with Cath = Normal) is kept as published.
 - Contributions are associations learned by the model, not causes; correlated features share credit.
 - The 3D anatomy is a reference model (BodyParts3D), not a patient-specific reconstruction.

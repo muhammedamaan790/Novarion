@@ -15,6 +15,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | 1a CAD classifier · 1b LAD / LCX / RCA classifiers | There is one nested-CV-selected, calibrated model per target (`scripts/train.py`, `results/metrics.json`). Deployed: LR for CAD, LAD and RCA; shallow XGBoost for LCX. | Met |
 | 1c Demographic, exam, ECG, lab and echo inputs | All 55 predictors are covered by `config/feature_registry.yaml`, with types, units, valid ranges and the UNKNOWN policy. Inputs are entered manually or imported from CSV/JSON. | Met |
 | 1d Exclude LAD/LCX/RCA/Cath from inputs | A lineage-aware denylist covers {Cath, CAD, LAD, LCX, RCA} and anything derived from them. Tested by `tests/test_leakage.py`; imports strip label columns. | Met |
+| Comparison with a traditional clinical score | Table 6: CAD AUC 0.935 vs 0.852 for the updated Diamond–Forrester pretest score (ΔAUC +0.083 [0.042, 0.127]); better calibrated; subgroups by sex and age (Table 7); TRIPOD+AI checklist (`docs/tripod_ai.md`). | Met (beyond the brief) |
 | 1e Accuracy, precision, recall, F1, ROC-AUC | Table 1 reports these as outer-fold mean ± SD over 5 × 5 nested CV, beside an always-positive baseline. PR-AUC, Brier and calibration are also reported (`results/tables.md`, Model Evidence page, report §4). | Met |
 
 ## 3D visualization
@@ -60,9 +61,9 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Gate | Result |
 |---|---|
-| Python tests | 180 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases, sensitivity, concurrency, budgets, secret scan. |
+| Python tests | 190 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases, sensitivity, concurrency, budgets, secret scan, guideline comparator. |
 | Frontend unit tests | 24 pass (vitest), plus typecheck, lint and generated-API sync. |
-| Browser E2E | 49 flows pass against the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`), against the mock, and on the Docker stack (v1.0.2, 2026-10-13). They include axe accessibility checks (also on the no-WebGL fallback), failure injection, offline mode, WebGL fallback and context loss, storage damage and deletion, what-if, the learning loop, a same-origin privacy check and the PR #1 regression suites. |
+| Browser E2E | 50 flows pass on the Docker stack with the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`), and against the mock (2026-10-13). They include axe accessibility checks (also on the no-WebGL fallback), failure injection, offline mode, WebGL fallback and context loss, storage damage and deletion, what-if, the learning loop, a same-origin privacy check and the PR #1 regression suites. |
 | GitHub CI | **Met.** Python, frontend and e2e jobs green on `main` (fresh Linux runners, CI-safe single worker). |
 | Fresh-clone reproduction | **Met.** A full `make reproduce` on a fresh clone with freshly downloaded data matched every fold, metric, golden prediction, stability interval and replay result exactly (`results/reproduction.json`, D-020). |
 | Performance and memory | **Met.** `/predict` p95 104 ms (Docker, budget 200 ms); 3D median 59.9 fps on integrated graphics; backend RSS 178 → 184 MB peak; offline bundle 3.5 MB gzipped (budget 25 MB); JS heap 13 MB after 30 patients (`results/perf.json`). |

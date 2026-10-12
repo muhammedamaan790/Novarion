@@ -71,6 +71,11 @@ Confidence is also forced LOW in two cases:
 As displayed after all these gates, the CAD HIGH badge covers 44.6% of patients at PPV 98.5% [96.2–100]
 (Table 2b in `results/tables.md`).
 
+**Against the guideline pretest score** (Table 6): on the 273 patients with a chest-pain type, NOVARION's CAD
+AUC is 0.935 vs 0.852 for the updated Diamond–Forrester score (ΔAUC +0.083 [0.042, 0.127]) and 0.890 for the same
+three inputs refit (+0.045 [0.012, 0.083]), and it is better calibrated. Performance is lower in patients aged 65 and
+over (Table 7, subgroups).
+
 **Also measured:**
 - **Model agreement** (Table 3b): when LR, EBM, XGBoost and CatBoost disagree on a held-out patient, the selected
   model errs far more often (CAD 35% vs 9%, LAD 46% vs 19%).
@@ -82,7 +87,8 @@ As displayed after all these gates, the CAD HIGH badge covers 44.6% of patients 
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 49 flows pass against the real model in Edge, Chrome and Firefox, including axe accessibility checks.
+- Browser E2E: 50 flows pass on the Docker stack with the real model in Edge, Chrome and Firefox, including axe
+  accessibility checks.
 
 ## How it works
 
@@ -133,7 +139,8 @@ paired intervals are wide. That conservatism is by design.
 | [`docs/report.pdf`](docs/report.pdf) | Project report, 4 pages, every number generated from `results/` |
 | [`docs/compliance.md`](docs/compliance.md) | Track A compliance audit, item by item, with evidence |
 | [`docs/model_card.md`](docs/model_card.md) | Model card |
-| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-020 |
+| [`docs/tripod_ai.md`](docs/tripod_ai.md) | TRIPOD+AI reporting checklist |
+| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-021 |
 | [`docs/audit/`](docs/audit/README.md) | External audit by MysteryMindz (PR #1), integrated in D-019 |
 | [`results/error_analysis.md`](results/error_analysis.md), [`results/eda.md`](results/eda.md) | Error analysis and EDA |
 | `results/ablation.json` | Feature-group ablation |
@@ -142,12 +149,13 @@ paired intervals are wide. That conservatism is by design.
 | `results/perf.json` | Performance and memory measurements |
 | `results/reproduction.json` | Fresh-clone reproduction check |
 | `results/model_agreement.json`, `results/permutation.json` | Model agreement and label-permutation test |
+| `results/clinical_evaluation.json` | Guideline comparator, subgroups, calibration and decision curves |
 
 ## Tests
 
 ```bash
-make test                                        # 180 Python tests
-cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 24 unit + 49 E2E (mock API)
+make test                                        # 190 Python tests
+cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 24 unit + 50 E2E (mock API)
 make docker-e2e                                  # the same E2E flows against the Docker stack + real model
 # Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_API_PORT=8001 docker compose up
 ```
@@ -157,7 +165,7 @@ make docker-e2e                                  # the same E2E flows against th
 **Release v1.0.2 (frozen; `release_manifest.json`, git tag `v1.0.2`).** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (49/49 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (50/50 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 Still open, for the team:

@@ -103,10 +103,21 @@ def main() -> None:
             md.append(f"| {NAMES[t]} | {a['full']['mean']:.3f} | " +
                       " | ".join(f"{a[f'without_{g}']['delta_mean']:+.3f}" for g in GROUPS) + " |")
         md.append("")
+    clin_path = ROOT / "results" / "clinical_evaluation.json"
+    if clin_path.exists():  # D-021
+        cb = json.loads(clin_path.read_text(encoding="utf-8"))["clinical_baseline"]
+        r, f = cb["novarion_vs_published_df"], cb["novarion_vs_df_inputs_refit"]
+        md += ["## Comparison with the guideline pretest score (CAD)", "",
+               (f"On the {cb['n']} patients with a chest-pain type, out-of-fold CAD AUC {r['auc_new']:.3f} vs "
+                f"{r['auc_old']:.3f} for the updated Diamond–Forrester score (ΔAUC {r['delta_auc']:+.3f} "
+                f"[{r['delta_auc_ci95'][0]:.3f}, {r['delta_auc_ci95'][1]:.3f}]) and {f['auc_old']:.3f} for the same three "
+                f"inputs refit on the same folds (ΔAUC {f['delta_auc']:+.3f}). Subgroup results by sex and age: "
+                "`results/tables.md` Table 7; reporting checklist: `docs/tripod_ai.md`."), ""]
     md += ["## Limitations", "",
            ("- Single public cohort of 303 patients (high CAD prevalence, 71%); PPV/NPV do not transfer to populations "
            "with different prevalence."),
            "- Internal validation only; no external or temporal validation.",
+           "- Lower discrimination in patients aged 65 and over (Table 7), with wide intervals; no fairness claim is made.",
            "- One discordant label record (D-001: LAD stenotic with Cath = Normal) is kept as published.",
            "- Contributions are associations learned by the model, not causes; correlated features share credit.",
            "- The 3D anatomy is a reference model (BodyParts3D), not a patient-specific reconstruction.", "",

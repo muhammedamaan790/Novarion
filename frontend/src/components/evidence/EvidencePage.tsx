@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { TARGET_IDS, api, type Schemas, type TargetId } from "../../api/client";
 import { SHORT } from "../wording";
+import { ClinicalBenchmark } from "./ClinicalBenchmark";
 import { LineChart } from "./LineChart";
 
 const C = { primary: "#2a78d6", second: "#1baf7a", third: "#eda100" }; // validated (dataviz validator, light)
@@ -223,6 +224,7 @@ export function EvidencePage() {
       ) : (
         <p className="text-sm text-slate-500">Figures are not available for this bundle.</p>
       )}
+      <ClinicalBenchmark target={target} />
     </div>
   );
 }
