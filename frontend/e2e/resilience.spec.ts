@@ -110,3 +110,23 @@ for (const [name, url] of [["command center", "/?dataset=ZAS-0003&target=lad"], 
     expect(bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
   });
 }
+
+test("privacy: every request stays same-origin (no third-party calls, no service worker)", async ({ page, baseURL }) => {
+  const origin = new URL(baseURL!).origin;
+  const foreign: string[] = [];
+  page.on("request", (r) => {
+    const url = r.url();
+    if (url.startsWith("data:") || url.startsWith("blob:")) return;
+    if (new URL(url).origin !== origin) foreign.push(url);
+  });
+  await page.goto("/?dataset=ZAS-0003&target=lad");
+  await expect(page.getByTestId("why-panel")).toContainText("· LAD", FIRST_LOAD);
+  await page.getByTestId("tab-new").click();
+  await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
+  await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
+  await page.getByTestId("page-evidence").click();
+  await page.getByTestId("page-models").click();
+  await expect(page.getByTestId("model-center")).toBeVisible(FIRST_LOAD);
+  expect(foreign).toEqual([]);
+  expect(await page.evaluate(async () => (await navigator.serviceWorker?.getRegistrations())?.length ?? 0)).toBe(0);
+});
