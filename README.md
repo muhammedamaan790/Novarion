@@ -78,7 +78,7 @@ As displayed after all these gates, the CAD HIGH badge covers 44.6% of patients 
   the smallest attainable value; CV AUC 0.936 / 0.844 / 0.714 / 0.730 vs null ≈ 0.50 ± 0.05).
 
 **Performance** (`results/perf.json`):
-- `/predict` p95: 67 ms.
+- `/predict` p95: 104 ms on the Docker stack (budget 200 ms; median 64 ms).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.

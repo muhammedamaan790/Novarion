@@ -26,7 +26,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | 2c Rotate, zoom, select anatomical regions | Orbit and zoom, five camera presets and a whole-body view. Vessels and the heart can be clicked in 3D or selected from cards (one store action). The torso and ribs are deliberately not pickable, so a click can't land on context instead of a vessel (D-011). | Met |
 | Show **where** and **how** | **Where:** the predicted vessel on the heart, tinted as a whole; we never imply a lesion location. **How:** per-vessel feature contributions and group sums. The data has one visit per patient, so we show contributing factors, not progression. | Met (interpreted) |
 | Output ↔ vessel correspondence | `config/anatomy_map.json` binds each target to its node, camera and label anchor (`tests/test_anatomy.py`). | Met |
-| Real-time visualization updates | Editing a measurement triggers a debounced (300 ms) `/predict`; vessels recolour with easing and stale responses are discarded. `/predict` p95 is 67 ms (`results/perf.json`). | Met |
+| Real-time visualization updates | Editing a measurement triggers a debounced (300 ms) `/predict`; vessels recolour with easing and stale responses are discarded. `/predict` p95 is 104 ms on the Docker stack, against a 200 ms budget (`results/perf.json`). | Met |
 | No dedicated GPU required | 3D runs at a median 59.9 fps (p5 58.8) on Intel Iris Xe integrated graphics (`frontend/scripts/bench_fps.mjs`). A 2D SVG fallback covers missing WebGL, and the scene recovers from context loss. | Met |
 
 ## Explanations and dashboard
@@ -51,7 +51,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Deliverable | Evidence | Status |
 |---|---|---|
-| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~14 s) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
+| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~15 s; `NOVARION_API_PORT` / `NOVARION_WEB_PORT` move it off busy ports) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
 | Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.2` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
 | ≤ 6-page documentation | `docs/report.pdf`, 4 pages, with every number read from `results/` at build time. Also `docs/model_card.md` and `docs/decisions.md`. | Met |
 | 3–10 min YouTube demo | Recorded at the end of the project, by the team. | **Open** |
@@ -62,10 +62,10 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 |---|---|
 | Python tests | 180 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases, sensitivity, concurrency, budgets, secret scan. |
 | Frontend unit tests | 24 pass (vitest), plus typecheck, lint and generated-API sync. |
-| Browser E2E | 49 flows pass against the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`), and against the mock. They include axe accessibility checks (also on the no-WebGL fallback), failure injection, offline mode, WebGL fallback and context loss, storage damage and deletion, what-if, the learning loop, a same-origin privacy check and the PR #1 regression suites. |
+| Browser E2E | 49 flows pass against the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`), against the mock, and on the Docker stack (v1.0.2, 2026-10-13). They include axe accessibility checks (also on the no-WebGL fallback), failure injection, offline mode, WebGL fallback and context loss, storage damage and deletion, what-if, the learning loop, a same-origin privacy check and the PR #1 regression suites. |
 | GitHub CI | **Met.** Python, frontend and e2e jobs green on `main` (fresh Linux runners, CI-safe single worker). |
 | Fresh-clone reproduction | **Met.** A full `make reproduce` on a fresh clone with freshly downloaded data matched every fold, metric, golden prediction, stability interval and replay result exactly (`results/reproduction.json`, D-020). |
-| Performance and memory | **Met.** `/predict` p95 67 ms; 3D median 59.9 fps on integrated graphics; backend RSS 178 → 184 MB peak; offline bundle 3.5 MB gzipped (budget 25 MB); JS heap 13 MB after 30 patients (`results/perf.json`). |
+| Performance and memory | **Met.** `/predict` p95 104 ms (Docker, budget 200 ms); 3D median 59.9 fps on integrated graphics; backend RSS 178 → 184 MB peak; offline bundle 3.5 MB gzipped (budget 25 MB); JS heap 13 MB after 30 patients (`results/perf.json`). |
 | Second-machine test · rehearsals · outside-user usability test | **Open** (team). `scripts/compare_reproduction.py --other PATH` checks a second machine's run. |
 
 ## Claims we deliberately do not make

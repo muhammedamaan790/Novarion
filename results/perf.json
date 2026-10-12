@@ -1,8 +1,8 @@
 {
  "api": {
-  "measured_at": "2026-10-06T22:57:12Z",
-  "target": "http://127.0.0.1:8080/api/v1",
-  "model_version": "1.0.0",
+  "measured_at": "2026-10-12T22:31:12Z",
+  "target": "http://127.0.0.1:8081/api/v1",
+  "model_version": "1.0.2",
   "client": "sequential, paced ~8 req/s, one connection",
   "machine": {
    "os": "Windows-10-10.0.26200-SP0",
@@ -13,40 +13,40 @@
   "endpoints": {
    "predict": {
     "n": 100,
-    "p50_ms": 45.9,
-    "p95_ms": 67,
-    "max_ms": 84.6,
-    "mean_ms": 47.5,
+    "p50_ms": 64.1,
+    "p95_ms": 104.0,
+    "max_ms": 291.3,
+    "mean_ms": 68.0,
     "budget_p95_ms": 200,
     "within_budget": true
    },
    "validate": {
     "n": 100,
-    "p50_ms": 12.3,
-    "p95_ms": 19.4,
-    "max_ms": 27.7,
-    "mean_ms": 12.7
+    "p50_ms": 14.7,
+    "p95_ms": 47.3,
+    "max_ms": 349.1,
+    "mean_ms": 24.4
    },
    "analyze_full": {
     "n": 100,
-    "p50_ms": 85.9,
-    "p95_ms": 111.7,
-    "max_ms": 229.4,
-    "mean_ms": 90.7
+    "p50_ms": 122.9,
+    "p95_ms": 223.9,
+    "max_ms": 359.0,
+    "mean_ms": 130.9
    },
    "explain": {
     "n": 100,
-    "p50_ms": 55.8,
-    "p95_ms": 76,
-    "max_ms": 139.6,
-    "mean_ms": 57.8
+    "p50_ms": 83.3,
+    "p95_ms": 113.6,
+    "max_ms": 253.8,
+    "mean_ms": 83.7
    },
    "patient_bundle": {
     "n": 100,
-    "p50_ms": 36.7,
-    "p95_ms": 50.8,
-    "max_ms": 159.6,
-    "mean_ms": 39.9
+    "p50_ms": 40.2,
+    "p95_ms": 225.0,
+    "max_ms": 1352.7,
+    "mean_ms": 76.6
    }
   }
  },
@@ -63,7 +63,7 @@
   "frames": 1953,
   "median_fps": 59.9,
   "p5_fps": 58.8,
-  "acceptance": "median >= 45 fps on an integrated GPU (plan §9.5); design goal 60 fps"
+  "acceptance": "median >= 45 fps on an integrated GPU (plan \u00a79.5); design goal 60 fps"
  },
  "memory": {
   "measured_at": "2026-10-12T17:43:27Z",
