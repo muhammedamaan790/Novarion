@@ -64,5 +64,47 @@
   "median_fps": 59.9,
   "p5_fps": 58.8,
   "acceptance": "median >= 45 fps on an integrated GPU (plan §9.5); design goal 60 fps"
+ },
+ "memory": {
+  "measured_at": "2026-10-12T17:43:27Z",
+  "model_version": "1.0.2",
+  "process": "uvicorn, 1 worker, real bundle (same as Docker)",
+  "ready_seconds": 29.4,
+  "rss_after_start_mb": 177.9,
+  "rss_peak_mb": 184,
+  "rss_after_workload_mb": 184,
+  "workload": "303 patient bundles + 100 x (predict, validate, analyze/full, explain)"
+ },
+ "bundle": {
+  "model_version": "1.0.2",
+  "files": 304,
+  "raw_mb": 29.85,
+  "gzip_mb": 3.49,
+  "index_kb": 115,
+  "patient_kb_max": 98.9,
+  "patient_kb_median": 95.7,
+  "budgets": {
+   "gzip_mb": 25,
+   "index_kb": 1024,
+   "patient_kb": 200
+  }
+ },
+ "browser": {
+  "measured_at": "2026-10-12T17:45:39Z",
+  "mode": "offline demo mode (static bundle), production build of the same frontend code",
+  "channel": "msedge",
+  "url": "http://127.0.0.1:5186",
+  "index": {
+   "kb": 115,
+   "patients": 303,
+   "fetch_ms": 139,
+   "parse_ms": 0.5
+  },
+  "js_heap_mb": {
+   "after_load": 7.9,
+   "after_30_patients": 12.8,
+   "peak": 12.8,
+   "patients_opened": 30
+  }
  }
 }
