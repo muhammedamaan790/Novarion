@@ -1665,6 +1665,119 @@
           }
         }
       }
+    },
+    "/api/v1/models/{version}/promote": {
+      "post": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Promote",
+        "operationId": "promote_api_v1_models__version__promote_post",
+        "parameters": [
+          {
+            "name": "version",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d+\\.\\d+\\.\\d+$",
+              "title": "Version"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromoteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Request Entity Too Large"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2258,7 +2371,9 @@
               "RATE_LIMITED",
               "NOT_FOUND",
               "QUALITY_GATE_BLOCKED",
-              "INTERNAL_ERROR"
+              "INTERNAL_ERROR",
+              "FORBIDDEN",
+              "PROMOTION_REFUSED"
             ],
             "title": "Error Code"
           },
@@ -4542,6 +4657,55 @@
         ],
         "title": "PredictionResponse",
         "description": "/predict fast path: no SHAP, no evidence, no similarity."
+      },
+      "PromoteRequest": {
+        "properties": {
+          "approver": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 2,
+            "title": "Approver"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "approver"
+        ],
+        "title": "PromoteRequest",
+        "description": "Local mode only (plan §12B, Tier 3): a thin wrapper around the authoritative `make promote` CLI."
+      },
+      "PromoteResponse": {
+        "properties": {
+          "version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Version"
+          },
+          "production_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Production Version"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "restart_required": {
+            "type": "boolean",
+            "const": true,
+            "title": "Restart Required",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "version",
+          "production_version",
+          "message"
+        ],
+        "title": "PromoteResponse"
       },
       "Provenance": {
         "properties": {

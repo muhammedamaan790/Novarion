@@ -216,7 +216,7 @@ class BundleService(InferenceService):
         return MetaResponse(
             app_version=APP_VERSION, model_version=self.model_version,
             preprocessing_version=self.manifest["preprocessing_version"], run_mode=self.settings.run_mode,
-            promote_available=False, unknown_token=self.registry.unknown_token,
+            promote_available=self.settings.run_mode == "local" and bool(self.settings.admin_token), unknown_token=self.registry.unknown_token,
             targets=[TargetSpec(id=t["id"], display=t["display"], anatomy_key=t["anatomy_key"],
                                 label_definition=t["label_definition"]) for t in self.targets_cfg["targets"]],
             features=features, thresholds=thresholds, anatomy_version=self.manifest["anatomy_version"],

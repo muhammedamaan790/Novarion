@@ -46,7 +46,8 @@ export interface ApiResult<T> {
 async function send<T>(path: string, init: RequestInit = {}): Promise<ApiResult<T>> {
   const response = await fetch(`/api/v1${path}`, {
     ...init,
-    headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}) },
+    headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}),
+               ...(init.headers as Record<string, string> | undefined) },
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new ApiError(response.status, body as ErrorResponse | null);
@@ -205,6 +206,10 @@ export const api = {
     : get<Schemas["ModelsResponse"]>("/models")),
   replay: async () => ((await offline()) ? staticJson<Schemas["ReplayResponse"]>("replay.json")
     : get<Schemas["ReplayResponse"]>("/models/replay")),
+  // Local mode only (Meta.promote_available): a wrapper around `make promote`; the token is never stored.
+  promote: offlineOnly((version: string, approver: string, adminToken: string) =>
+    send<Schemas["PromoteResponse"]>(`/models/${encodeURIComponent(version)}/promote`, {
+      method: "POST", body: JSON.stringify({ approver }), headers: { "X-Novarion-Admin-Token": adminToken } })),
   modelReport: offlineOnly((version: string) =>
     get<Schemas["ModelReportResponse"]>(`/models/${encodeURIComponent(version)}/report`)),
   patient: async (id: string, signal?: AbortSignal): Promise<ApiResult<PatientBundle>> => {

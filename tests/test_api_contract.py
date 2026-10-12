@@ -285,7 +285,9 @@ def test_docs_only_in_local_mode_and_no_promote_route():
     live = TestClient(create_app(Settings(run_mode="live", mock=True)))
     local = TestClient(create_app(Settings(run_mode="local", mock=True)))
     assert live.get("/api/v1/docs").status_code == 404 and local.get("/api/v1/docs").status_code == 200
-    assert not any("promote" in path for path in load("openapi")["paths"])
+    # the published contract is the local-mode superset; a hosted (live) app has no promote route at all
+    assert any(path.endswith("/promote") for path in load("openapi")["paths"])
+    assert not any("promote" in path for path in live.get("/api/v1/openapi.json").json()["paths"])
 
 
 # ------------------------------------------------------------------------------------------- schema invariants
@@ -355,3 +357,31 @@ def test_proxy_header_is_trusted_only_when_configured(body):
     proxied = TestClient(create_app(Settings(**tight, trust_proxy=True)))
     assert post(proxied, "/predict", body, headers={"X-Real-IP": "1.1.1.1"}).status_code == 200
     assert post(proxied, "/predict", body, headers={"X-Real-IP": "2.2.2.2"}).status_code == 200  # separate buckets
+
+
+def test_promote_route_is_local_only_token_gated_and_wraps_the_cli():
+    """Plan §12B / Tier 3: the in-app Promote is a local-mode wrapper around the authoritative CLI."""
+    body = {"approver": "Dr Reviewer"}
+    live = TestClient(create_app(Settings(mock=True)))
+    assert live.post("/api/v1/models/1.1.0/promote", json=body).status_code == 404  # hosted: no route at all
+
+    no_token = TestClient(create_app(Settings(mock=True, run_mode="local")))
+    assert no_token.post("/api/v1/models/1.1.0/promote", json=body,
+                         headers={"X-Novarion-Admin-Token": "anything"}).json()["error_code"] == "FORBIDDEN"
+
+    app = create_app(Settings(mock=True, run_mode="local", admin_token="s3cret-token"))
+    calls = []
+    app.state.promote_runner = lambda v, a: (calls.append((v, a)) or (2, "refused: gate status is FAIL; only PASS can be promoted"))
+    client = TestClient(app)
+    for headers in ({}, {"X-Novarion-Admin-Token": "wrong"}):
+        r = client.post("/api/v1/models/1.1.0/promote", json=body, headers=headers)
+        assert r.status_code == 403 and r.json()["error_code"] == "FORBIDDEN"
+    assert calls == []  # the CLI never runs without the token
+    ok_headers = {"X-Novarion-Admin-Token": "s3cret-token"}
+    r = client.post("/api/v1/models/1.1.0/promote", json=body, headers=ok_headers)
+    assert r.status_code == 409 and r.json()["error_code"] == "PROMOTION_REFUSED"
+    assert "only PASS" in r.json()["message"] and calls == [("1.1.0", "Dr Reviewer")]
+    app.state.promote_runner = lambda v, a: (0, "promoted")
+    r = client.post("/api/v1/models/1.1.0/promote", json=body, headers=ok_headers)
+    assert r.status_code == 200 and r.json()["restart_required"] is True
+    assert client.post("/api/v1/models/1.1.0/promote", json={"approver": "x"}, headers=ok_headers).status_code == 422

@@ -369,7 +369,7 @@ class MockService(InferenceService):
         features = feature_specs()
         return MetaResponse(
             app_version=APP_VERSION, model_version=MOCK_MODEL_VERSION, preprocessing_version=MOCK_PREPROCESSING_VERSION,
-            run_mode=self.settings.run_mode, promote_available=False, unknown_token=self.registry.unknown_token,
+            run_mode=self.settings.run_mode, promote_available=self.settings.run_mode == "local" and bool(self.settings.admin_token), unknown_token=self.registry.unknown_token,
             targets=[
                 TargetSpec(id=t["id"], display=t["display"], anatomy_key=t["anatomy_key"],
                            label_definition=t["label_definition"])

@@ -3,7 +3,7 @@
 // continual supervised updating as verified cases accumulate"; never "the AI keeps getting smarter".
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { TARGET_IDS, api, type Schemas } from "../../api/client";
+import { ApiError, TARGET_IDS, api, type Meta, type Schemas } from "../../api/client";
 import { listCases } from "../../cases/caseStore";
 import { SHORT } from "../wording";
 import { LineChart } from "../evidence/LineChart";
@@ -77,6 +77,47 @@ function GateReport({ version }: { version: string }) {
   );
 }
 
+/** Local mode only, gate PASS only: the in-app wrapper around `make promote` (plan §12B, Tier 3). */
+function PromoteForm({ version, onDone }: { version: string; onDone: () => void }) {
+  const [approver, setApprover] = useState("");
+  const [token, setToken] = useState("");
+  const [state, setState] = useState<{ busy: boolean; message: string | null; error: boolean }>(
+    { busy: false, message: null, error: false });
+  return (
+    <form className="mt-2 flex flex-wrap items-end gap-2 rounded border border-amber-300 bg-amber-50 p-2 text-[11px]"
+          data-testid="promote-form"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setState({ busy: true, message: null, error: false });
+            try {
+              const r = await api.promote(version, approver.trim(), token);
+              setState({ busy: false, message: r.data.message, error: false });
+              onDone();
+            } catch (err) {
+              const message = err instanceof ApiError ? err.message : String(err);
+              setState({ busy: false, message, error: true });
+            }
+          }}>
+      <p className="w-full text-amber-900">
+        Human approval: refits the gated configuration on all verified cases and makes it production. Same as{" "}
+        <code>make promote VERSION={version}</code>; logged with your name.
+      </p>
+      <label>Approver{" "}
+        <input value={approver} onChange={(e) => setApprover(e.target.value)} required minLength={2} maxLength={80}
+               className="rounded border border-slate-300 px-1" />
+      </label>
+      <label>Admin token{" "}
+        <input type="password" value={token} onChange={(e) => setToken(e.target.value)} required autoComplete="off"
+               className="rounded border border-slate-300 px-1" />
+      </label>
+      <button type="submit" disabled={state.busy} className="rounded bg-amber-700 px-2 py-1 font-semibold text-white disabled:opacity-50">
+        {state.busy ? "Promoting…" : `Promote v${version}`}
+      </button>
+      {state.message && <p role="status" className={`w-full ${state.error ? "text-red-700" : "text-emerald-800"}`}>{state.message}</p>}
+    </form>
+  );
+}
+
 function ReplayStudy({ replay }: { replay: Schemas["ReplayResponse"] }) {
   const sizes = replay.training_sizes;
   const gates = Object.entries(replay.gate_frequencies);
@@ -127,6 +168,8 @@ function ReplayStudy({ replay }: { replay: Schemas["ReplayResponse"] }) {
 
 export function ModelCenterPage() {
   const models = useQuery({ queryKey: ["models"], queryFn: async () => (await api.models()).data });
+  const meta = useQuery<{ data: Meta }>({ queryKey: ["meta"], queryFn: api.meta, staleTime: Infinity });
+  const canPromote = !!meta.data?.data.promote_available;
   const replay = useQuery({ queryKey: ["replay"], queryFn: async () => (await api.replay()).data, retry: false });
   const cases = useQuery({ queryKey: ["cases"], queryFn: listCases });
   const [openReport, setOpenReport] = useState<string | null>(null);
@@ -196,6 +239,9 @@ export function ModelCenterPage() {
             </tbody>
           </table>
           {openReport && <GateReport version={openReport} />}
+          {canPromote && m.models.filter((e) => e.status === "candidate" && e.gate_status === "PASS").map((e) => (
+            <PromoteForm key={e.version} version={e.version} onDone={() => void models.refetch()} />
+          ))}
           <p className="mt-2 text-[11px] text-slate-500">
             v1.0.0 is the frozen hackathon model; its nested-CV evaluation (Model Evidence) is the official result and is
             never overwritten. v1.0.1 serves the identical models and adds stability intervals for dataset patients. Bundles referenced here are never deleted, so any version can be restored.

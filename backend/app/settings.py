@@ -21,6 +21,7 @@ class Settings:
     rate_limit_per_minute: int = 600
     rate_limit_burst: int = 200
     trust_proxy: bool = False  # only behind our own nginx: take the client address from X-Real-IP
+    admin_token: str | None = None  # local mode: enables the in-app Promote wrapper (NOVARION_ADMIN_TOKEN)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -33,4 +34,5 @@ class Settings:
         return cls(run_mode=run_mode, mock=os.environ.get("NOVARION_MOCK") == "1", cors_origins=origins,
                    rate_limit_per_minute=int(os.environ.get("NOVARION_RATE_LIMIT_PER_MIN", "600")),
                    rate_limit_burst=int(os.environ.get("NOVARION_RATE_LIMIT_BURST", "200")),
-                   trust_proxy=os.environ.get("NOVARION_TRUST_PROXY") == "1")
+                   trust_proxy=os.environ.get("NOVARION_TRUST_PROXY") == "1",
+                   admin_token=os.environ.get("NOVARION_ADMIN_TOKEN") or None)

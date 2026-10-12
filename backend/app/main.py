@@ -6,7 +6,11 @@ origins (comma-separated, never "*"). Without a verified model bundle the servic
 
 from __future__ import annotations
 
+import hmac
+import json
 import logging
+import subprocess
+import sys
 import time
 from typing import Annotated
 
@@ -14,7 +18,7 @@ from fastapi import APIRouter, Depends, FastAPI, Path, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from .errors import install_error_handlers
+from .errors import ApiError, install_error_handlers
 from .schemas import (
     AnalyzeFullRequest,
     AnalyzeFullResponse,
@@ -35,6 +39,8 @@ from .schemas import (
     PatientListResponse,
     PredictionResponse,
     PredictRequest,
+    PromoteRequest,
+    PromoteResponse,
     ReplayResponse,
     SensitivityRequest,
     SensitivityResponse,
@@ -171,6 +177,39 @@ def build_router() -> APIRouter:
     return router
 
 
+def run_lifecycle_promote(version: str, approver: str) -> tuple[int, str]:
+    """The in-app Promote button only wraps the authoritative CLI (plan §11A "The CLI is authoritative")."""
+    from novarion_ml.data.registry import ROOT
+
+    cmd = [sys.executable, str(ROOT / "scripts" / "lifecycle.py"), "promote", "--version", version, "--approver", approver]
+    try:
+        done = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, timeout=3600, check=False)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return 1, f"could not run the lifecycle CLI: {exc}"
+    return done.returncode, (done.stdout + done.stderr).strip()[-400:]
+
+
+def build_local_router(settings: Settings) -> APIRouter:
+    """Routes that exist ONLY in local mode (plan §12B: the hosted demo has no promote route)."""
+    router = APIRouter(prefix=API_PREFIX, route_class=StrictJSONRoute, responses=ERROR_RESPONSES)
+
+    @router.post("/models/{version}/promote", response_model=PromoteResponse, tags=["models"])
+    def promote(version: VersionPath, body: PromoteRequest, request: Request) -> PromoteResponse:
+        supplied = request.headers.get("X-Novarion-Admin-Token", "")
+        if not settings.admin_token or not hmac.compare_digest(supplied.encode(), settings.admin_token.encode()):
+            raise ApiError("FORBIDDEN", "Promotion needs the local admin token (NOVARION_ADMIN_TOKEN).")
+        code, output = request.app.state.promote_runner(version, body.approver)
+        if code != 0:
+            raise ApiError("PROMOTION_REFUSED", (output.splitlines() or ["refused"])[-1][:256])
+        from .bundle_service import REGISTRY_FILE
+
+        registry = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
+        return PromoteResponse(version=version, production_version=registry["production_version"],
+                               message="Promoted by the lifecycle CLI and logged; restart the backend to deploy it.")
+
+    return router
+
+
 def default_service(settings: Settings) -> InferenceService:
     if settings.mock:
         from .mock import MockService
@@ -200,6 +239,9 @@ def create_app(settings: Settings | None = None, service: InferenceService | Non
     app.state.service = service or default_service(settings)
     install_error_handlers(app)
     app.include_router(build_router())
+    app.state.promote_runner = run_lifecycle_promote
+    if local:
+        app.include_router(build_local_router(settings))
 
     limiter = RateLimiter(settings.rate_limit_per_minute, settings.rate_limit_burst)
 

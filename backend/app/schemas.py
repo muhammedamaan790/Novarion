@@ -65,7 +65,7 @@ def _check_targets_complete(mapping: dict[str, Any], what: str) -> None:
 ErrorCode = Literal[
     "VALIDATION_FAILED", "INPUT_OUT_OF_RANGE", "UNSEEN_CATEGORY", "UNIT_MISMATCH", "INPUT_HASH_MISMATCH",
     "ARTIFACT_MISMATCH", "NOT_READY", "TARGET_FAILED", "PAYLOAD_TOO_LARGE", "RATE_LIMITED", "NOT_FOUND",
-    "QUALITY_GATE_BLOCKED", "INTERNAL_ERROR",
+    "QUALITY_GATE_BLOCKED", "INTERNAL_ERROR", "FORBIDDEN", "PROMOTION_REFUSED",
 ]
 TargetStatusValue = Literal["complete", "computed_not_committed", "error"]
 
@@ -923,6 +923,18 @@ class ModelReportResponse(Strict):
         if self.gate_status != "INSUFFICIENT_EVIDENCE" and not all(t.evaluable for t in self.targets.values()):
             raise ValueError("any non-evaluable target means INSUFFICIENT_EVIDENCE")
         return self
+
+
+class PromoteRequest(Strict):
+    """Local mode only (plan §12B, Tier 3): a thin wrapper around the authoritative `make promote` CLI."""
+    approver: str = Field(min_length=2, max_length=80)
+
+
+class PromoteResponse(Strict):
+    version: SemVer
+    production_version: SemVer
+    message: str
+    restart_required: Literal[True] = True
 
 
 class ReplayPoint(Strict):
