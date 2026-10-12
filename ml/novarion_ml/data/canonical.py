@@ -22,7 +22,7 @@ import hashlib
 import math
 import unicodedata
 from dataclasses import dataclass, field
-from decimal import ROUND_HALF_EVEN, Decimal
+from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from typing import Any
 
 import rfc8785
@@ -92,10 +92,17 @@ def _canonical_entered(feature: Feature, raw: Any, unknown: str) -> tuple[Any, I
     if feature.kind == "continuous":
         if isinstance(raw, bool) or not isinstance(raw, int | float):
             return None, Issue("invalid_type", BLOCK, fid, "A number is required.", {"kind": "continuous"})
-        if not math.isfinite(raw):
+        if isinstance(raw, float) and not math.isfinite(raw):
             return None, Issue("invalid_type", BLOCK, fid, "Non-finite numbers are not allowed.")
-        value = round_canonical(raw, feature.canonical_precision or 0)
         lo, hi = feature.hard_valid_range or (-math.inf, math.inf)
+        # Reject clearly impossible magnitudes BEFORE float conversion/Decimal quantization.
+        # The one-unit margin preserves the existing rounding semantics at the range boundary.
+        if raw < lo - 1 or raw > hi + 1:
+            return None, Issue(
+                "out_of_hard_range", BLOCK, fid, f"Outside the valid range [{lo}, {hi}] {feature.canonical_unit}.",
+                {"value": raw, "range": [lo, hi], "unit": feature.canonical_unit},
+            )
+        value = round_canonical(raw, feature.canonical_precision or 0)
         if not lo <= value <= hi:
             return None, Issue(
                 "out_of_hard_range", BLOCK, fid, f"Outside the valid range [{lo}, {hi}] {feature.canonical_unit}.",
@@ -187,10 +194,13 @@ def canonicalize_case(
     for fid, value in computed.items():
         supplied = inputs.get(fid)
         if supplied is not None and value != unknown:
-            mismatch = (
-                isinstance(supplied, bool) or not isinstance(supplied, int | float)
-                or round_canonical(supplied, by_id[fid].canonical_precision or 0) != value
-            )
+            try:
+                mismatch = (
+                    isinstance(supplied, bool) or not isinstance(supplied, int | float)
+                    or round_canonical(supplied, by_id[fid].canonical_precision or 0) != value
+                )
+            except (OverflowError, InvalidOperation, ValueError):
+                mismatch = True  # computed values remain server-authoritative, even for unusable supplied numbers
             if mismatch:
                 issues.append(Issue(
                     "computed_value_mismatch", WARN, fid, "Supplied value differs from the computed value; computed value used.",

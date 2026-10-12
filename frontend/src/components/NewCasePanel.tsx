@@ -3,7 +3,7 @@
 // revision may update the 3D view and panels; stale responses are discarded (AbortController + revision check).
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
+import { ApiError, api, TARGET_IDS, type InputValue, type Meta, type ValidateResponse } from "../api/client";
 import { useStore } from "../store/useStore";
 import { MODE_BADGE } from "./wording";
 
@@ -48,6 +48,8 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
             <button
               type="button"
               title="Mark as UNKNOWN (imputed, forces LOW model confidence)"
+              aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
+              aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}
               className={`rounded px-1 text-[10px] ${isUnknown ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-600"}`}
             >
@@ -94,24 +96,42 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   const [sourceRecord, setSourceRecord] = useState<number | null>(null);
   const [validation, setValidation] = useState<ValidateResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "updating" | "error">("idle");
+  const [prefillId, setPrefillId] = useState("");
+  const [prefillStatus, setPrefillStatus] = useState<"idle" | "loading" | "error">("idle");
   const revision = useRef(0);
   const inflight = useRef<AbortController | null>(null);
+  const prefillRequest = useRef<AbortController | null>(null);
+  const analysis = useStore((s) => s.analysis);
   const setAnalysis = useStore((s) => s.setAnalysis);
   const patients = useQuery({ queryKey: ["patients"], queryFn: api.patients });
+  useEffect(() => () => { prefillRequest.current?.abort(); }, []);
+
+  const invalidate = () => {
+    inflight.current?.abort();
+    revision.current++;
+    setAnalysis(null);
+    setValidation(null);
+    setStatus("updating");
+  };
 
   // Debounced validate → predict. Each edit bumps the revision; only the latest revision may commit.
   useEffect(() => {
-    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
-    if (filled === 0) return;
     const rev = ++revision.current;
+    const controller = new AbortController();
+    inflight.current?.abort();
+    inflight.current = controller;
+    setAnalysis(null); // an edited input must never keep the previous prediction or vessel colours
+    const isCurrent = () => !controller.signal.aborted && rev === revision.current;
+    const cleanup = () => {
+      controller.abort(); // also invalidate responses when the form unmounts or becomes empty
+    };
+    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
+    if (filled === 0) return cleanup;
     const timer = window.setTimeout(async () => {
-      inflight.current?.abort();
-      const controller = new AbortController();
-      inflight.current = controller;
       setStatus("updating");
       try {
         const v = await api.validate({ inputs, input_revision: rev, dataset_record_id: sourceRecord }, controller.signal);
-        if (rev !== revision.current) return;
+        if (!isCurrent()) return;
         setValidation(v.data);
         if (!v.data.ready) {
           setAnalysis(null); // fail closed: never keep colours from an older input
@@ -119,27 +139,52 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
           return;
         }
         const p = await api.predict({ inputs, input_revision: rev }, controller.signal);
-        if (rev !== revision.current || p.data.input_revision !== rev) return; // stale response: discard
+        if (!isCurrent() || p.data.input_revision !== rev) return; // stale response: discard
+        if (!TARGET_IDS.every((target) => p.data.targets?.[target])) throw new Error("Incomplete prediction response");
         setAnalysis({ ...p.data, explanations: {}, evidence: {}, requestInputs: inputs });
         setStatus("idle");
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
-        if (rev === revision.current) {
+        if (isCurrent()) {
           setAnalysis(null);
           setStatus(err instanceof ApiError || err instanceof Error ? "error" : "idle");
         }
       }
     }, DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      cleanup();
+    };
   }, [inputs, sourceRecord, features, setAnalysis]);
 
   const prefill = async (patientId: string) => {
+    prefillRequest.current?.abort();
+    const controller = new AbortController();
+    prefillRequest.current = controller;
+    setPrefillId(patientId);
+    invalidate();
+    setInputs({});
+    setSourceRecord(null);
+    setPrefillStatus(patientId ? "loading" : "idle");
     if (!patientId) return;
-    const bundle = await api.patient(patientId);
-    const values: Record<string, InputValue> = {};
-    for (const f of features) values[f.id] = bundle.data.canonical_inputs[f.id] as InputValue;
-    setSourceRecord(Number(patientId.slice(4)) - 1);
-    setInputs(values);
+    try {
+      const bundle = await api.patient(patientId, controller.signal);
+      if (controller.signal.aborted || prefillRequest.current !== controller) return;
+      const values: Record<string, InputValue> = {};
+      for (const f of features) values[f.id] = bundle.data.canonical_inputs[f.id] as InputValue;
+      setSourceRecord(Number(patientId.slice(4)) - 1);
+      setInputs(values);
+      setPrefillStatus("idle");
+    } catch {
+      if (!controller.signal.aborted && prefillRequest.current === controller) setPrefillStatus("error");
+    }
+  };
+
+  const edit = (id: string, value: InputValue) => {
+    prefillRequest.current?.abort(); // a late prefill must never overwrite the user's manual edit
+    setPrefillStatus("idle");
+    invalidate();
+    setInputs((prev) => ({ ...prev, [id]: value }));
   };
 
   const groups = useMemo(() => {
@@ -166,7 +211,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       <select
         aria-label="Prefill from a dataset patient"
         className="rounded border border-slate-200 px-1.5 py-1 text-xs"
-        defaultValue=""
+        value={prefillId}
         onChange={(e) => void prefill(e.target.value)}
       >
         <option value="">Prefill from a dataset patient…</option>
@@ -178,7 +223,9 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       </select>
 
       <div role="status" className="rounded bg-slate-50 px-2 py-1 text-[11px] text-slate-700" data-testid="case-status">
-        {missing > 0
+        {prefillStatus === "loading" ? "Loading selected patient…"
+          : prefillStatus === "error" ? "Could not load the selected patient. No results shown; retry or enter values."
+          : missing > 0
           ? `${missing} field${missing === 1 ? "" : "s"} still required`
           : status === "updating"
             ? "Updating prediction…"
@@ -186,7 +233,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
               ? "Analysis unavailable: no results shown."
               : blocks.length
                 ? `Blocked: ${blocks.length} issue${blocks.length === 1 ? "" : "s"} to fix`
-                : "Prediction up to date · edited case · production model"}
+                : analysis ? "Prediction up to date · edited case · production model" : "Waiting for analysis…"}
         {validation?.provenance.message && <span className="block text-slate-500">{validation.provenance.message}</span>}
       </div>
       {(blocks.length > 0 || warnings.length > 0) && (
@@ -206,7 +253,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
               {GROUP_LABEL[group] ?? group}
             </legend>
             {fs.map((f) => (
-              <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => setInputs((prev) => ({ ...prev, [f.id]: v }))} />
+              <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => edit(f.id, v)} />
             ))}
           </fieldset>
         ))}

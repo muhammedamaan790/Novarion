@@ -1,7 +1,7 @@
 // The 3D heart (plan §9). One store drives everything: a 3D click and a panel click both call selectTarget().
 import { CameraControls, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useRef } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
 import * as THREE from "three";
 import type { DisplayAnalysis, Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
@@ -25,6 +25,23 @@ export interface AnatomyMap {
 
 /** Called each rendered frame with a label's screen position; the DOM labels live in HeartView (no extra React roots). */
 export type PlaceLabel = (target: TargetId, x: number, y: number, visible: boolean) => void;
+
+function SceneFallback() {
+  return (
+    <div role="status" className="flex h-full items-center justify-center p-8 text-center text-sm text-slate-600">
+      <div>
+        <p className="font-semibold">3D view unavailable.</p>
+        <p>Use the target controls and prediction panels. Reload to retry the 3D view.</p>
+      </div>
+    </div>
+  );
+}
+
+class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() { return this.state.failed ? <SceneFallback /> : this.props.children; }
+}
 
 export function nodeToTarget(map: AnatomyMap): Record<string, TargetId> {
   const out: Record<string, TargetId> = {};
@@ -226,7 +243,9 @@ export function HeartScene({ meta, analysis, placeLabel }: { meta: Meta; analysi
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const overview = map.camera_presets.overview!;
   return (
+    <SceneBoundary>
     <Canvas
+      fallback={<SceneFallback />}
       frameloop="demand"
       dpr={[1, 1.5]}
       camera={{ position: overview.position as [number, number, number], fov: overview.fov, near: 0.01, far: 50 }}
@@ -243,6 +262,7 @@ export function HeartScene({ meta, analysis, placeLabel }: { meta: Meta; analysi
       </Suspense>
       <CameraRig map={map} />
     </Canvas>
+    </SceneBoundary>
   );
 }
 

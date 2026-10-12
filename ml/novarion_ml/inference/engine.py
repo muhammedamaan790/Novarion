@@ -22,7 +22,8 @@ from ..thresholds.layers import Thresholds
 from ..train.models import CandidateModel
 from ..uncertainty.reference import ReferenceContext
 
-REASON_ORDER = ("unknown_input", "atypical_profile", "unstable", "no_qualified_region", "gray_zone")
+REASON_ORDER = ("unknown_input", "atypical_profile", "unstable", "no_validation_evidence",
+                "no_qualified_region", "gray_zone")
 
 
 @dataclass
@@ -95,15 +96,17 @@ class Engine:
         if not reasons:
             q = thr.q_pos if region == "high_positive" else thr.q_neg
             metric = q.metric
-            qualification = {"metric": metric, "target": q.target, "lower_bound": q.lower_bound, "n": q.n,
-                             "source": "training_side_oof"}
             ev = art.evaluation
             n = ev["n_high_positive"] if metric == "ppv" else ev["n_high_negative"]
             value = ev[metric]
-            if value is None or n == 0:  # never quote a PPV/NPV we did not measure; surface it instead
-                raise ValueError(f"{art.target}: {region} region has no outer-validation evidence (Table 2 n = 0)")
-            evaluation = {"metric": metric, "value": value, "ci": ev.get(f"{metric}_ci"), "n": n,
-                          "level": "cohort", "source": "prespecified_outer_repeat"}
+            if value is None or n == 0:
+                # A missing cohort estimate invalidates HIGH confidence, not the model's probability.
+                reasons.append("no_validation_evidence")
+            else:
+                qualification = {"metric": metric, "target": q.target, "lower_bound": q.lower_bound, "n": q.n,
+                                 "source": "training_side_oof"}
+                evaluation = {"metric": metric, "value": value, "ci": ev.get(f"{metric}_ci"), "n": n,
+                              "level": "cohort", "source": "prespecified_outer_repeat"}
         return {
             "label": art.label, "anatomy_key": art.anatomy_key,
             "predicted_class": "positive" if p >= thr.t_op else "negative",

@@ -1325,7 +1325,7 @@ export interface components {
              * Code
              * @enum {string}
              */
-            code: "exact_training_match" | "derived_from_training_record";
+            code: "exact_training_match" | "derived_from_training_record" | "legacy_oof_ledger_withheld";
             /** Message */
             message: string;
         };
@@ -1471,7 +1471,7 @@ export interface components {
              */
             model_confidence_region: "high_negative" | "low_confidence" | "high_positive";
             /** Model Confidence Reasons */
-            model_confidence_reasons: ("unknown_input" | "atypical_profile" | "unstable" | "no_qualified_region" | "gray_zone")[];
+            model_confidence_reasons: ("unknown_input" | "atypical_profile" | "unstable" | "no_validation_evidence" | "no_qualified_region" | "gray_zone")[];
             confidence_qualification: components["schemas"]["ConfidenceQualification"] | null;
             evaluation_context: components["schemas"]["EvaluationContext"] | null;
             stability_interval?: components["schemas"]["StabilityInterval"] | null;
