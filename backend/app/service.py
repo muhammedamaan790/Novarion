@@ -42,6 +42,8 @@ from .schemas import (
     QualityCounts,
     QualityItem,
     ReplayResponse,
+    SensitivityRequest,
+    SensitivityResponse,
     ValidateRequest,
     ValidateResponse,
 )
@@ -69,6 +71,9 @@ class InferenceService(ABC):
 
     @abstractmethod
     def explain(self, req: ExplainRequest) -> ExplanationResponse: ...
+
+    @abstractmethod
+    def sensitivity(self, req: SensitivityRequest) -> SensitivityResponse: ...
 
     @abstractmethod
     def evidence(self, req: EvidenceRequest) -> EvidenceResponse: ...
@@ -110,7 +115,7 @@ class UnavailableService(InferenceService):
     def _not_ready(self, *_args, **_kwargs):
         raise ApiError("NOT_READY", "Prediction service is not ready.", {"reason": self.reason})
 
-    meta = validate = predict = analyze_full = explain = evidence = _not_ready
+    meta = validate = predict = analyze_full = explain = evidence = sensitivity = _not_ready
     patients = patient = ground_truth = evaluation = global_importance = models = model_report = replay = _not_ready
 
 

@@ -206,3 +206,37 @@ def test_security_headers_on_every_response(client):
         r = client.get(path)
         assert r.headers["X-Content-Type-Options"] == "nosniff"
         assert r.headers["X-Frame-Options"] == "DENY" and r.headers["Referrer-Policy"] == "no-referrer"
+
+
+def test_sensitivity_is_consistent_with_predict_and_respects_locks(client, patient_files, service):
+    """Tier-3 what-if (plan §6 Tier 3): one feature varied within its training range; age/sex locked; the curve point
+    at the patient's own value reproduces /predict exactly; a mismatched bundle pin is refused."""
+    doc = patient_files["ZAS-0010"]["bundle"]
+    entered = {f.id: doc["canonical_inputs"][f.id] for f in service.registry.features if f.input_mode == "entered"}
+    entered["ldl"] = service.registry.unknown_token
+    base = {"request_id": str(uuid.uuid4()), "api_schema_version": "1.0.0", "input_revision": 1, "inputs": entered}
+    pred = client.post("/api/v1/predict", json=base).json()
+    pin = {**base, "request_id": str(uuid.uuid4()), "analysis_id": pred["analysis_id"], "input_sha256": pred["input_sha256"],
+           "model_version": pred["model_version"], "artifact_manifest_sha256": pred["artifact_manifest_sha256"]}
+    for target in TARGETS:
+        r = client.post("/api/v1/sensitivity", json={**pin, "target": target})
+        assert r.status_code == 200, r.text
+        s = S.SensitivityResponse.model_validate(r.json())
+        assert s.base_probability == pytest.approx(pred["targets"][target]["probability"], abs=1e-12)
+        assert s.label == "Model sensitivity, not treatment simulation"
+        varied = {c.feature for c in s.curves}
+        assert {"age", "sex"} <= set(s.locked_features) and not {"age", "sex"} & varied
+        assert not {f.id for f in service.registry.features if f.input_mode != "entered"} & varied  # BMI etc. follow
+        observed = service.engine.targets[target].reference.observed
+        for c in s.curves:
+            if c.kind == "continuous":
+                lo, hi = observed[c.feature]
+                assert all(lo - 1 <= p.value <= hi + 1 for p in c.points)  # within the training range (rounding)
+            if c.kind == "binary" and c.current_status == "provided":
+                own = [p.probability for p in c.points if p.value == c.current_value]
+                assert own and own[0] == pytest.approx(s.base_probability, abs=1e-9)
+        ldl = next(c for c in s.curves if c.feature == "ldl")
+        assert ldl.current_status == "imputed"
+        assert ("ldl" in s.material_unknown_inputs) == ldl.class_changes
+    bad = client.post("/api/v1/sensitivity", json={**pin, "target": "lad", "artifact_manifest_sha256": "0" * 64})
+    assert bad.status_code == 409

@@ -218,6 +218,59 @@ class Engine:
                                          targets[t]["stability_interval"])
         return {"targets": targets, "explanations": explanations, "evidence": evidence, "quality": quality}
 
+    def sensitivity(self, canonical: dict[str, Any], target: str, points: int = 13) -> dict[str, Any]:
+        """Tier-3 what-if / ICE (plan §6 Tier 3, §11 `/sensitivity`): vary ONE mutable entered feature at a time across
+        its observed training range, every other input held fixed, through the same canonicalization (computed
+        features follow) and imputation as a real prediction. Age/sex (immutable_in_whatif), computed and constant
+        features are never varied. Model sensitivity, not treatment simulation."""
+        from ..data.canonical import canonicalize_case, round_canonical
+
+        art = self.targets[target]
+        ref = art.reference
+        thr = art.thresholds
+        entered = {f.id: canonical[f.id] for f in self.registry.features if f.input_mode == "entered"}
+        base_logit = float(art.platt.logit(art.model.margin(self._frame(ref.impute(canonical))))[0])
+        rows, owners = [], []
+        curves: dict[str, dict[str, Any]] = {}
+        for f in self.registry.features:
+            if f.input_mode != "entered" or f.immutable_in_whatif:
+                continue
+            if f.kind == "continuous":
+                lo, hi = ref.observed[f.id]
+                grid = sorted({round_canonical(lo + (hi - lo) * i / (points - 1), f.canonical_precision or 0)
+                               for i in range(points)})
+            else:
+                grid = list(ref.observed[f.id])
+            current = canonical[f.id]
+            curves[f.id] = {"feature": f.id, "display": f.display, "kind": f.kind,
+                            "current_value": ref.imputation[f.id] if current == self.unknown else current,
+                            "current_status": "imputed" if current == self.unknown else "provided", "points": []}
+            for value in grid:
+                result = canonicalize_case({**entered, f.id: value}, registry=self.registry)
+                if result.canonical is None:  # e.g. a cross-field rule blocks this combination: no point, never a guess
+                    continue
+                rows.append(ref.impute(result.canonical))
+                owners.append((f.id, value))
+        if rows:
+            frame = pd.DataFrame([{f.id: r[f.id] for f in self.registry.features} for r in rows])
+            probs = sigmoid(art.platt.logit(art.model.margin(frame)))
+            for (fid, value), p in zip(owners, probs, strict=True):
+                curves[fid]["points"].append({"value": value, "probability": float(p)})
+        out = []
+        for c in curves.values():
+            ps = [pt["probability"] for pt in c["points"]]
+            if len(ps) < 2:
+                continue
+            c["swing"] = max(ps) - min(ps)
+            c["class_changes"] = min(ps) < thr.t_op <= max(ps)
+            out.append(c)
+        out.sort(key=lambda c: (-c["swing"], c["feature"]))
+        material = sorted(c["feature"] for c in out if c["current_status"] == "imputed" and c["class_changes"])
+        return {"target": target, "base_probability": float(sigmoid(np.array([base_logit]))[0]),
+                "operating_threshold": thr.t_op, "curves": out,
+                "locked_features": sorted(f.id for f in self.registry.features if f.immutable_in_whatif),
+                "material_unknown_inputs": material}
+
     def raw_feature_contributions(self, canonical: dict[str, Any]) -> dict[str, list[float]]:
         """|calibrated contribution| per registry feature, per target (for the OOF strength tertiles)."""
         out = {}

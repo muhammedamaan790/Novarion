@@ -238,4 +238,7 @@ export const api = {
     post<Schemas["ExplanationResponse"]>("/explain", pinnedBody(a, target))),
   evidence: offlineOnly((a: DisplayAnalysis, target: TargetId) =>
     post<Schemas["EvidenceResponse"]>("/evidence", pinnedBody(a, target))),
+  // Tier-3 what-if (ICE), pinned to the same transient final-model analysis as /explain.
+  sensitivity: offlineOnly((a: DisplayAnalysis, target: TargetId) =>
+    post<Schemas["SensitivityResponse"]>("/sensitivity", pinnedBody(a, target))),
 };

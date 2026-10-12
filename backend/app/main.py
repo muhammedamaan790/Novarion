@@ -36,6 +36,8 @@ from .schemas import (
     PredictionResponse,
     PredictRequest,
     ReplayResponse,
+    SensitivityRequest,
+    SensitivityResponse,
     TargetId,
     ValidateRequest,
     ValidateResponse,
@@ -137,6 +139,10 @@ def build_router() -> APIRouter:
     @router.post("/explain", response_model=ExplanationResponse, tags=["analysis"])
     def explain(body: ExplainRequest, service: InferenceService = svc) -> ExplanationResponse:
         return service.explain(body)
+
+    @router.post("/sensitivity", response_model=SensitivityResponse, tags=["analysis"])
+    def sensitivity(body: SensitivityRequest, service: InferenceService = svc) -> SensitivityResponse:
+        return service.sensitivity(body)
 
     @router.post("/evidence", response_model=EvidenceResponse, tags=["analysis"])
     def evidence(body: EvidenceRequest, service: InferenceService = svc) -> EvidenceResponse:

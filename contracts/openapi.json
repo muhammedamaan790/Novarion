@@ -980,6 +980,107 @@
         }
       }
     },
+    "/api/v1/sensitivity": {
+      "post": {
+        "tags": [
+          "analysis"
+        ],
+        "summary": "Sensitivity",
+        "operationId": "sensitivity_api_v1_sensitivity_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensitivityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SensitivityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/evidence": {
       "post": {
         "tags": [
@@ -4828,6 +4929,313 @@
         ],
         "title": "ReplayResponse",
         "description": "Historical replay study (research demonstration; never production; NOT temporal validation)."
+      },
+      "SensitivityCurve": {
+        "properties": {
+          "feature": {
+            "type": "string",
+            "title": "Feature"
+          },
+          "display": {
+            "type": "string",
+            "title": "Display"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "continuous",
+              "binary",
+              "ordinal",
+              "nominal"
+            ],
+            "title": "Kind"
+          },
+          "current_value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Current Value"
+          },
+          "current_status": {
+            "type": "string",
+            "enum": [
+              "provided",
+              "imputed"
+            ],
+            "title": "Current Status"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SensitivityPoint"
+            },
+            "type": "array",
+            "minItems": 2,
+            "title": "Points"
+          },
+          "swing": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Swing"
+          },
+          "class_changes": {
+            "type": "boolean",
+            "title": "Class Changes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "feature",
+          "display",
+          "kind",
+          "current_value",
+          "current_status",
+          "points",
+          "swing",
+          "class_changes"
+        ],
+        "title": "SensitivityCurve"
+      },
+      "SensitivityPoint": {
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          },
+          "probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probability"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "value",
+          "probability"
+        ],
+        "title": "SensitivityPoint"
+      },
+      "SensitivityRequest": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Inputs"
+          },
+          "unit_status": {
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "explicit",
+                "canonical_assumed"
+              ]
+            },
+            "type": "object",
+            "maxProperties": 100,
+            "title": "Unit Status"
+          },
+          "input_revision": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Input Revision",
+            "default": 0
+          },
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "input_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "api_schema_version",
+          "inputs",
+          "analysis_id",
+          "input_sha256",
+          "target",
+          "model_version",
+          "artifact_manifest_sha256"
+        ],
+        "title": "SensitivityRequest",
+        "description": "Tier-3 what-if (ICE) for one target of a transient final-model analysis, pinned like /explain."
+      },
+      "SensitivityResponse": {
+        "properties": {
+          "analysis_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Analysis Id"
+          },
+          "request_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Request Id"
+          },
+          "api_schema_version": {
+            "type": "string",
+            "title": "Api Schema Version",
+            "default": "1.0.0"
+          },
+          "model_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Model Version"
+          },
+          "artifact_manifest_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Artifact Manifest Sha256"
+          },
+          "prediction_mode": {
+            "type": "string",
+            "const": "final_model",
+            "title": "Prediction Mode"
+          },
+          "target": {
+            "type": "string",
+            "enum": [
+              "cad",
+              "lad",
+              "lcx",
+              "rca"
+            ],
+            "title": "Target"
+          },
+          "label": {
+            "type": "string",
+            "const": "Model sensitivity, not treatment simulation",
+            "title": "Label",
+            "default": "Model sensitivity, not treatment simulation"
+          },
+          "scope": {
+            "type": "string",
+            "const": "one input varied at a time across its observed training range; all other inputs held fixed",
+            "title": "Scope",
+            "default": "one input varied at a time across its observed training range; all other inputs held fixed"
+          },
+          "base_probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Base Probability"
+          },
+          "operating_threshold": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Operating Threshold"
+          },
+          "curves": {
+            "items": {
+              "$ref": "#/components/schemas/SensitivityCurve"
+            },
+            "type": "array",
+            "title": "Curves"
+          },
+          "locked_features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Locked Features"
+          },
+          "material_unknown_inputs": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Material Unknown Inputs"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "analysis_id",
+          "request_id",
+          "model_version",
+          "artifact_manifest_sha256",
+          "prediction_mode",
+          "target",
+          "base_probability",
+          "operating_threshold",
+          "curves",
+          "locked_features",
+          "material_unknown_inputs"
+        ],
+        "title": "SensitivityResponse"
       },
       "SimilarPatient": {
         "properties": {

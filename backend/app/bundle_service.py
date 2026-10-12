@@ -45,6 +45,8 @@ from .schemas import (
     PredictRequest,
     QualityItem,
     ReplayResponse,
+    SensitivityRequest,
+    SensitivityResponse,
     TargetSpec,
     ValidateRequest,
     ValidateResponse,
@@ -256,6 +258,10 @@ class BundleService(InferenceService):
         result = check_pinned(req, self.model_version, self.artifact_sha)
         out = self.engine.analyze(result.canonical, only=req.target)
         return ExplanationResponse(**out["explanations"][req.target], **self._pinned(req))
+
+    def sensitivity(self, req: SensitivityRequest) -> SensitivityResponse:
+        result = check_pinned(req, self.model_version, self.artifact_sha)
+        return SensitivityResponse(**self.engine.sensitivity(result.canonical, req.target), **self._pinned(req))
 
     def evidence(self, req: EvidenceRequest) -> EvidenceResponse:
         result = check_pinned(req, self.model_version, self.artifact_sha)

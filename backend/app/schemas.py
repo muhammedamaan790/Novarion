@@ -179,6 +179,10 @@ class EvidenceRequest(PinnedTargetRequest):
     pass
 
 
+class SensitivityRequest(PinnedTargetRequest):
+    """Tier-3 what-if (ICE) for one target of a transient final-model analysis, pinned like /explain."""
+
+
 # ---------------------------------------------------------------------------------------------------- health / meta
 class HealthLive(Strict):
     status: Literal["ok"] = "ok"
@@ -671,6 +675,40 @@ class EvidencePayload(Strict):
     evidence_ledger: EvidenceLedger
     atypical_profile: AtypicalDetail
     stability_interval: StabilityInterval | None = None
+
+
+class SensitivityPoint(Strict):
+    value: StrictInt | StrictFloat | StrictStr
+    probability: Probability
+
+
+class SensitivityCurve(Strict):
+    feature: str
+    display: str
+    kind: Literal["continuous", "binary", "ordinal", "nominal"]
+    current_value: StrictInt | StrictFloat | StrictStr
+    current_status: Literal["provided", "imputed"]
+    points: list[SensitivityPoint] = Field(min_length=2)
+    swing: Finite = Field(ge=0, le=1)  # max − min probability along the curve
+    class_changes: bool                # the predicted class differs somewhere within the training range
+
+
+class SensitivityResponse(Strict):
+    analysis_id: uuid.UUID
+    request_id: uuid.UUID
+    api_schema_version: str = API_SCHEMA_VERSION
+    model_version: SemVer
+    artifact_manifest_sha256: Sha256
+    prediction_mode: Literal["final_model"]
+    target: TargetId
+    label: Literal["Model sensitivity, not treatment simulation"] = "Model sensitivity, not treatment simulation"
+    scope: Literal["one input varied at a time across its observed training range; all other inputs held fixed"] = (
+        "one input varied at a time across its observed training range; all other inputs held fixed")
+    base_probability: Probability
+    operating_threshold: Probability
+    curves: list[SensitivityCurve]
+    locked_features: list[str]
+    material_unknown_inputs: list[str]  # UNKNOWN inputs whose plausible values would change the predicted class
 
 
 class EvidenceResponse(EvidencePayload):

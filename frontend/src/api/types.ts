@@ -174,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/sensitivity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sensitivity */
+        post: operations["sensitivity_api_v1_sensitivity_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/evidence": {
         parameters: {
             query?: never;
@@ -1452,6 +1469,134 @@ export interface components {
             /** Replay Config Sha256 */
             replay_config_sha256: string;
         };
+        /** SensitivityCurve */
+        SensitivityCurve: {
+            /** Feature */
+            feature: string;
+            /** Display */
+            display: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "continuous" | "binary" | "ordinal" | "nominal";
+            /** Current Value */
+            current_value: number | string;
+            /**
+             * Current Status
+             * @enum {string}
+             */
+            current_status: "provided" | "imputed";
+            /** Points */
+            points: components["schemas"]["SensitivityPoint"][];
+            /** Swing */
+            swing: number;
+            /** Class Changes */
+            class_changes: boolean;
+        };
+        /** SensitivityPoint */
+        SensitivityPoint: {
+            /** Value */
+            value: number | string;
+            /** Probability */
+            probability: number;
+        };
+        /**
+         * SensitivityRequest
+         * @description Tier-3 what-if (ICE) for one target of a transient final-model analysis, pinned like /explain.
+         */
+        SensitivityRequest: {
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /** Api Schema Version */
+            api_schema_version: string;
+            /** Inputs */
+            inputs: {
+                [key: string]: number | string | null;
+            };
+            /** Unit Status */
+            unit_status?: {
+                [key: string]: "explicit" | "canonical_assumed";
+            };
+            /**
+             * Input Revision
+             * @default 0
+             */
+            input_revision: number;
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /** Input Sha256 */
+            input_sha256: string;
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "cad" | "lad" | "lcx" | "rca";
+            /** Model Version */
+            model_version: string;
+            /** Artifact Manifest Sha256 */
+            artifact_manifest_sha256: string;
+        };
+        /** SensitivityResponse */
+        SensitivityResponse: {
+            /**
+             * Analysis Id
+             * Format: uuid
+             */
+            analysis_id: string;
+            /**
+             * Request Id
+             * Format: uuid
+             */
+            request_id: string;
+            /**
+             * Api Schema Version
+             * @default 1.0.0
+             */
+            api_schema_version: string;
+            /** Model Version */
+            model_version: string;
+            /** Artifact Manifest Sha256 */
+            artifact_manifest_sha256: string;
+            /**
+             * Prediction Mode
+             * @constant
+             */
+            prediction_mode: "final_model";
+            /**
+             * Target
+             * @enum {string}
+             */
+            target: "cad" | "lad" | "lcx" | "rca";
+            /**
+             * Label
+             * @default Model sensitivity, not treatment simulation
+             * @constant
+             */
+            label: "Model sensitivity, not treatment simulation";
+            /**
+             * Scope
+             * @default one input varied at a time across its observed training range; all other inputs held fixed
+             * @constant
+             */
+            scope: "one input varied at a time across its observed training range; all other inputs held fixed";
+            /** Base Probability */
+            base_probability: number;
+            /** Operating Threshold */
+            operating_threshold: number;
+            /** Curves */
+            curves: components["schemas"]["SensitivityCurve"][];
+            /** Locked Features */
+            locked_features: string[];
+            /** Material Unknown Inputs */
+            material_unknown_inputs: string[];
+        };
         /** SimilarPatient */
         SimilarPatient: {
             /** Patient Id */
@@ -2466,6 +2611,93 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExplanationResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    sensitivity_api_v1_sensitivity_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SensitivityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SensitivityResponse"];
                 };
             };
             /** @description Not Found */

@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Contribution, DisplayAnalysis, TargetId } from "../api/client";
 import { explainQuery } from "../api/queries";
+import { WhatIfPanel } from "./WhatIfPanel";
 import { SHORT, TOOLTIPS, pct, probPct } from "./wording";
 
 const GROUP_LABEL: Record<string, string> = {
@@ -128,6 +129,7 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
         )}
       </div>
 
+      <WhatIfPanel analysis={analysis} target={target} />
       {evidence && (
         <div>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Evidence</h3>

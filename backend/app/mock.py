@@ -69,6 +69,8 @@ from .schemas import (
     ReplayGate,
     ReplayPoint,
     ReplayResponse,
+    SensitivityRequest,
+    SensitivityResponse,
     SimilarPatient,
     SimilarPatients,
     StabilityInterval,
@@ -409,6 +411,31 @@ class MockService(InferenceService):
         result = check_pinned(req, MOCK_MODEL_VERSION, MOCK_BUNDLE_SHA256)
         _, explanations, _, _ = self._analysis(result.canonical, result.input_sha256, "final_model")
         return ExplanationResponse(**explanations[req.target].model_dump(), **self._pinned_meta(req))
+
+    def sensitivity(self, req: SensitivityRequest) -> SensitivityResponse:
+        """Toy curves for the contract mock (not a model): five mutable continuous features, monotone in the value."""
+        result = check_pinned(req, MOCK_MODEL_VERSION, MOCK_BUNDLE_SHA256)
+        targets, _, _, _ = self._analysis(result.canonical, result.input_sha256, "final_model")
+        base = targets[req.target].probability
+        registry = default_registry()
+        features = [f for f in registry.features if f.input_mode == "entered" and not f.immutable_in_whatif
+                    and f.kind == "continuous" and f.hard_valid_range][:5]
+        curves = []
+        for k, f in enumerate(features):
+            lo, hi = f.hard_valid_range
+            step = 0.04 * (k + 1)
+            pts = [{"value": round(lo + (hi - lo) * i / 4, 1), "probability": min(1.0, max(0.0, base + step * (i - 2)))}
+                   for i in range(5)]
+            ps = [p["probability"] for p in pts]
+            current = result.canonical[f.id]
+            curves.append({"feature": f.id, "display": f.display, "kind": "continuous",
+                           "current_value": pts[2]["value"] if current == registry.unknown_token else current,
+                           "current_status": "imputed" if current == registry.unknown_token else "provided",
+                           "points": pts, "swing": max(ps) - min(ps), "class_changes": min(ps) < 0.5 <= max(ps)})
+        return SensitivityResponse(**self._pinned_meta(req), target=req.target, base_probability=base,
+                                   operating_threshold=0.5, curves=sorted(curves, key=lambda c: -c["swing"]),
+                                   locked_features=sorted(f.id for f in registry.features if f.immutable_in_whatif),
+                                   material_unknown_inputs=[])
 
     def evidence(self, req: EvidenceRequest) -> EvidenceResponse:
         result = check_pinned(req, MOCK_MODEL_VERSION, MOCK_BUNDLE_SHA256)
