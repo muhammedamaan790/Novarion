@@ -79,7 +79,16 @@ test("unsaved draft survives a reload, is offered (never applied silently), and 
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.getByTestId("field-pulse_rate").fill("97");
-  await page.waitForTimeout(1500); // autosave is debounced
+  // autosave is debounced: wait until the edited draft is actually in IndexedDB (slow CI runners need longer)
+  await expect.poll(() => page.evaluate(() => new Promise<unknown>((resolve) => {
+    const open = indexedDB.open("novarion");
+    open.onsuccess = () => {
+      const get = open.result.transaction("drafts").objectStore("drafts").get("current");
+      get.onsuccess = () => { resolve((get.result as { inputs?: Record<string, unknown> } | undefined)?.inputs?.pulse_rate); open.result.close(); };
+      get.onerror = () => resolve(null);
+    };
+    open.onerror = () => resolve(null);
+  })), { timeout: 15_000 }).toBe(97);
 
   await page.reload();
   await page.getByTestId("tab-new").click();

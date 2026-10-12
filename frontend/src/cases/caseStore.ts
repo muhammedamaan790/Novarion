@@ -213,8 +213,33 @@ export const listCases = () => db.cases.orderBy("number").reverse().toArray();
 // Draft recovery: one recoverable draft; it never becomes a scenario implicitly (plan §1).
 export const saveDraft = (draft: Omit<DraftRecord, "draft_id" | "saved_at">) =>
   db.drafts.put({ ...draft, draft_id: "current", saved_at: now() });
+
+// Debounced autosave that survives the panel unmounting and is flushed when the page is hidden or closed, so the
+// last edit is never lost to the debounce window. Saving the case or discarding the draft cancels it (clearDraft).
+type DraftInput = Omit<DraftRecord, "draft_id" | "saved_at">;
+let pendingDraft: DraftInput | null = null;
+let draftTimer: ReturnType<typeof setTimeout> | undefined;
+export function scheduleDraft(draft: DraftInput, delayMs = 800): void {
+  pendingDraft = draft;
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(() => void flushDraft(), delayMs);
+}
+export async function flushDraft(): Promise<void> {
+  clearTimeout(draftTimer);
+  const draft = pendingDraft;
+  pendingDraft = null;
+  if (draft) await saveDraft(draft).catch(() => undefined); // storage full / blocked: the live session still works
+}
+if (typeof window !== "undefined") {
+  window.addEventListener("pagehide", () => void flushDraft());
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") void flushDraft(); });
+}
 export const loadDraft = () => db.drafts.get("current");
-export const clearDraft = () => db.drafts.delete("current");
+export const clearDraft = () => {
+  clearTimeout(draftTimer);
+  pendingDraft = null;
+  return db.drafts.delete("current");
+};
 export const getCase = (caseId: string) => db.cases.get(caseId);
 
 export interface CaseImportReport {

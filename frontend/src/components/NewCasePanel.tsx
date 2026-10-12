@@ -4,7 +4,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, TARGET_IDS, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
-import { clearDraft, loadDraft, saveDraft } from "../cases/caseStore";
+import { clearDraft, loadDraft, scheduleDraft } from "../cases/caseStore";
 import type { DraftRecord } from "../cases/db";
 import { readCaseFile, type ImportedRow, type ImportReport, type UnitStatus } from "../cases/importCase";
 import { useStore } from "../store/useStore";
@@ -116,11 +116,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   // Autosave the current draft (debounced). It stays a recoverable draft until "Save case" turns it into a scenario.
   useEffect(() => {
     if (!Object.values(inputs).some((v) => v !== null && v !== undefined)) return;
-    const timer = window.setTimeout(() => {
-      void saveDraft({ inputs, unit_status: unitStatus, dataset_record_id: sourceRecord, source: sourceKind.current })
-        .catch(() => undefined); // storage full / blocked: the live session still works
-    }, 800);
-    return () => window.clearTimeout(timer);
+    scheduleDraft({ inputs, unit_status: unitStatus, dataset_record_id: sourceRecord, source: sourceKind.current });
   }, [inputs, unitStatus, sourceRecord]);
 
   const recover = () => {
