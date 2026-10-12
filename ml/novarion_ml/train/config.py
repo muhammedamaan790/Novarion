@@ -12,6 +12,7 @@ from typing import Any
 import yaml
 
 from ..data.registry import CONFIG_DIR
+from ..hashing import normalized_text_bytes
 
 TRAIN_YAML = CONFIG_DIR / "train.yaml"
 
@@ -91,7 +92,7 @@ def expand_grid(raw: dict[str, Any]) -> tuple[ModelConfig, ...]:
 
 
 def load_train_config(path: Path = TRAIN_YAML) -> TrainConfig:
-    text = path.read_bytes()
+    text = normalized_text_bytes(path.read_bytes())  # same hash on Windows (CRLF) and Linux checkouts
     raw = yaml.safe_load(text)
     return TrainConfig(raw=raw, sha256=hashlib.sha256(text).hexdigest(), configs=expand_grid(raw))
 

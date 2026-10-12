@@ -38,6 +38,7 @@ from novarion_ml.calibrate.platt import Platt
 from novarion_ml.data.canonical import training_data_sha256, training_row_hashes
 from novarion_ml.data.load import build_targets, build_X, load_source, patient_id
 from novarion_ml.data.registry import CONFIG_DIR, default_registry, load_targets
+from novarion_ml.hashing import text_sha256
 from novarion_ml.inference.engine import Engine, TargetArtifact
 from novarion_ml.thresholds.layers import Qualification, Thresholds
 from novarion_ml.train.config import default_train_config
@@ -305,13 +306,13 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
         "source_data_sha256": json.loads((CONFIG_DIR / "data_source.json").read_text())["source_data_sha256"],
         "training_data_sha256": training_data_sha256(X, Y),
         "split_manifest_sha256": split["split_manifest_sha256"],
-        "schema_report_sha256": sha_file(ROOT / "data" / "schema_report.json"),
-        "feature_schema_sha256": sha_file(CONFIG_DIR / "feature_registry.yaml"),
-        "target_schema_sha256": sha_file(CONFIG_DIR / "targets.yaml"),
+        "schema_report_sha256": text_sha256(ROOT / "data" / "schema_report.json"),
+        "feature_schema_sha256": text_sha256(CONFIG_DIR / "feature_registry.yaml"),
+        "target_schema_sha256": text_sha256(CONFIG_DIR / "targets.yaml"),
         "train_config_sha256": train.sha256,
         "anatomy_version": anatomy["manifest"]["anatomy_version"],
         "anatomy_asset_sha256": anatomy["anatomy_asset_sha256"],
-        "anatomy_map_sha256": sha_file(CONFIG_DIR / "anatomy_map.json"),
+        "anatomy_map_sha256": text_sha256(CONFIG_DIR / "anatomy_map.json"),
         "reference_context_sha256": {f"{t}:{k if k == 'final' else f'k{k + 1}'}": v for (t, k), v in refctx_sha.items()},
         "selected": {t: json.loads((RESULTS / "final" / f"{t}.json").read_text())["selected"] for t in TARGETS},
         "files": files, "git_sha": git_sha or None, "seeds": train.seeds, "evaluation_repeat_id": ev_repeat,

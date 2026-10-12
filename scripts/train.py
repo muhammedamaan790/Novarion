@@ -39,6 +39,7 @@ from novarion_ml.evaluate.metrics import (
     fold_metrics,
     summarize,
 )
+from novarion_ml.hashing import text_sha256
 from novarion_ml.train.config import default_train_config
 from novarion_ml.train.nested import run_final, run_outer_fold
 from novarion_ml.train.splits import outer_folds, split_manifest
@@ -53,7 +54,7 @@ N_JOBS = max(1, (os.cpu_count() or 2) - 1)
 def cache_key() -> str:
     parts = [default_train_config().sha256]  # code changes need an explicit rerun (D-019)
     for name in ("feature_registry.yaml", "targets.yaml", "data_source.json"):
-        parts.append(hashlib.sha256((CONFIG_DIR / name).read_bytes()).hexdigest())
+        parts.append(text_sha256(CONFIG_DIR / name))
     return hashlib.sha256("|".join(parts).encode()).hexdigest()
 
 

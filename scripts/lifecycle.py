@@ -30,6 +30,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from novarion_ml.data.canonical import training_row_hashes
 from novarion_ml.data.load import build_targets, build_X, load_source
 from novarion_ml.data.registry import CONFIG_DIR, default_registry
+from novarion_ml.hashing import text_sha256
 from novarion_ml.lifecycle.candidate import build_candidate
 from novarion_ml.lifecycle.gate import load_gate
 from novarion_ml.lifecycle.log import LifecycleLog
@@ -115,7 +116,7 @@ def cmd_candidate(a, paths: Paths) -> int:
     doc = build_candidate(records=records, manifest=_manifest(paths), log=paths.log, X=X, Y=Y, train=train,
                           gate=paths.gate or load_gate(), champion_version=reg["production_version"],
                           champion_dir=paths.root / prod["path"], version=a.version, out_dir=out,
-                          feature_schema_sha256=hashlib.sha256((CONFIG_DIR / "feature_registry.yaml").read_bytes()).hexdigest(),
+                          feature_schema_sha256=text_sha256(CONFIG_DIR / "feature_registry.yaml"),
                           preprocessing_version="1.0.0", tests_pass=paths.tests_runner())
     report = doc["report"]
     register_candidate(paths.registry, a.version, doc, str(out.relative_to(paths.root)).replace("\\", "/"),

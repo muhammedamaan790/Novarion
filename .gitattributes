@@ -1,0 +1,10 @@
+# Same bytes on every platform (D-020): text files are checked out with LF everywhere, so provenance hashes of
+# configs, contracts and results never depend on the machine. Binary assets are never converted.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.glb binary
+*.pdf binary
+*.xlsx binary
+*.joblib binary
+*.woff2 binary

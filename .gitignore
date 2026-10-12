@@ -30,6 +30,7 @@ results/final/
 results/train_log.txt
 results/ablation_log.txt
 results/docker_build_log.txt
+work/
 
 # Secrets — never committed
 .env

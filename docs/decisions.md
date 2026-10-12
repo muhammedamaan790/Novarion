@@ -401,3 +401,48 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   - Version names: their "v0.1.1" corrected build corresponds to v1.0.2 here.
 - **Ideas recorded for later (their deep audit):** an OOF failure explorer (TP/TN/FP/FN → patients, opened in 3D), a
   subgroup performance explorer, and a "human-first" educational review mode.
+
+## D-020 — Verification gates (plan Days 15–19) and Tier 3
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **CI made trustworthy:** GitHub's e2e job failed after the first push. The causes were real defects, not just flaky
+  tests:
+  1. a colour-contrast failure (4.36:1) in the no-WebGL 2D fallback, which GPU-less runners hit;
+  2. a draft-autosave window that could lose the last edit before a reload.
+
+  Both are fixed. Timing-sensitive tests were made deterministic, CI runs browsers on one worker, and Playwright
+  failures are now reported as GitHub annotations with the HTML report uploaded on failure.
+- **Local storage safety net (plan §11A):**
+  - automatic backups go to a separate IndexedDB database (last 3, in the re-importable export format): after every
+    committed case write, before a delete, and of the raw store before a schema upgrade;
+  - an unopenable store is reported and never deleted, downgraded or overwritten, and damaged records are hidden
+    and counted;
+  - storage-full errors explain how to free space, and cases can be deleted with a two-step confirmation.
+- **Performance and memory (`results/perf.json`):**
+  - real API RSS: 178 MB after start, 184 MB peak under 303 patient loads plus 400 mixed requests;
+  - offline bundle: 3.5 MB gzipped, against the 25 MB budget; patient files up to 99 KB, against 200 KB
+    (`tests/test_budgets.py` enforces the budgets);
+  - JS heap: 7.9 → 12.8 MB after opening 30 patients in offline mode, on a production build.
+- **Further checks:**
+  - 48 mixed requests on 12 threads equal the sequential results exactly;
+  - security headers are present on every response;
+  - every browser request stays same-origin, and no service worker is registered;
+  - a release secret scan (`scripts/secret_scan.py`) runs in the test suite, with tests that prove it detects
+    planted samples;
+  - a release manifest generator (`scripts/release_manifest.py`).
+- **Tier 3 (built because Tiers 1, 1P and 2 are complete):**
+  - **what-if sensitivity / ICE** (`POST /sensitivity`):
+    - pinned to final-model analyses; dataset patients keep their OOF model;
+    - one input varied across its observed training range, through the real canonicalization;
+    - age and sex locked;
+    - wording: "Model sensitivity, not treatment simulation";
+  - **input-uncertainty**: Unknown inputs whose plausible values could flip the predicted class, listed as "Inputs
+    that materially affect this model output";
+  - **model agreement** (Table 3b): when the four families disagree, the selected model errs far more often (CAD 35%
+    vs 9%, LAD 46% vs 19%);
+  - **stability visual** on the target cards;
+  - **local-only Promote wrapper**: an admin token, the same CLI as `make promote`, and no route in hosted builds.
+- **Tier 3 deliberately not built:**
+  - conformal prediction (marked experimental in the plan);
+  - the ensemble benchmark (the plan rules out new ML sophistication).

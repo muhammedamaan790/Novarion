@@ -11,7 +11,6 @@ import os
 
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
-import hashlib
 import json
 import sys
 import time
@@ -24,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "ml"))
 
 from novarion_ml.data.load import build_targets, build_X, load_source
+from novarion_ml.hashing import text_sha256
 from novarion_ml.lifecycle.gate import GATE_YAML, load_gate
 from novarion_ml.lifecycle.procedure import procedure, restrict, score
 from novarion_ml.lifecycle.replay import (
@@ -78,8 +78,8 @@ def main() -> None:
     sizes = [cfg["partition"]["initial"] + sum(cfg["partition"]["batches"][:k]) for k in range(n_steps)]
     report = {
         "title": cfg["title"], "namespace": "replay (never production)",
-        "replay_config_sha256": hashlib.sha256(REPLAY_YAML.read_bytes()).hexdigest(),
-        "promotion_gate_sha256": hashlib.sha256(GATE_YAML.read_bytes()).hexdigest(),
+        "replay_config_sha256": text_sha256(REPLAY_YAML),
+        "promotion_gate_sha256": text_sha256(GATE_YAML),
         "families": cfg["families"], "seeds": n_seeds, "partition": cfg["partition"], "training_sizes": sizes,
         "scoring": "each learning-curve point = the step-s model on the NEXT arrival batch (forward holdout, n = 50)",
         **summarize(seeds, sizes), "per_seed": seeds,

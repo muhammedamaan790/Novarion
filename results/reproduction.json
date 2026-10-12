@@ -1,0 +1,42 @@
+{
+ "other": "repro",
+ "pass": true,
+ "checks": {
+  "config files (identical modulo line endings)": {
+   "pass": true,
+   "detail": "9 files; differing []"
+  },
+  "split manifest (every outer fold)": {
+   "pass": true,
+   "detail": "17c7493851bc9852; []"
+  },
+  "outer folds + selected configs": {
+   "pass": true,
+   "detail": "0 differing fold records []"
+  },
+  "deployed configurations": {
+   "pass": true,
+   "detail": "{'cad': 'lr[penalty=l2,C=0.01]|fs=redundancy_reduced|cw=balanced', 'lad': 'lr[penalty=elasticnet,C=0.1]|fs=redundancy_reduced|cw=none', 'lcx': 'xgboost[max_depth=2,n_estimators=100]|fs=full|cw=none', 'rca': 'lr[penalty=elasticnet,C=0.1]|fs=redundancy_reduced|cw=none'}"
+  },
+  "metrics (Tables 1-2)": {
+   "pass": true,
+   "detail": "max |diff| 0.00e+00; []"
+  },
+  "golden predictions": {
+   "pass": true,
+   "detail": "max |dp| 0.00e+00; classes identical: True"
+  },
+  "results/stability.json": {
+   "pass": true,
+   "detail": "max |diff| 0.00e+00; []"
+  },
+  "registry/replay.json": {
+   "pass": true,
+   "detail": "max |diff| 0.00e+00; []"
+  },
+  "D-019 recomputed fold scores vs a real retrain": {
+   "pass": true,
+   "detail": "max |diff| 0.00e+00"
+  }
+ }
+}
