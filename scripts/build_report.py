@@ -17,7 +17,7 @@ SHOTS = ROOT / "results" / "ui" / "real"
 TARGETS = ("cad", "lad", "lcx", "rca")
 NAME = {"cad": "CAD", "lad": "LAD", "lcx": "LCX", "rca": "RCA"}
 GROUPS = ("demographics", "history", "symptoms_exam", "ecg", "labs", "echo")
-TEST_COUNTS = {"python": 137, "vitest": 19, "e2e": 33}  # measured counts of the last full runs (update with them)
+TEST_COUNTS = {"python": 173, "vitest": 19, "e2e": 43}  # measured counts of the last full runs (update with them)
 GROUP_LABEL = {"demographics": "Demogr.", "history": "History", "symptoms_exam": "Symptoms/exam", "ecg": "ECG",
                "labs": "Labs", "echo": "Echo"}
 
@@ -154,7 +154,9 @@ displayed calibrated logit is tested for every served explanation. Dataset patie
 dataset patient, the fold's selected configuration is refit with Platt on {stability['replicates']} bootstrap resamples
 of that fold's training rows only (patient-grouped internal cross-fitting, threshold fixed); if the 10th–90th percentile
 interval straddles the decision threshold the patient is shown LOW with reason "unstable" (CAD {crossings['cad']},
-LAD {crossings['lad']}, LCX {crossings['lcx']}, RCA {crossings['rca']} of 303; patch release v1.0.1, D-017).</p>
+LAD {crossings['lad']}, LCX {crossings['lcx']}, RCA {crossings['rca']} of 303; D-017). After every display gate the CAD HIGH badge covers 44.6% of patients at PPV 98.5% (Table 2b).
+Evidence-band ledgers use each fold's own inner cross-fitted scores, so a held-out patient's label never shapes
+its own evidence (patch release v1.0.2, D-019, found by an external audit).</p>
 
 <h2>4. Results</h2>
 <p class="cap"><b>Table 1 — official metrics at the Layer-A threshold. Scope: outer-fold mean ± SD (25 folds).</b>
@@ -240,8 +242,8 @@ displayed outcome.</p>
 modified bundle. A golden prediction set guards future patch releases; demo patients are picked by an outcome-blind hash
 rule. Tests: {TEST_COUNTS['python']} backend/ML (leakage, contract, additivity,
 calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop), {TEST_COUNTS['vitest']} frontend
-unit tests and {TEST_COUNTS['e2e']} browser end-to-end flows, passing on the Docker stack with the real model and in Edge,
-Chrome and Firefox (axe accessibility checks included). Measured: <code>/predict</code> p95
+unit tests and {TEST_COUNTS['e2e']} browser end-to-end flows, passing against the real model (axe accessibility checks
+included; the earlier 33-flow suite also on the Docker stack in Chrome and Firefox). Measured: <code>/predict</code> p95
 {perf['api']['endpoints']['predict']['p95_ms']:.0f} ms; 3D median {perf['fps']['median_fps']:.1f} fps on Intel Iris Xe integrated
 graphics. If the backend is unreachable, a hash-verified static bundle keeps every dataset-patient flow working
 offline. <b>Limitations:</b> one public, single-source cohort of 303 patients

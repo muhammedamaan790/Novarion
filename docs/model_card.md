@@ -1,4 +1,4 @@
-# NOVARION model card — v1.0.1
+# NOVARION model card — v1.0.2
 
 > Decision support / educational purposes only. Not a substitute for formal diagnostic imaging.
 
@@ -6,7 +6,7 @@
 
 ## Model details
 
-- **Version:** 1.0.1 (preprocessing 1.0.0); artifact manifest `9f012b91243ec4fe…`; created 2026-10-06T23:59:12Z.
+- **Version:** 1.0.2 (preprocessing 1.0.0); artifact manifest `790a8dece9e982a4…`; created 2026-10-12T15:29:24Z.
 - **Four independent binary classifiers**, one per target (probabilities are not constrained to nest):
 
 | Target | Deployed configuration (selected by inner CV on all 303, 1-SE rule) |
@@ -21,7 +21,7 @@
 - **Model confidence (Layer B):** HIGH only inside a region whose Wilson-95% lower bound met the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 (n ≥ 15) on training-side OOF scores; forced LOW for UNKNOWN inputs or an atypical profile.
 - **Explanations:** exactly additive contributions in calibrated log-odds (LR: linear SHAP; XGBoost/CatBoost: TreeSHAP; EBM: native terms), aggregated to registry features; additivity is tested.
 - **Stability (dataset patients only):** 10th–90th percentile of 100 refit-bootstrap replicates of the fold model (outer-training rows only, threshold fixed); an interval straddling the threshold forces LOW with reason "unstable" (D-017). New cases have no interval.
-- **Updates:** governed learning loop (D-018): verified outcomes only, forward holdout, pre-registered paired gate, human-approved promotion, hash-chained audit log. v1.0.1 serves the frozen v1.0.0 models unchanged; no learning-loop update has been promoted.
+- **Updates:** governed learning loop (D-018): verified outcomes only, forward holdout, pre-registered paired gate, human-approved promotion, hash-chained audit log. v1.0.2 serves the frozen v1.0.0 models unchanged; no learning-loop update has been promoted.
 - **Libraries:** python 3.11.16, numpy 2.4.6, scikit-learn 1.9.1, xgboost 3.2.0, catboost 1.2.10, interpret 0.7.8.
 
 ## Intended use

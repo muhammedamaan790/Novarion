@@ -45,7 +45,8 @@ per-file artifact hashes are all recorded.
 
 ## Results
 
-These are for model **v1.0.1**, which has the same models as the frozen v1.0.0 plus stability intervals. Validation
+These are for model **v1.0.2**: the same models as the frozen v1.0.0, plus stability intervals and fold-safe
+evidence ledgers (D-017, D-019). Validation
 is nested CV with 5 × 5 outer folds; the full tables are in `results/tables.md`.
 
 | Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | High-confidence share (pooled OOF) |
@@ -65,11 +66,14 @@ Confidence is also forced LOW in two cases:
 - **An unstable dataset patient.** A patient is unstable when their refit-bootstrap stability interval straddles the
   threshold (D-017). This affects 27 of 187 HIGH-confidence CAD patients.
 
+As displayed after all these gates, the CAD HIGH badge covers 44.6% of patients at PPV 98.5% [96.2–100]
+(Table 2b in `results/tables.md`).
+
 **Measured:**
 - `/predict` p95: 67 ms.
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
-- Browser E2E: 33 flows pass on the Docker stack with the real model in Edge, Chrome and Firefox, including axe
-  accessibility checks.
+- Browser E2E: 43 flows pass against the real model in Edge, including axe accessibility checks. The earlier
+  33-flow suite also passed on the Docker stack in Chrome and Firefox.
 
 ## How it works
 
@@ -111,7 +115,8 @@ paired intervals are wide. That conservatism is by design.
 | [`docs/report.pdf`](docs/report.pdf) | Project report, 4 pages, every number generated from `results/` |
 | [`docs/compliance.md`](docs/compliance.md) | Track A compliance audit, item by item, with evidence |
 | [`docs/model_card.md`](docs/model_card.md) | Model card |
-| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-018 |
+| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-019 |
+| [`docs/audit/`](docs/audit/README.md) | External audit by MysteryMindz (PR #1), integrated in D-019 |
 | [`results/error_analysis.md`](results/error_analysis.md), [`results/eda.md`](results/eda.md) | Error analysis and EDA |
 | `results/ablation.json` | Feature-group ablation |
 | `results/stability.json` | Stability bootstrap intervals |
@@ -121,9 +126,10 @@ paired intervals are wide. That conservatism is by design.
 ## Tests
 
 ```bash
-make test                                        # 137 Python tests
-cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 19 unit + 33 E2E (mock API)
-make docker-e2e                                  # the same 33 E2E flows against the Docker stack + real model
+make test                                        # 173 Python tests
+cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 19 unit + 43 E2E (mock API)
+make docker-e2e                                  # the same E2E flows against the Docker stack + real model
+# Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_API_PORT=8001 docker compose up
 ```
 
 ## Status

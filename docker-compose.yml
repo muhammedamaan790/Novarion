@@ -9,7 +9,7 @@ services:
     volumes:
       - ./artifacts:/app/artifacts:ro
       - ./registry:/app/registry:ro
-    ports: ["8000:8000"]
+    ports: ["${NOVARION_API_PORT:-8000}:8000"]   # NOVARION_API_PORT=8001 if 8000 is taken
   frontend:
     build: {context: ., dockerfile: docker/frontend.Dockerfile}
     depends_on:

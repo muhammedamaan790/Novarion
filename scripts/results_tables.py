@@ -70,8 +70,8 @@ def main() -> None:
     shown_path = ROOT / "results" / "displayed_tiers.json"
     if shown_path.exists():  # scripts/displayed_tiers.py (D-019)
         shown = json.loads(shown_path.read_text(encoding="utf-8"))
-        out += [f"## Table 2b — confidence tiers **as displayed** · served OOF analyses, model v{shown['model_version']}, "
-                "patient-level bootstrap 95% CI", "",
+        out += [(f"## Table 2b — confidence tiers **as displayed** · served OOF analyses, model v{shown['model_version']}, "
+                "patient-level bootstrap 95% CI"), "",
                 ("The HIGH badge additionally requires known inputs, a typical profile and (dataset patients) a "
                  "stability interval that does not straddle the threshold, so it covers a subset of each Table 2 region."), ""]
         out.append("| Target | % HIGH-positive shown | PPV [CI] | % HIGH-negative shown | NPV [CI] | % LOW shown | "

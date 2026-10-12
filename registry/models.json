@@ -1,5 +1,5 @@
 {
- "production_version": "1.0.1",
+ "production_version": "1.0.2",
  "models": [
   {
    "version": "0.1.0",
@@ -19,11 +19,19 @@
   },
   {
    "version": "1.0.1",
-   "status": "production",
+   "status": "retired",
    "created_at": "2026-10-06T23:59:12Z",
    "training_cases": 303,
    "artifact_manifest_sha256": "9f012b91243ec4fe2eccbd40da422be5b1525b78592404992ff58e5a78c39f54",
    "path": "artifacts/models/v1.0.1"
+  },
+  {
+   "version": "1.0.2",
+   "status": "production",
+   "created_at": "2026-10-12T15:29:24Z",
+   "training_cases": 303,
+   "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
+   "path": "artifacts/models/v1.0.2"
   }
  ]
 }

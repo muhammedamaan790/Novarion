@@ -360,3 +360,44 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   the most frequent failing rule is the ΔAUC 95% CI lower bound ≤ −0.05 (LCX 16, LAD 12, RCA 12 of 20 gates) — with
   50-patient holdouts the paired CI is wide, so the gate is conservative by design, as the plan anticipated. Wall
   time 20 min (8.7 min of fits on 11 workers; the rest is 2,000-replicate paired bootstraps).
+
+## D-019 — Integrating PR #1 (external audit by MysteryMindz) → bundle v1.0.2
+
+- **Date:** 2026-10-12
+- **Status:** DECIDED
+- **Context:** PR #1 (`nikil/progress-audit`, 4 commits) audited the original snapshot `f0d531b` and fixed real
+  defects. It conflicted with the current `main` in 6 files and assumed the trained artifacts were unavailable, so it
+  was ported commit by commit rather than merged. Co-authorship is credited in each ported commit; the audit write-ups
+  are kept in `docs/audit/`.
+- **Integrated:**
+  - impossible numeric magnitudes, non-finite JSON numbers, deep JSON and oversized Content-Length values now return
+    validation envelopes instead of HTTP 500;
+  - Platt calibration rejects separated or constant margins and optimizer failures; an undefined calibration slope
+    is NA;
+  - a HIGH region without outer-validation evidence degrades to LOW (`no_validation_evidence`) instead of raising;
+  - bundle startup checks the feature/target config hashes (CRLF-tolerant) and the registry identity; stale or
+    mismatched fold records are rejected before evaluation and bundling;
+  - frontend: prefill race and failure states, edits clear the old prediction until the new one arrives, incomplete
+    or non-JSON responses are errors, 3D-asset failure is contained, keyboard shortcuts ignore form controls,
+    narrow-screen layout, clearer confidence wording, quality notices on the cards;
+  - 3 Python test modules and 2 Playwright suites (10 flows).
+- **The fold-safe evidence ledger (their most important finding):** fold k's reference patients were binned by
+  evaluation-repeat OOF scores from *other* folds' models, whose training data included fold k's held-out patients,
+  so a patient's own label could indirectly shape their evidence band. Ledgers now use fold k's own inner
+  cross-fitted scores. Instead of retraining, `scripts/fold_ledger_oof.py` recomputes those scores for the frozen
+  v1.0 fits (only the selected configuration per fold); refitting Platt on them reproduces every stored fold
+  calibration exactly (max |Δ| = 0). Bundle **v1.0.2**: models, probabilities and golden predictions identical to
+  v1.0.1, so it is a patch release; the positive-label rate in the evidence band moved by a median of 2.4 points
+  (max 19). Older bundles withhold the ledger when served.
+- **Table 2b (their recommendation):** `scripts/displayed_tiers.py` measures the HIGH badge as displayed, after the
+  unknown-input, atypical and stability gates. CAD: 44.6% of patients HIGH-positive at PPV 98.5% [96.2–100], versus
+  the threshold region's 62% at PPV 95%. Vessels: 100% LOW.
+- **Adapted or not taken:**
+  - **No code fingerprint in the training cache key.** It hashed every file under `ml/` plus `uv.lock`, so any edit
+    (even to the learning loop) would invalidate all fits and force a ~2 h retrain. The identity checks are kept; a
+    change to training code needs an explicit rerun, and the golden prediction set catches changed outputs.
+  - Their evaluation dashboard duplicates the Model Evidence page (which also has ROC/PR/reliability/threshold-sweep
+    figures), so it was not ported; its integrity ideas are covered by the strict contract.
+  - Version names: their "v0.1.1" corrected build corresponds to v1.0.2 here.
+- **Ideas recorded for later (their deep audit):** an OOF failure explorer (TP/TN/FP/FN → patients, opened in 3D), a
+  subgroup performance explorer, and a "human-first" educational review mode.

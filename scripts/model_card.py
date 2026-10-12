@@ -56,7 +56,7 @@ def main() -> None:
            "model (outer-training rows only, threshold fixed); an interval straddling the threshold forces LOW with "
            "reason \"unstable\" (D-017). New cases have no interval."),
            ("- **Updates:** governed learning loop (D-018): verified outcomes only, forward holdout, pre-registered "
-           "paired gate, human-approved promotion, hash-chained audit log. v1.0.1 serves the frozen v1.0.0 models "
+           "paired gate, human-approved promotion, hash-chained audit log. v1.0.2 serves the frozen v1.0.0 models "
            "unchanged; no learning-loop update has been promoted."),
            "- **Libraries:** " + ", ".join(f"{k} {v}" for k, v in manifest["libraries"].items()) + ".", "",
            "## Intended use", "",

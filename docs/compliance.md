@@ -4,8 +4,8 @@ Audit of NOVARION against the Track A brief (Cardiovascular Risk Visualization &
 evidence: the code, a test or a measured result. Status: **Met**, **Met (interpreted)** where the brief is open and
 our reading is stated, or **Open** where work remains.
 
-Audited 2026-10-07 against production model **v1.0.1**: the same models as the frozen v1.0.0, plus stability
-intervals (D-017).
+Audited 2026-10-07 and updated 2026-10-12 against production model **v1.0.2**: the same models as the frozen
+v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 ## Prediction
 
@@ -51,7 +51,7 @@ intervals (D-017).
 | Deliverable | Evidence | Status |
 |---|---|---|
 | Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~14 s) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
-| Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.1` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
+| Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.2` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
 | ≤ 6-page documentation | `docs/report.pdf`, 4 pages, with every number read from `results/` at build time. Also `docs/model_card.md` and `docs/decisions.md`. | Met |
 | 3–10 min YouTube demo | Recorded at the end of the project, by the team. | **Open** |
 
@@ -59,10 +59,10 @@ intervals (D-017).
 
 | Gate | Result |
 |---|---|
-| Python tests | 137 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop. |
+| Python tests | 173 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop, input edge cases. |
 | Frontend unit tests | 19 pass (vitest), plus typecheck and lint. |
-| Browser E2E | 33 flows pass on the Docker stack with the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`). They include axe accessibility checks, failure injection, offline mode, WebGL fallback and the learning loop. |
-| Fresh-clone reproduction · GitHub CI | **Open.** Both need the current work committed and pushed (80+ files are uncommitted). |
+| Browser E2E | 43 flows pass against the real model in Edge (2026-10-12). They include axe accessibility checks, failure injection, offline mode, WebGL fallback, the learning loop and the PR #1 regression suites. The earlier 33-flow suite also passed on the Docker stack in Chrome and Firefox (`results/browser_matrix_log.txt`). One case export/import flow failed once in a slow full run and passed 5/5 on repeat (timing flake). |
+| Fresh-clone reproduction · GitHub CI | **Open.** The work is pushed; CI runs on GitHub, and the fresh-clone test is still to do. |
 | Second-machine test · rehearsals · outside-user usability test | **Open** (team). |
 
 ## Claims we deliberately do not make
