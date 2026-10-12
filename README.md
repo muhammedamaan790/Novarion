@@ -154,18 +154,20 @@ make docker-e2e                                  # the same E2E flows against th
 
 ## Status
 
-Built:
+**Release v1.0.2 (frozen; `release_manifest.json`, git tag `v1.0.2`).** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, performance and memory budgets met,
-  browser storage hardening and the secret scan (D-020).
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (49/49 browser
+  flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 Still open, for the team:
 - the second-machine run;
 - rehearsals and an outside-user usability test;
 - the demo video;
-- a public hosted URL, if the submission requires one;
-- the final release manifest (`uv run python scripts/release_manifest.py --final`) and tag.
+- a public hosted URL, if the submission requires one.
+
+Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
+(v1.0.3 and up) with its own release manifest.
 
 ## Data and credits
 
