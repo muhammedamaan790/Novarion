@@ -35,6 +35,30 @@ function ConfidenceBlock({ p }: { p: TargetPrediction }) {
   );
 }
 
+/** Advanced stability visual (plan Tier 3): the refit-bootstrap 10th–90th percentile band against the threshold. */
+function StabilityBar({ p }: { p: TargetPrediction }) {
+  const s = p.stability_interval;
+  if (!s) return null;
+  const straddles = s.p10 < p.operating_threshold && p.operating_threshold <= s.p90;
+  const x = (v: number) => `${(v * 100).toFixed(1)}%`;
+  return (
+    <div className="mt-1.5" data-testid="stability-bar"
+         title="Model stability interval: how much this probability moves when the model is refit on bootstrap resamples of its own training patients (10th–90th percentile). Not a confidence interval for the patient's true risk.">
+      <div className="relative h-2 rounded-full bg-slate-100" role="img"
+           aria-label={`Model stability interval ${probPct(s.p10)} to ${probPct(s.p90)}; decision threshold ${probPct(p.operating_threshold)}${straddles ? "; the interval straddles the threshold" : ""}`}>
+        <div className={`absolute inset-y-0 rounded-full ${straddles ? "bg-amber-400" : "bg-slate-400"}`}
+             style={{ left: x(s.p10), width: x(Math.max(s.p90 - s.p10, 0.004)) }} />
+        <div className="absolute -inset-y-0.5 w-0.5 bg-slate-900" style={{ left: x(p.probability) }} />
+        <div className="absolute -inset-y-1 border-l border-dashed border-slate-500" style={{ left: x(p.operating_threshold) }} />
+      </div>
+      <p className="mt-0.5 text-[10px] text-slate-500">
+        Stability {probPct(s.p10)}–{probPct(s.p90)} · threshold {probPct(p.operating_threshold)}
+        {straddles ? " · crosses the threshold" : ""}
+      </p>
+    </div>
+  );
+}
+
 function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; transfer: ColorTransfer }) {
   const selected = useStore((s) => s.selectedTarget === target);
   const selectTarget = useStore((s) => s.selectTarget);
@@ -64,6 +88,7 @@ function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; 
       <p className="mt-2 text-sm text-slate-700" title={target === "cad" ? TOOLTIPS.overallCad : TOOLTIPS.vessel}>
         {probabilityLabel(target)} <span className="font-semibold tabular-nums">{probPct(p.probability)}</span>
       </p>
+      <StabilityBar p={p} />
       <ConfidenceBlock p={p} />
     </button>
   );
