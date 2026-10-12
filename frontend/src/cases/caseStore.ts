@@ -1,8 +1,16 @@
 // Case operations. Each write is a single IndexedDB transaction, so a case is never half-saved (plan §1 "the client
 // commits it in a single IndexedDB transaction"). Status is DERIVED: an analysis is reviewed iff a review references it.
 import { api, type DisplayAnalysis, type InputValue, type Meta, type PatientBundle } from "../api/client";
+import { backupCases, isWellFormedCase } from "./backup";
 import { CASE_SCHEMA_VERSION, db, type CaseRecord, type CaseSource, type DraftRecord, type OutcomeRecord,
   type PersistedAnalysis, type Review, type Scenario, type SnapshotRecord, type StoredSnapshot } from "./db";
+
+/** After a case write commits, refresh the automatic local backup (best effort, never blocks the write). */
+async function committed<T>(reason: string, write: Promise<T>): Promise<T> {
+  const result = await write;
+  void backupCases(`after ${reason}`);
+  return result;
+}
 
 const now = () => new Date().toISOString().replace(/\.\d{3}Z$/, "Z"); // RFC 3339 UTC (plan §11A "Timestamps")
 const uuid = () => crypto.randomUUID();
@@ -52,7 +60,7 @@ export interface OutcomeInput {
 
 /** Record a real-world outcome as PENDING, bound to the current immutable scenario (plan §12B rules 1, 1b). */
 export async function addOutcome(caseId: string, input: OutcomeInput, meta: Meta): Promise<CaseRecord> {
-  return db.transaction("rw", db.cases, async () => {
+  return committed("addOutcome", db.transaction("rw", db.cases, async () => {
     const c = await db.cases.get(caseId);
     if (!c) throw new Error("case not found");
     const blocker = outcomeBlocker(c, meta);
@@ -72,7 +80,7 @@ export async function addOutcome(caseId: string, input: OutcomeInput, meta: Meta
                       updated_at: now() };
     await db.cases.put(updated);
     return updated;
-  });
+  }));
 }
 
 /** "Export learning package" (plan §12B): allowlisted fields ONLY — no review notes, reviewer identity, free-form
@@ -120,12 +128,12 @@ function scenario(analysis: PersistedAnalysis, inputs: Record<string, unknown>, 
 export async function saveDatasetCase(bundle: PatientBundle): Promise<CaseRecord> {
   // Identity vs attachment (plan §1): the case gets its own analysis_id; the OOF result keeps its canonical id.
   const analysis: PersistedAnalysis = { ...bundle, analysis_id: uuid(), stored_at: now() };
-  return db.transaction("rw", db.cases, async () => {
+  return committed("saveDatasetCase", db.transaction("rw", db.cases, async () => {
     const record = newCase(await nextNumber(), "dataset", bundle.patient_id,
       scenario(analysis, bundle.canonical_inputs, {}, null));
     await db.cases.add(record);
     return record;
-  });
+  }));
 }
 
 export interface NewCaseInput {
@@ -141,7 +149,7 @@ export async function persistNewCase(input: NewCaseInput, appendTo: CaseRecord |
   const response = await api.analyzeFull(input.inputs, input.unitStatus, input.datasetRecordId);
   const analysis: PersistedAnalysis = { ...response.data, stored_at: now() };
   const snapshotInputs = input.canonicalInputs ?? input.inputs;
-  return db.transaction("rw", db.cases, async () => {
+  return committed("persistNewCase", db.transaction("rw", db.cases, async () => {
     if (appendTo) {
       const fresh = await db.cases.get(appendTo.case_id);
       if (!fresh) throw new Error("case no longer exists");
@@ -153,11 +161,11 @@ export async function persistNewCase(input: NewCaseInput, appendTo: CaseRecord |
     const record = newCase(await nextNumber(), input.source, null, scenario(analysis, snapshotInputs, input.unitStatus, null));
     await db.cases.add(record);
     return record;
-  });
+  }));
 }
 
 export async function addReview(caseId: string, note: string, limitations: string[]): Promise<CaseRecord> {
-  return db.transaction("rw", db.cases, async () => {
+  return committed("addReview", db.transaction("rw", db.cases, async () => {
     const c = await db.cases.get(caseId);
     if (!c) throw new Error("case not found");
     const s = currentScenario(c);
@@ -166,7 +174,7 @@ export async function addReview(caseId: string, note: string, limitations: strin
     const updated = { ...c, reviews: [...c.reviews, review], updated_at: now() }; // revisions append, never edit
     await db.cases.put(updated);
     return updated;
-  });
+  }));
 }
 
 /** Re-analysis with the current production model (plan §1 state table, §12A.7): a NEW persisted analysis on the
@@ -184,7 +192,7 @@ export async function reanalyzeCase(caseId: string): Promise<CaseRecord> {
     const response = await api.analyzeFull(s.input_snapshot as Record<string, InputValue>, s.unit_status, null);
     analysis = { ...response.data, stored_at: now() };
   }
-  return db.transaction("rw", db.cases, async () => {
+  return committed("reanalyzeCase", db.transaction("rw", db.cases, async () => {
     const fresh = await db.cases.get(caseId);
     if (!fresh) throw new Error("case no longer exists");
     const scenarios = fresh.scenarios.map((sc) => sc.scenario_id !== s.scenario_id ? sc
@@ -192,12 +200,12 @@ export async function reanalyzeCase(caseId: string): Promise<CaseRecord> {
     const updated = { ...fresh, scenarios, updated_at: now() };
     await db.cases.put(updated);
     return updated;
-  });
+  }));
 }
 
 export async function addSnapshot(caseId: string, stored: StoredSnapshot, analysisId: string, scenarioId: string
 ): Promise<CaseRecord> {
-  return db.transaction("rw", db.cases, async () => {
+  return committed("addSnapshot", db.transaction("rw", db.cases, async () => {
     const c = await db.cases.get(caseId);
     if (!c) throw new Error("case not found");
     const record: SnapshotRecord = { snapshot_id: uuid(), scenario_id: scenarioId, analysis_id: analysisId,
@@ -205,10 +213,22 @@ export async function addSnapshot(caseId: string, stored: StoredSnapshot, analys
     const updated = { ...c, snapshots: [...c.snapshots, record], updated_at: now() };
     await db.cases.put(updated);
     return updated;
-  });
+  }));
 }
 
-export const listCases = () => db.cases.orderBy("number").reverse().toArray();
+/** Readable cases only: a damaged record is skipped (and counted by listCasesChecked), never overwritten. */
+export const listCases = async () => (await db.cases.orderBy("number").reverse().toArray()).filter(isWellFormedCase);
+export async function listCasesChecked(): Promise<{ cases: CaseRecord[]; unreadable: number }> {
+  const all = await db.cases.orderBy("number").reverse().toArray();
+  const cases = all.filter(isWellFormedCase);
+  return { cases, unreadable: all.length - cases.length };
+}
+
+/** Delete one case (after a backup that still contains it). */
+export async function deleteCase(caseId: string): Promise<void> {
+  await backupCases("before delete");
+  await db.cases.delete(caseId);
+}
 
 // Draft recovery: one recoverable draft; it never becomes a scenario implicitly (plan §1).
 export const saveDraft = (draft: Omit<DraftRecord, "draft_id" | "saved_at">) =>
@@ -263,10 +283,7 @@ export async function importCases(text: string): Promise<CaseImportReport> {
   const { verifySnapshot } = await import("./snapshot");
   for (const c of doc.cases) {
     const label = c?.display_id ?? c?.case_id ?? "unknown case";
-    const wellFormed = typeof c?.case_id === "string" && Array.isArray(c.scenarios) && c.scenarios.length > 0
-      && Array.isArray(c.reviews) && Array.isArray(c.snapshots)
-      && c.scenarios.every((s) => Array.isArray(s.analyses) && s.analyses.some((a) => a.analysis_id === s.current_analysis_id));
-    if (!wellFormed) {
+    if (!isWellFormedCase(c)) {
       report.rejected.push(`${label}: malformed case record`);
       continue;
     }
@@ -288,6 +305,7 @@ export async function importCases(text: string): Promise<CaseImportReport> {
       report.imported.push(display_id + (taken ? ` (was ${c.display_id})` : ""));
     });
   }
+  if (report.imported.length) void backupCases("after import");
   return report;
 }
 

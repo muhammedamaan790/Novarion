@@ -6,6 +6,7 @@ import type { DisplayAnalysis, Meta, PatientBundle } from "../api/client";
 import { activeOutcomes, addOutcome, addReview, addSnapshot, caseStatus, clearDraft, currentAnalysis, currentScenario,
   getCase, outcomeBlocker, persistNewCase, reanalyzeCase, reviewsFor, saveDatasetCase, toDisplay,
   type OutcomeInput } from "../cases/caseStore";
+import { storageErrorMessage } from "../cases/backup";
 import { CORRECTION_REASONS, SOURCE_SYSTEMS, SOURCE_TYPES, type CaseRecord } from "../cases/db";
 import { buildSnapshot, download, snapshotPdf } from "../cases/snapshot";
 import { useStore } from "../store/useStore";
@@ -139,7 +140,7 @@ export function CaseBar({ analysis, meta }: { analysis: DisplayAnalysis; meta: M
       await queryClient.invalidateQueries({ queryKey: ["cases"] });
       await queryClient.invalidateQueries({ queryKey: ["case"] });
     } catch (err) {
-      setError(`${label} failed: ${(err as Error).message}. Nothing was saved.`);
+      setError(`${label} failed: ${storageErrorMessage(err)}. Nothing was saved.`);
     } finally {
       setBusy(null);
     }

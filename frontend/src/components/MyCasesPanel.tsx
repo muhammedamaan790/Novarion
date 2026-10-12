@@ -2,8 +2,9 @@
 // analysis exactly as it was — no backend call, so it can never be re-explained by a newer model, and it works offline.
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
-import { caseStatus, currentAnalysis, exportCases, exportLearningPackage, importCases, listCases, toDisplay,
-  type CaseImportReport } from "../cases/caseStore";
+import { listBackups, storageErrorMessage, storageHealth } from "../cases/backup";
+import { caseStatus, currentAnalysis, deleteCase, exportCases, exportLearningPackage, importCases, listCasesChecked,
+  toDisplay, type CaseImportReport } from "../cases/caseStore";
 import type { CaseRecord } from "../cases/db";
 import { download } from "../cases/snapshot";
 import { useStore } from "../store/useStore";
@@ -22,7 +23,12 @@ function open(c: CaseRecord) {
 }
 
 export function MyCasesPanel() {
-  const cases = useQuery({ queryKey: ["cases"], queryFn: listCases });
+  const checked = useQuery({ queryKey: ["cases", "checked"], queryFn: listCasesChecked, retry: false });
+  const cases = { data: checked.data?.cases };
+  const health = useQuery({ queryKey: ["storage-health"], queryFn: storageHealth, enabled: checked.isError });
+  const backups = useQuery({ queryKey: ["cases", "backups"], queryFn: listBackups, retry: false });
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const caseRef = useStore((s) => s.caseRef);
   const queryClient = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
@@ -67,6 +73,20 @@ export function MyCasesPanel() {
           </button>
         </div>
       )}
+      {checked.isError && (
+        <div role="alert" className="rounded border border-red-300 bg-red-50 p-2 text-[11px] text-red-900" data-testid="storage-error">
+          <p className="font-semibold">Local case storage could not be opened.</p>
+          <p>{health.data?.error ?? (checked.error as Error | null)?.message}</p>
+          <p>Nothing was changed or deleted. Restore from an automatic backup below or from a JSON export (Import).</p>
+        </div>
+      )}
+      {(checked.data?.unreadable ?? 0) > 0 && (
+        <p role="alert" className="rounded bg-amber-50 p-2 text-[11px] text-amber-900" data-testid="storage-unreadable">
+          {checked.data!.unreadable} stored case record{checked.data!.unreadable === 1 ? " is" : "s are"} damaged and
+          hidden. They are kept untouched; restore them from a backup or an export.
+        </p>
+      )}
+      {deleteError && <p role="alert" className="text-[11px] text-red-700">Delete failed: {deleteError}</p>}
       {importReport && (
         <div className="rounded border border-slate-200 p-2 text-[11px] text-slate-700" data-testid="cases-import-report">
           {importReport.imported.length > 0 && <p>Imported: {importReport.imported.join(", ")}</p>}
@@ -80,6 +100,24 @@ export function MyCasesPanel() {
       </p>
       {cases.data?.length === 0 && (
         <p className="text-sm text-slate-500">No cases yet. Open a dataset patient or create a new case, then “Save case”.</p>
+      )}
+      {(backups.data?.length ?? 0) > 0 && (
+        <details className="rounded border border-slate-200 p-2 text-[11px] text-slate-700" data-testid="backups">
+          <summary className="cursor-pointer font-semibold">Automatic local backups (last {backups.data!.length})</summary>
+          <ul className="mt-1 space-y-0.5">
+            {backups.data!.map((b) => (
+              <li key={b.id} className="flex items-center justify-between gap-2">
+                <span>{b.created_at.replace("T", " ").replace("Z", " UTC")} · {b.case_count} case{b.case_count === 1 ? "" : "s"} · {b.reason}</span>
+                <button type="button" className="underline" data-testid={`backup-download-${b.id}`}
+                        onClick={() => download(`novarion-backup-${b.created_at.slice(0, 19).replaceAll(":", "")}.json`,
+                          new Blob([b.json], { type: "application/json" }))}>
+                  Download
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-1 text-slate-500">A downloaded backup restores through Import (JSON).</p>
+        </details>
       )}
       <ul className="min-h-0 flex-1 space-y-1 overflow-auto pr-1">
         {cases.data?.map((c) => {
@@ -100,6 +138,36 @@ export function MyCasesPanel() {
                   model v{currentAnalysis(c).model_version}
                 </span>
               </button>
+              <div className="flex justify-end gap-2 text-[10px]">
+                {confirmDelete === c.case_id ? (
+                  <>
+                    <span className="text-red-800">Delete {c.display_id} from this browser? A backup is kept.</span>
+                    <button type="button" className="font-semibold text-red-700 underline" data-testid={`case-delete-confirm-${c.display_id}`}
+                            onClick={async () => {
+                              setDeleteError(null);
+                              try {
+                                await deleteCase(c.case_id);
+                                if (useStore.getState().caseRef?.caseId === c.case_id) {
+                                  useStore.getState().setCaseRef(null);
+                                  useStore.getState().setAnalysis(null);
+                                }
+                              } catch (err) {
+                                setDeleteError(storageErrorMessage(err));
+                              }
+                              setConfirmDelete(null);
+                              await queryClient.invalidateQueries({ queryKey: ["cases"] });
+                            }}>
+                      Delete
+                    </button>
+                    <button type="button" className="text-slate-600 underline" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                  </>
+                ) : (
+                  <button type="button" className="text-slate-500 underline hover:text-red-700" data-testid={`case-delete-${c.display_id}`}
+                          onClick={() => setConfirmDelete(c.case_id)}>
+                    Delete…
+                  </button>
+                )}
+              </div>
             </li>
           );
         })}
