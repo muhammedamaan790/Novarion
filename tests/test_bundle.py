@@ -172,3 +172,37 @@ def test_stability_interval_crossing_t_op_forces_low_confidence(patient_files, c
     r = client.post("/api/v1/predict", json=body)
     assert r.status_code == 200, r.text
     assert all(p["stability_interval"] is None for p in r.json()["targets"].values())  # new cases: no interval
+
+
+def test_concurrent_requests_match_sequential_results(client, patient_files, service):
+    """Plan Days 15-17 "concurrent requests": one shared engine answers parallel /predict and /analyze/full calls
+    exactly as it answers them one at a time (no state leaks between threads)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    entered = [f.id for f in service.registry.features if f.input_mode == "entered"]
+    cases = [{k: doc["bundle"]["canonical_inputs"][k] for k in entered}
+             for doc in list(patient_files.values())[:24]]
+
+    def call(i: int) -> tuple[str, dict]:
+        inputs = cases[i % len(cases)]
+        if i % 2:
+            r = client.post("/api/v1/analyze/full", json={"request_id": str(uuid.uuid4()), "api_schema_version": "1.0.0",
+                                                          "inputs": inputs})
+        else:
+            r = client.post("/api/v1/predict", json={"request_id": str(uuid.uuid4()), "api_schema_version": "1.0.0",
+                                                     "input_revision": i, "inputs": inputs})
+        assert r.status_code == 200, r.text
+        body = r.json()
+        return body["input_sha256"], {t: body["targets"][t]["probability"] for t in TARGETS}
+
+    sequential = [call(i) for i in range(48)]
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        parallel = list(pool.map(call, range(48)))
+    assert parallel == sequential
+
+
+def test_security_headers_on_every_response(client):
+    for path in ("/api/v1/health/ready", "/api/v1/meta", "/api/v1/patients/ZAS-9999"):
+        r = client.get(path)
+        assert r.headers["X-Content-Type-Options"] == "nosniff"
+        assert r.headers["X-Frame-Options"] == "DENY" and r.headers["Referrer-Policy"] == "no-referrer"
