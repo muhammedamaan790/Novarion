@@ -39,8 +39,9 @@ function CategoryValues({ curve }: { curve: Curve }) {
   return (
     <span className="text-[11px] tabular-nums text-slate-700">
       {curve.points.map((p) => (
-        <span key={String(p.value)} className={`mr-2 ${p.value === curve.current_value ? "font-semibold text-slate-900" : ""}`}>
-          {curve.kind === "binary" ? (p.value === 1 ? "yes" : "no") : String(p.value)} {probPct(p.probability)}
+        <span key={String(p.value)}
+              className={`mr-2 inline-block whitespace-nowrap ${p.value === curve.current_value ? "font-semibold text-slate-900" : ""}`}>
+          {curve.kind === "binary" ? (p.value === 1 ? "yes" : "no") : String(p.value)}: {probPct(p.probability)}
         </span>
       ))}
     </span>
