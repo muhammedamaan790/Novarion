@@ -79,6 +79,22 @@ test("WebGL context lost: an explanatory overlay, then the 3D view can be restor
   await expect(page.locator("canvas")).toBeVisible();
 });
 
+test("accessibility: the 2D fallback (no WebGL, e.g. a GPU-less CI runner) has no serious or critical axe violations",
+  async ({ page }) => {
+    await page.addInitScript(() => {
+      const original = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function (type: string, ...args: unknown[]) {
+        if (type.startsWith("webgl") || type === "experimental-webgl") return null;
+        return (original as (...a: unknown[]) => unknown).call(this, type, ...args) as never;
+      } as never;
+    });
+    await page.goto("/?dataset=ZAS-0003&target=lad");
+    await expect(page.getByTestId("card-cad")).toBeVisible({ timeout: 30_000 });
+    const results = await new AxeBuilder({ page }).exclude("canvas").analyze();
+    const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
+  });
+
 for (const [name, url] of [["command center", "/?dataset=ZAS-0003&target=lad"], ["model evidence", "/?page=evidence"]]) {
   test(`accessibility: no serious or critical axe violations on the ${name}`, async ({ page }) => {
     await page.goto(url);
