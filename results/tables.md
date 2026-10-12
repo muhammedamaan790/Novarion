@@ -63,6 +63,17 @@ The HIGH badge additionally requires known inputs, a typical profile and (datase
 | LCX | 0.0% | — | 0.0% | — | 100.0% | no_qualified_region 303, unstable 201, atypical_profile 52 |
 | RCA | 0.0% | — | 0.0% | — | 100.0% | no_qualified_region 303, unstable 158, atypical_profile 52 |
 
+## Table 3b — model agreement across candidate families · **pooled OOF (prespecified repeat)**
+
+For each held-out patient, LR, EBM, XGBoost and CatBoost (Table 3 benchmarks) each give a calibrated probability and class. Descriptive robustness cue: disagreement marks patients on which the selected model errs more often.
+
+| Target | All four agree on the class | Median probability range | Selected-model error when they agree | … when they disagree |
+|---|---|---|---|---|
+| CAD | 81.2% (n = 246) | 0.09 | 8.9% | 35.1% (n = 57) |
+| LAD | 77.6% (n = 235) | 0.13 | 19.1% | 45.6% (n = 68) |
+| LCX | 67.3% (n = 204) | 0.13 | 28.9% | 42.4% (n = 99) |
+| RCA | 67.3% (n = 204) | 0.11 | 30.4% | 33.3% (n = 99) |
+
 ## Model selection across outer folds
 
 - **CAD**: families selected {'lr': 24, 'ebm': 1}; calibration-guard events 0; folds without a high-positive region 0/25, without a high-negative region 25/25.

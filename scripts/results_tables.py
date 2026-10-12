@@ -84,6 +84,22 @@ def main() -> None:
                        f"{pct(r['pct_high_negative'])} | {pct(r['npv'])}{ci(r['npv_ci'])} | "
                        f"{pct(r['pct_low_confidence'])} | {reasons} |")
         out.append("")
+    agreement_path = ROOT / "results" / "model_agreement.json"
+    if agreement_path.exists():  # scripts/model_agreement.py (plan Tier 3 "model agreement")
+        ag = json.loads(agreement_path.read_text(encoding="utf-8"))
+        out += ["## Table 3b — model agreement across candidate families · **pooled OOF (prespecified repeat)**", "",
+                ("For each held-out patient, LR, EBM, XGBoost and CatBoost (Table 3 benchmarks) each give a calibrated "
+                 "probability and class. Descriptive robustness cue: disagreement marks patients on which the selected "
+                 "model errs more often."), ""]
+        out.append("| Target | All four agree on the class | Median probability range | Selected-model error when "
+                   "they agree | … when they disagree |")
+        out.append("|" + "---|" * 5)
+        for t in TARGETS:
+            r = ag["targets"][t]
+            out.append(f"| {t.upper()} | {pct(r['all_four_agree'])} (n = {r['n_agree']}) | "
+                       f"{r['probability_range_median']:.2f} | {pct(r['selected_error_rate_when_agree'])} | "
+                       f"{pct(r['selected_error_rate_when_disagree'])} (n = {r['n_disagree']}) |")
+        out.append("")
     out += ["## Model selection across outer folds", ""]
     for t in TARGETS:
         r = m["targets"][t]
