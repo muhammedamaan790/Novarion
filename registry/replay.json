@@ -1,0 +1,579 @@
+{
+ "title": "Historical replay \u00b7 random eligibility order \u00b7 NOT temporal validation",
+ "seeds": 10,
+ "families": [
+  "lr",
+  "xgboost"
+ ],
+ "training_sizes": [
+  153,
+  203,
+  253
+ ],
+ "holdout_batch_size": 50,
+ "learning_curve": {
+  "cad": [
+   {
+    "training_size": 153,
+    "n_seeds": 10,
+    "auc_mean": 0.909778052256574,
+    "auc_sd": 0.0500724656531368,
+    "auc_min": 0.8342857142857143,
+    "auc_max": 0.975051975051975,
+    "brier_mean": 0.10638280575421122,
+    "brier_sd": 0.03137260784141912
+   },
+   {
+    "training_size": 203,
+    "n_seeds": 10,
+    "auc_mean": 0.9235163988313019,
+    "auc_sd": 0.04424967659592299,
+    "auc_min": 0.831140350877193,
+    "auc_max": 0.993421052631579,
+    "brier_mean": 0.097413906402862,
+    "brier_sd": 0.0315680131414863
+   },
+   {
+    "training_size": 253,
+    "n_seeds": 10,
+    "auc_mean": 0.9224664198205218,
+    "auc_sd": 0.035110456648313346,
+    "auc_min": 0.8639705882352942,
+    "auc_max": 0.9833679833679834,
+    "brier_mean": 0.10174354318947332,
+    "brier_sd": 0.027825545652570227
+   }
+  ],
+  "lad": [
+   {
+    "training_size": 153,
+    "n_seeds": 10,
+    "auc_mean": 0.8206445407908317,
+    "auc_sd": 0.052155404012975845,
+    "auc_min": 0.7483766233766234,
+    "auc_max": 0.8847402597402598,
+    "brier_mean": 0.1704282535898734,
+    "brier_sd": 0.026811380410283255
+   },
+   {
+    "training_size": 203,
+    "n_seeds": 10,
+    "auc_mean": 0.845873633180452,
+    "auc_sd": 0.027280190093349827,
+    "auc_min": 0.7947454844006567,
+    "auc_max": 0.8912337662337663,
+    "brier_mean": 0.1585789625140955,
+    "brier_sd": 0.012957959436511016
+   },
+   {
+    "training_size": 253,
+    "n_seeds": 10,
+    "auc_mean": 0.8264030854861971,
+    "auc_sd": 0.03725377550310619,
+    "auc_min": 0.7548076923076923,
+    "auc_max": 0.8658743633276741,
+    "brier_mean": 0.16751546229531658,
+    "brier_sd": 0.029526559471969187
+   }
+  ],
+  "lcx": [
+   {
+    "training_size": 153,
+    "n_seeds": 10,
+    "auc_mean": 0.6711008551508286,
+    "auc_sd": 0.08355980024995298,
+    "auc_min": 0.5538194444444444,
+    "auc_max": 0.8112,
+    "brier_mean": 0.2282645083330332,
+    "brier_sd": 0.018685114157430453
+   },
+   {
+    "training_size": 203,
+    "n_seeds": 10,
+    "auc_mean": 0.6952182344745134,
+    "auc_sd": 0.05166876365729403,
+    "auc_min": 0.5846702317290553,
+    "auc_max": 0.7741935483870968,
+    "brier_mean": 0.21321763718434633,
+    "brier_sd": 0.015183663617750335
+   },
+   {
+    "training_size": 253,
+    "n_seeds": 10,
+    "auc_mean": 0.7144562319957458,
+    "auc_sd": 0.05668889509376345,
+    "auc_min": 0.6228571428571428,
+    "auc_max": 0.7922077922077921,
+    "brier_mean": 0.20775931878171988,
+    "brier_sd": 0.010073606886601721
+   }
+  ],
+  "rca": [
+   {
+    "training_size": 153,
+    "n_seeds": 10,
+    "auc_mean": 0.7309426719839124,
+    "auc_sd": 0.04990268568473478,
+    "auc_min": 0.6503496503496503,
+    "auc_max": 0.8266666666666667,
+    "brier_mean": 0.20311157355846668,
+    "brier_sd": 0.017157696814407954
+   },
+   {
+    "training_size": 203,
+    "n_seeds": 10,
+    "auc_mean": 0.7518373648188802,
+    "auc_sd": 0.0687985393182426,
+    "auc_min": 0.6369047619047619,
+    "auc_max": 0.8308823529411764,
+    "brier_mean": 0.18926300777625935,
+    "brier_sd": 0.023766367533385166
+   },
+   {
+    "training_size": 253,
+    "n_seeds": 10,
+    "auc_mean": 0.7300435895230708,
+    "auc_sd": 0.04128240310843515,
+    "auc_min": 0.6428571428571429,
+    "auc_max": 0.7914614121510672,
+    "brier_mean": 0.21208201251717762,
+    "brier_sd": 0.023351417146571265
+   }
+  ]
+ },
+ "gate_frequencies": {
+  "gate 1": {
+   "PASS": 1,
+   "FAIL": 9,
+   "INSUFFICIENT_EVIDENCE": 0
+  },
+  "gate 2": {
+   "PASS": 0,
+   "FAIL": 10,
+   "INSUFFICIENT_EVIDENCE": 0
+  }
+ },
+ "replay_config_sha256": "d74eb08cb7b27280f939f469996be7b0153263b3777cb321d52c63194ebf7b84",
+ "gate_log": [
+  {
+   "seed": 0,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 0,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 1,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 1,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "mean_calibration_diff_ok"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 2,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 2,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin"
+    ]
+   }
+  },
+  {
+   "seed": 3,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "improved",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 3,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin"
+    ]
+   }
+  },
+  {
+   "seed": 4,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "cal_slope_ci_overlaps"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 4,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 5,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin"
+    ]
+   }
+  },
+  {
+   "seed": 5,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin"
+    ]
+   }
+  },
+  {
+   "seed": 6,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin"
+    ],
+    "lad": [
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "rca": [
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 6,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "cal_slope_ci_overlaps",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "mean_calibration_diff_ok"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_point_ok",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 7,
+   "gate": 1,
+   "status": "PASS",
+   "promoted": true,
+   "failed_rules": {
+    "cad": [
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 7,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved",
+     "mean_calibration_diff_ok"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "improved",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 8,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "delta_brier_point_ok",
+     "improved"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_point_ok",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 8,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_ci_high_ok",
+     "improved"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "improved"
+    ]
+   }
+  },
+  {
+   "seed": 9,
+   "gate": 1,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "cad": [
+     "improved"
+    ],
+    "lad": [
+     "improved",
+     "mean_calibration_diff_ok"
+    ],
+    "lcx": [
+     "delta_auc_ci_low_above_margin",
+     "delta_brier_point_ok",
+     "improved",
+     "mean_calibration_diff_ok"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin",
+     "mean_calibration_diff_ok"
+    ]
+   }
+  },
+  {
+   "seed": 9,
+   "gate": 2,
+   "status": "FAIL",
+   "promoted": false,
+   "failed_rules": {
+    "lad": [
+     "mean_calibration_diff_ok"
+    ],
+    "rca": [
+     "delta_auc_ci_low_above_margin"
+    ]
+   }
+  }
+ ]
+}

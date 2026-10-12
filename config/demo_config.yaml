@@ -1,0 +1,14 @@
+# Demo patients (plan §17) — selected by an OUTCOME-BLIND rule, never by predictions, labels, AUC, confidence or error.
+# Rule: index = SHA-256(seed) mod 303 over the dataset records in record order; every record is a complete profile.
+# Anyone can recompute it. Chosen before the v1.0.0 model freeze; whether Case B is predicted correctly is revealed live.
+selection_rule: "index = int(sha256(seed), 16) mod 303; seeds below; no predictions, labels or metrics consulted"
+main_demo:
+  seed: "NOVARION demo main_demo 2026"
+  dataset_record_id: 135
+  patient_id: ZAS-0136
+  expected_input_sha256: "f8e5240f66219b1b4c61d64f6235171a2b4f7f5eda683d04a087b679e8a61772"
+case_b:
+  seed: "NOVARION demo case_b 2026"
+  dataset_record_id: 166
+  patient_id: ZAS-0167
+  expected_input_sha256: "b84d99f48a504251a82a4ed63cbe0fa3f666e90ebd44c3b4520264128eb9fbed"

@@ -44,7 +44,6 @@ from .schemas import (
     ExplainRequest,
     ExplanationPayload,
     ExplanationResponse,
-    FeatureSpec,
     GateTargetResult,
     GlobalImportanceFeature,
     GlobalImportanceResponse,
@@ -53,6 +52,7 @@ from .schemas import (
     GroupStat,
     HealthReady,
     Imputation,
+    LifecycleEvent,
     MetaResponse,
     MetricSummary,
     ModelEntry,
@@ -66,6 +66,9 @@ from .schemas import (
     PredictionResponse,
     PredictRequest,
     QualityNotice,
+    ReplayGate,
+    ReplayPoint,
+    ReplayResponse,
     SimilarPatient,
     SimilarPatients,
     StabilityInterval,
@@ -78,7 +81,14 @@ from .schemas import (
     ValidateRequest,
     ValidateResponse,
 )
-from .service import InferenceService, build_validate_response, canonical_or_block, check_pinned
+from .service import (
+    InferenceService,
+    build_validate_response,
+    canonical_or_block,
+    check_pinned,
+    feature_specs,
+    leakage_denylist,
+)
 from .settings import APP_VERSION, Settings
 
 CONTRACTS_DIR = ROOT / "contracts"
@@ -354,17 +364,7 @@ class MockService(InferenceService):
         return HealthReady(ready=True, model_version=MOCK_MODEL_VERSION, artifact_manifest_sha256=MOCK_BUNDLE_SHA256)
 
     def meta(self) -> MetaResponse:
-        features = [
-            FeatureSpec(
-                id=f.id, display=f.display, group=f.group, kind=f.kind, categories=list(f.categories),
-                canonical_unit=f.canonical_unit, unit_unambiguous=f.unit_unambiguous,
-                display_precision=f.display_precision,
-                hard_valid_range=list(f.hard_valid_range) if f.hard_valid_range else None,
-                allow_unknown=f.allow_unknown, editable=f.editable, immutable_in_whatif=f.immutable_in_whatif,
-                input_mode=f.input_mode, constant_value=f.constant_value,
-            )
-            for f in self.registry.features
-        ]
+        features = feature_specs()
         return MetaResponse(
             app_version=APP_VERSION, model_version=MOCK_MODEL_VERSION, preprocessing_version=MOCK_PREPROCESSING_VERSION,
             run_mode=self.settings.run_mode, promote_available=False, unknown_token=self.registry.unknown_token,
@@ -376,7 +376,7 @@ class MockService(InferenceService):
             features=features,
             thresholds={t: Thresholds(t_op=a, t_neg=b, t_pos=c) for t, (a, b, c) in MOCK_THRESHOLDS.items()},
             anatomy_version=self.anatomy_version, anatomy_asset_sha256=self.anatomy_asset_sha256,
-            anatomy_map=self.anatomy_map, evidence_bands=self.targets_cfg["evidence_bands"],
+            anatomy_map=self.anatomy_map, evidence_bands=self.targets_cfg["evidence_bands"], leakage_denylist=leakage_denylist(),
         )
 
     def validate(self, req: ValidateRequest) -> ValidateResponse:
@@ -503,7 +503,29 @@ class MockService(InferenceService):
                            gate_status="FAIL",
                            artifact_manifest_sha256=hashlib.sha256(b"novarion-mock-bundle:0.1.0").hexdigest()),
             ],
-            verified_new_cases=50, eligible_cases=50, pending_cases=0,
+            verified_new_cases=50, eligible_cases=50, pending_cases=0, deployed_version=MOCK_MODEL_VERSION,
+            lifecycle_log_status="intact", lifecycle_events=[LifecycleEvent(
+                seq=0, timestamp="2026-10-04T00:00:00Z", event="reject",
+                summary="Candidate v0.1.0 rejected by a human reviewer (gate FAIL) [mock]",
+                entry_hash=hashlib.sha256(b"novarion-mock-log:0").hexdigest())],
+        )
+
+    def replay(self) -> ReplayResponse:
+        """Toy replay study for the contract mock (not a result)."""
+        def point(size: int, auc: float) -> ReplayPoint:
+            return ReplayPoint(training_size=size, n_seeds=2, auc_mean=auc, auc_sd=0.03, auc_min=auc - 0.04,
+                               auc_max=auc + 0.04, brier_mean=0.18, brier_sd=0.02)
+
+        return ReplayResponse(
+            title="Historical replay · random eligibility order · NOT temporal validation", seeds=2,
+            families=["lr"], training_sizes=[153, 203, 253], holdout_batch_size=50,
+            learning_curve={t: [point(153, 0.70), point(203, 0.72), point(253, 0.73)] for t in TARGET_IDS},
+            gate_frequencies={"gate 1": {"PASS": 0, "FAIL": 2, "INSUFFICIENT_EVIDENCE": 0},
+                              "gate 2": {"PASS": 1, "FAIL": 1, "INSUFFICIENT_EVIDENCE": 0}},
+            gate_log=[ReplayGate(seed=s, gate=g, status="PASS" if (s, g) == (0, 2) else "FAIL",
+                                 promoted=(s, g) == (0, 2), failed_rules={} if (s, g) == (0, 2) else {"lcx": ["improved"]})
+                      for s in range(2) for g in (1, 2)],
+            replay_config_sha256=hashlib.sha256(b"novarion-mock-replay").hexdigest(),
         )
 
     def model_report(self, version: str) -> ModelReportResponse:

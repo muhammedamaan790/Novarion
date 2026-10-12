@@ -4,6 +4,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
+import { clearDraft, loadDraft, saveDraft } from "../cases/caseStore";
+import type { DraftRecord } from "../cases/db";
+import { readCaseFile, type ImportedRow, type ImportReport, type UnitStatus } from "../cases/importCase";
 import { useStore } from "../store/useStore";
 import { MODE_BADGE } from "./wording";
 
@@ -21,7 +24,7 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
   const label = (
     <label htmlFor={id} className="truncate text-slate-700" title={f.display}>
       {f.display}
-      {f.canonical_unit && <span className="ml-1 text-slate-400">({f.canonical_unit})</span>}
+      {f.canonical_unit && <span className="ml-1 text-slate-500">({f.canonical_unit})</span>}
     </label>
   );
   const cls = `w-full rounded border px-1.5 py-0.5 text-xs ${blank ? "border-amber-400 bg-amber-50" : "border-slate-200"}`;
@@ -94,10 +97,57 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   const [sourceRecord, setSourceRecord] = useState<number | null>(null);
   const [validation, setValidation] = useState<ValidateResponse | null>(null);
   const [status, setStatus] = useState<"idle" | "updating" | "error">("idle");
+  const [unitStatus, setUnitStatus] = useState<Record<string, UnitStatus>>({});
+  const [report, setReport] = useState<ImportReport | null>(null);
+  const [pickedRow, setPickedRow] = useState<string>("");
+  const fileInput = useRef<HTMLInputElement>(null);
+  const sourceKind = useRef<"manual" | "import">("manual");
+  const [recoverable, setRecoverable] = useState<DraftRecord | null>(null);
+
+  // Draft recovery (plan §1): an unsaved draft from an earlier visit is offered, never applied silently.
+  useEffect(() => {
+    let alive = true;
+    void loadDraft().then((d) => { if (alive && d) setRecoverable(d); }).catch(() => undefined);
+    return () => { alive = false; };
+  }, []);
+
+  // Autosave the current draft (debounced). It stays a recoverable draft until "Save case" turns it into a scenario.
+  useEffect(() => {
+    if (!Object.values(inputs).some((v) => v !== null && v !== undefined)) return;
+    const timer = window.setTimeout(() => {
+      void saveDraft({ inputs, unit_status: unitStatus, dataset_record_id: sourceRecord, source: sourceKind.current })
+        .catch(() => undefined); // storage full / blocked: the live session still works
+    }, 800);
+    return () => window.clearTimeout(timer);
+  }, [inputs, unitStatus, sourceRecord]);
+
+  const recover = () => {
+    if (!recoverable) return;
+    sourceKind.current = recoverable.source;
+    setSourceRecord(recoverable.dataset_record_id);
+    setUnitStatus(recoverable.unit_status as Record<string, UnitStatus>);
+    setInputs(recoverable.inputs);
+    setRecoverable(null);
+  };
+  const discard = () => {
+    void clearDraft();
+    setRecoverable(null);
+  };
   const revision = useRef(0);
   const inflight = useRef<AbortController | null>(null);
   const setAnalysis = useStore((s) => s.setAnalysis);
   const patients = useQuery({ queryKey: ["patients"], queryFn: api.patients });
+
+  // Leaving the panel invalidates every in-flight request: a late response must never overwrite the analysis of
+  // whatever the user opened next (e.g. "Open the out-of-fold result").
+  useEffect(() => {
+    const revisionRef = revision;
+    const inflightRef = inflight;
+    return () => {
+      revisionRef.current += 1;
+      inflightRef.current?.abort();
+    };
+  }, []);
 
   // Debounced validate → predict. Each edit bumps the revision; only the latest revision may commit.
   useEffect(() => {
@@ -110,17 +160,24 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       inflight.current = controller;
       setStatus("updating");
       try {
-        const v = await api.validate({ inputs, input_revision: rev, dataset_record_id: sourceRecord }, controller.signal);
+        const v = await api.validate(
+          { inputs, unit_status: unitStatus, input_revision: rev, dataset_record_id: sourceRecord }, controller.signal);
         if (rev !== revision.current) return;
         setValidation(v.data);
         if (!v.data.ready) {
+          if (useStore.getState().mode !== "new") return;
           setAnalysis(null); // fail closed: never keep colours from an older input
           setStatus("idle");
           return;
         }
-        const p = await api.predict({ inputs, input_revision: rev }, controller.signal);
+        const p = await api.predict({ inputs, unit_status: unitStatus, input_revision: rev }, controller.signal);
         if (rev !== revision.current || p.data.input_revision !== rev) return; // stale response: discard
+        if (useStore.getState().mode !== "new") return; // the user has left the new-case workflow
         setAnalysis({ ...p.data, explanations: {}, evidence: {}, requestInputs: inputs });
+        const st = useStore.getState();
+        st.setCaseRef(null); // a new transient analysis is not saved yet ("Save as new scenario")
+        st.setPendingCase({ inputs, unitStatus, canonicalInputs: v.data.canonical_inputs ?? null,
+                            datasetRecordId: sourceRecord, source: sourceKind.current });
         setStatus("idle");
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
@@ -131,7 +188,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       }
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-  }, [inputs, sourceRecord, features, setAnalysis]);
+  }, [inputs, unitStatus, sourceRecord, features, setAnalysis]);
 
   const prefill = async (patientId: string) => {
     if (!patientId) return;
@@ -139,7 +196,39 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
     const values: Record<string, InputValue> = {};
     for (const f of features) values[f.id] = bundle.data.canonical_inputs[f.id] as InputValue;
     setSourceRecord(Number(patientId.slice(4)) - 1);
+    sourceKind.current = "manual";
+    setUnitStatus({});
+    setReport(null);
     setInputs(values);
+  };
+
+  const loadRow = (row: ImportedRow) => {
+    const values: Record<string, InputValue> = {};
+    for (const f of features) values[f.id] = row.inputs[f.id] ?? null;
+    setSourceRecord(row.datasetRecordId);
+    sourceKind.current = "import";
+    setUnitStatus(row.unitStatus);
+    setInputs(values);
+  };
+
+  const onFile = async (file: File | undefined) => {
+    if (!file) return;
+    const r = await readCaseFile(file, meta);
+    setReport(r);
+    setPickedRow("");
+    if (!r.rejected && r.rows.length === 1) loadRow(r.rows[0]!);
+    if (fileInput.current) fileInput.current.value = "";
+  };
+
+  const assumed = features.filter((f) => unitStatus[f.id] === "canonical_assumed");
+  const editField = (id: string, v: InputValue) => {
+    setUnitStatus((prev) => {
+      if (!(id in prev)) return prev;
+      const next = { ...prev };
+      delete next[id]; // typed in the form, next to its unit label → explicit
+      return next;
+    });
+    setInputs((prev) => ({ ...prev, [id]: v }));
   };
 
   const groups = useMemo(() => {
@@ -163,6 +252,17 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
         De-identified or synthetic values only. Every field needs a value
         {" "}or an explicit UNKNOWN (where allowed). BMI and obesity are computed.
       </p>
+      {recoverable && (
+        <div className="rounded border border-sky-300 bg-sky-50 p-2 text-[11px] text-sky-900" data-testid="draft-recovery">
+          <p>Recover unsaved draft from {recoverable.saved_at.replace("T", " ").replace("Z", " UTC")}?</p>
+          <div className="mt-1 flex gap-1">
+            <button type="button" onClick={recover} data-testid="draft-recover"
+                    className="rounded bg-sky-800 px-2 py-0.5 font-semibold text-white">Recover</button>
+            <button type="button" onClick={discard} data-testid="draft-discard"
+                    className="rounded px-2 py-0.5 text-sky-900 ring-1 ring-sky-300">Discard</button>
+          </div>
+        </div>
+      )}
       <select
         aria-label="Prefill from a dataset patient"
         className="rounded border border-slate-200 px-1.5 py-1 text-xs"
@@ -176,6 +276,70 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
           </option>
         ))}
       </select>
+      <div className="flex items-center gap-2 text-[11px]">
+        <button type="button" onClick={() => fileInput.current?.click()} data-testid="import-button"
+                className="rounded bg-slate-900 px-2 py-1 font-semibold text-white hover:bg-slate-700">
+          Import CSV / JSON…
+        </button>
+        <input ref={fileInput} type="file" accept=".csv,.json,text/csv,application/json" className="hidden"
+               data-testid="import-file" onChange={(e) => void onFile(e.target.files?.[0])} />
+        <span className="text-slate-500">
+          samples:{" "}
+          <a className="underline" href="/samples/novarion_case_template.csv" download>template</a>{" · "}
+          <a className="underline" href="/samples/dataset_patient_ZAS-0003.csv" download>dataset patient</a>{" · "}
+          <a className="underline" href="/samples/synthetic_case.json" download>synthetic</a>
+        </span>
+      </div>
+      {report && (
+        <div className="rounded border border-slate-200 p-2 text-[11px] text-slate-700" data-testid="import-report">
+          {report.rejected ? (
+            <p className="font-medium text-red-700">Import rejected: {report.rejected}</p>
+          ) : (
+            <>
+              <p>
+                Recognized {report.recognized.length} field{report.recognized.length === 1 ? "" : "s"}
+                {report.rows.length > 1 ? ` · ${report.rows.length} rows` : ""}. Only these values leave the browser.
+              </p>
+              {report.leakageDropped.length > 0 && (
+                <p>Leakage fields ignored (outcome labels are never model inputs): {report.leakageDropped.join(", ")}</p>
+              )}
+              {report.identifiersDropped.length > 0 && (
+                <p>Identifier columns dropped locally: {report.identifiersDropped.join(", ")}</p>
+              )}
+              {report.unknownDropped.length > 0 && <p>Unrecognized columns ignored: {report.unknownDropped.join(", ")}</p>}
+              {report.unitMismatches.map((m) => (
+                <p key={m.column} className="text-red-700">
+                  {m.column}: unit {m.declared} differs from {m.expected}; value withheld (no silent conversion).
+                </p>
+              ))}
+              {report.rows.length > 1 && (
+                <select aria-label="Choose one row" value={pickedRow} data-testid="import-row"
+                        className="mt-1 w-full rounded border border-slate-200 px-1 py-0.5"
+                        onChange={(e) => {
+                          setPickedRow(e.target.value);
+                          const row = report.rows[Number(e.target.value)];
+                          if (row) loadRow(row);
+                        }}>
+                  <option value="">Choose one row (one row = one case)…</option>
+                  {report.rows.map((r, i) => <option key={i} value={i}>{r.label}</option>)}
+                </select>
+              )}
+            </>
+          )}
+        </div>
+      )}
+      {assumed.length > 0 && (
+        <div className="rounded border border-amber-300 bg-amber-50 p-2 text-[11px] text-amber-900" data-testid="unit-confirm">
+          <p>
+            No unit in the file for: {assumed.map((f) => `${f.display} (${f.canonical_unit})`).join(", ")}. Values in
+            other units (for example mmol/L) would be wrong.
+          </p>
+          <button type="button" className="mt-1 rounded bg-amber-700 px-2 py-0.5 font-semibold text-white"
+                  onClick={() => setUnitStatus({})}>
+            I confirm these values are in the units shown
+          </button>
+        </div>
+      )}
 
       <div role="status" className="rounded bg-slate-50 px-2 py-1 text-[11px] text-slate-700" data-testid="case-status">
         {missing > 0
@@ -188,6 +352,12 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
                 ? `Blocked: ${blocks.length} issue${blocks.length === 1 ? "" : "s"} to fix`
                 : "Prediction up to date · edited case · production model"}
         {validation?.provenance.message && <span className="block text-slate-500">{validation.provenance.message}</span>}
+        {validation?.provenance.prediction_mode === "oof" && sourceRecord != null && (
+          <button type="button" className="mt-1 underline" data-testid="open-oof"
+                  onClick={() => useStore.getState().openDatasetPatient(`ZAS-${String(sourceRecord + 1).padStart(4, "0")}`)}>
+            Open the out-of-fold result for this dataset record
+          </button>
+        )}
       </div>
       {(blocks.length > 0 || warnings.length > 0) && (
         <ul className="max-h-24 overflow-auto text-[11px]">
@@ -206,7 +376,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
               {GROUP_LABEL[group] ?? group}
             </legend>
             {fs.map((f) => (
-              <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => setInputs((prev) => ({ ...prev, [f.id]: v }))} />
+              <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
             ))}
           </fieldset>
         ))}

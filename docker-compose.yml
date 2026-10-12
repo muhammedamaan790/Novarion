@@ -5,6 +5,7 @@ services:
     build: {context: ., dockerfile: docker/backend.Dockerfile}
     environment:
       NOVARION_RUN_MODE: local
+      NOVARION_TRUST_PROXY: "1"  # requests arrive through our nginx, which sets X-Real-IP
     volumes:
       - ./artifacts:/app/artifacts:ro
       - ./registry:/app/registry:ro

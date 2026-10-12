@@ -2,7 +2,7 @@
 import { TARGET_IDS, type DisplayAnalysis, type Meta, type TargetId, type TargetPrediction } from "../api/client";
 import { vesselColor, type ColorTransfer } from "../three/colors";
 import { useStore } from "../store/useStore";
-import { REASON_TEXT, SHORT, TOOLTIPS, pct, predictionText, probabilityLabel, subtitle } from "./wording";
+import { REASON_TEXT, SHORT, TOOLTIPS, pct, predictionText, probPct, probabilityLabel, subtitle } from "./wording";
 
 function ConfidenceBlock({ p }: { p: TargetPrediction }) {
   if (p.model_confidence === "high") {
@@ -62,7 +62,7 @@ function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; 
       </div>
       <p className="mt-0.5 text-[11px] italic text-slate-500">{subtitle(target)}</p>
       <p className="mt-2 text-sm text-slate-700" title={target === "cad" ? TOOLTIPS.overallCad : TOOLTIPS.vessel}>
-        {probabilityLabel(target)} <span className="font-semibold tabular-nums">{pct(p.probability)}</span>
+        {probabilityLabel(target)} <span className="font-semibold tabular-nums">{probPct(p.probability)}</span>
       </p>
       <ConfidenceBlock p={p} />
     </button>

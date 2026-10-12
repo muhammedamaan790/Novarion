@@ -2,8 +2,9 @@
 // log-odds, presentation-group sums, the measurement table with typed cohort comparisons, then evidence.
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { api, type Contribution, type DisplayAnalysis, type TargetId } from "../api/client";
-import { SHORT, TOOLTIPS, pct } from "./wording";
+import type { Contribution, DisplayAnalysis, TargetId } from "../api/client";
+import { explainQuery } from "../api/queries";
+import { SHORT, TOOLTIPS, pct, probPct } from "./wording";
 
 const GROUP_LABEL: Record<string, string> = {
   demographics: "Demographics", history: "History / risk factors", symptoms_exam: "Symptoms & exam",
@@ -43,15 +44,7 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
   // Persisted / dataset analyses carry their explanations; transient ones fetch them pinned, cached per
   // analysis_id + target, so re-selecting a vessel is instant and an old analysis is never re-explained.
   const stored = analysis.explanations[target];
-  const fetched = useQuery({
-    queryKey: ["explain", analysis.analysis_id, target],
-    queryFn: async () => {
-      const [e, v] = await Promise.all([api.explain(analysis, target), api.evidence(analysis, target)]);
-      return { explanation: e.data, evidence: v.data };
-    },
-    enabled: !stored,
-    staleTime: Infinity,
-  });
+  const fetched = useQuery(explainQuery(analysis, target));
   const explanation = stored ?? fetched.data?.explanation;
   const evidence = analysis.evidence[target] ?? fetched.data?.evidence;
   if (!explanation) {
@@ -114,7 +107,7 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
                 <td className="py-1 pr-2 tabular-nums text-slate-700">
                   {c.display_value}
                   {c.value_status !== "provided" && (
-                    <span className="ml-1 rounded bg-slate-100 px-1 text-[10px] text-slate-500">{c.value_status}</span>
+                    <span className="ml-1 rounded bg-slate-100 px-1 text-[10px] text-slate-700">{c.value_status}</span>
                   )}
                 </td>
                 <td className="py-1.5 pr-2">
@@ -144,8 +137,10 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
               : `Insufficient evidence in this probability band (n = ${evidence.evidence_ledger.n})`}
           </p>
           {evidence.stability_interval && (
-            <p className="text-xs text-slate-700">
-              Model stability interval: {pct(evidence.stability_interval.p10)}–{pct(evidence.stability_interval.p90)}
+            <p className="text-xs text-slate-700" data-testid="stability-interval"
+               title="How much this probability moves when the model is refit on bootstrap resamples of its own training patients. It is a measure of model stability, not a confidence interval for the patient's true risk.">
+              Model stability interval: {probPct(evidence.stability_interval.p10)}–{probPct(evidence.stability_interval.p90)}
+              <span className="text-slate-500"> (10th–90th percentile of {evidence.stability_interval.n_valid} valid refits)</span>
             </p>
           )}
           <p className="mt-2 text-[11px] font-medium text-slate-600">

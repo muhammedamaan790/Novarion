@@ -50,7 +50,9 @@
       "editable": true,
       "immutable_in_whatif": true,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {}
     },
     {
       "id": "weight",
@@ -69,7 +71,9 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {}
     },
     {
       "id": "height",
@@ -88,7 +92,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "Length"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "sex",
@@ -107,7 +115,13 @@
       "editable": true,
       "immutable_in_whatif": true,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Male": 1,
+        "Fmale": 0,
+        "Female": 0
+      }
     },
     {
       "id": "bmi",
@@ -126,7 +140,9 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "computed",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {}
     },
     {
       "id": "diabetes",
@@ -142,7 +158,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "DM"
+      ],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "hypertension",
@@ -158,7 +181,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "HTN"
+      ],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "current_smoker",
@@ -174,7 +204,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "ex_smoker",
@@ -190,7 +225,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "family_history",
@@ -206,7 +246,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "FH"
+      ],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "obesity",
@@ -222,7 +269,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "computed",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "chronic_renal_failure",
@@ -238,7 +290,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "CRF"
+      ],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "cerebrovascular_accident",
@@ -254,7 +313,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "CVA"
+      ],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "airway_disease",
@@ -270,7 +336,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "thyroid_disease",
@@ -286,7 +357,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "congestive_heart_failure",
@@ -302,7 +378,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "CHF"
+      ],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "dyslipidemia",
@@ -318,7 +401,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "DLP"
+      ],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "blood_pressure",
@@ -337,7 +427,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "BP"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "pulse_rate",
@@ -356,7 +450,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "PR"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "edema",
@@ -372,7 +470,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "weak_peripheral_pulse",
@@ -388,7 +491,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "lung_rales",
@@ -404,7 +512,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "systolic_murmur",
@@ -420,7 +533,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "diastolic_murmur",
@@ -436,7 +554,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "typical_chest_pain",
@@ -452,7 +575,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "dyspnea",
@@ -468,7 +596,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "function_class",
@@ -489,7 +622,14 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "0": "0",
+        "1": "1",
+        "2": "2",
+        "3": "3"
+      }
     },
     {
       "id": "atypical_chest_pain",
@@ -505,7 +645,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "nonanginal_chest_pain",
@@ -521,7 +666,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "exertional_chest_pain",
@@ -537,7 +687,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "constant",
-      "constant_value": 0
+      "constant_value": 0,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "low_threshold_angina",
@@ -553,7 +708,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "q_wave",
@@ -569,7 +729,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "st_elevation",
@@ -585,7 +750,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "st_depression",
@@ -601,7 +771,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "t_inversion",
@@ -617,7 +792,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "1": 1,
+        "0": 0
+      }
     },
     {
       "id": "lvh",
@@ -633,7 +813,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "poor_r_progression",
@@ -649,7 +834,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "Y": 1,
+        "N": 0
+      }
     },
     {
       "id": "bundle_branch_block",
@@ -669,7 +859,18 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "BBB"
+      ],
+      "import_tokens": {
+        "N": "none",
+        "LBBB": "lbbb",
+        "RBBB": "rbbb",
+        "none": "none",
+        "lbbb": "lbbb",
+        "rbbb": "rbbb"
+      }
     },
     {
       "id": "fasting_blood_sugar",
@@ -688,7 +889,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "FBS"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "creatinine",
@@ -707,7 +912,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "CR",
+        "Cr"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "triglycerides",
@@ -726,7 +936,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "TG"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "ldl",
@@ -745,7 +959,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "LDL"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "hdl",
@@ -764,7 +982,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "HDL"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "bun",
@@ -783,7 +1005,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "BUN"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "esr",
@@ -802,7 +1028,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "ESR"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "hemoglobin",
@@ -821,7 +1051,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "HB",
+        "Hb"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "potassium",
@@ -840,7 +1075,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "K"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "sodium",
@@ -859,7 +1098,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "Na"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "wbc",
@@ -878,7 +1121,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "WBC"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "lymphocytes_pct",
@@ -897,7 +1144,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "Lymph"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "neutrophils_pct",
@@ -916,7 +1167,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "Neut"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "platelets",
@@ -935,7 +1190,11 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "PLT"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "ejection_fraction",
@@ -954,7 +1213,12 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "EF-TTE",
+        "EF"
+      ],
+      "import_tokens": {}
     },
     {
       "id": "region_rwma",
@@ -976,7 +1240,15 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [],
+      "import_tokens": {
+        "0": "0",
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4"
+      }
     },
     {
       "id": "valvular_heart_disease",
@@ -997,7 +1269,19 @@
       "editable": true,
       "immutable_in_whatif": false,
       "input_mode": "entered",
-      "constant_value": null
+      "constant_value": null,
+      "aliases": [
+        "VHD"
+      ],
+      "import_tokens": {
+        "N": "none",
+        "mild": "mild",
+        "Moderate": "moderate",
+        "Severe": "severe",
+        "none": "none",
+        "moderate": "moderate",
+        "severe": "severe"
+      }
     }
   ],
   "thresholds": {
@@ -1023,11 +1307,11 @@
     }
   },
   "anatomy_version": "1.0.0",
-  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e",
+  "anatomy_asset_sha256": "481b09fb81eb34783f9bf827f3ad9881a2805fd2473131c90009c5ceb412afca",
   "anatomy_map": {
     "schema_version": "1.0.0",
     "asset": "frontend/public/models/heart.glb",
-    "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB).",
+    "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB). Context nodes (torso_shell, rib_cage) are translucent, never pickable and never prediction targets; they only show where the heart sits in the body.",
     "targets": {
       "cad": {
         "nodes": [
@@ -1192,6 +1476,27 @@
         "near": 0.01,
         "far": 50,
         "projection": "perspective"
+      },
+      "body": {
+        "position": [
+          0.0,
+          -0.3,
+          9.0
+        ],
+        "target": [
+          -0.18,
+          -0.4,
+          0.0
+        ],
+        "up": [
+          0,
+          1,
+          0
+        ],
+        "fov": 35,
+        "near": 0.01,
+        "far": 50,
+        "projection": "perspective"
       }
     },
     "color_transfer": {
@@ -1220,10 +1525,14 @@
           225
         ]
       },
-      "low_confidence_chroma_factor": 0.5,
+      "low_confidence_chroma_factor": 0.75,
       "formula": "positive: i=(p-t_op)/(1-t_op); negative: i=(t_op-p)/t_op; clamp [0,1]; L=L_light-i*(L_light-L_deep); C=C_light+i*(C_deep-C_light); h=h_light+i*(h_deep-h_light); LOW: C*=low_confidence_chroma_factor"
     },
     "view_presets": [
+      {
+        "id": "body",
+        "label": "Whole body"
+      },
       {
         "id": "overview",
         "label": "Anterior"
@@ -1240,7 +1549,29 @@
         "id": "posterior",
         "label": "Posterior"
       }
-    ]
+    ],
+    "context_nodes": {
+      "torso_shell": {
+        "label": "Torso (skin surface)",
+        "opacity": 0.09,
+        "color_oklch": [
+          0.82,
+          0.03,
+          60
+        ],
+        "pickable": false
+      },
+      "rib_cage": {
+        "label": "Rib cage, sternum and thoracic spine",
+        "opacity": 0.22,
+        "color_oklch": [
+          0.9,
+          0.02,
+          85
+        ],
+        "pickable": false
+      }
+    }
   },
   "evidence_bands": [
     [
@@ -1263,6 +1594,13 @@
       0.8,
       1.0
     ]
+  ],
+  "leakage_denylist": [
+    "CAD",
+    "Cath",
+    "LAD",
+    "LCX",
+    "RCA"
   ],
   "disclaimer": "Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."
 }

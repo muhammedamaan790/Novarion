@@ -33,7 +33,6 @@ from .schemas import (
     EvidenceResponse,
     ExplainRequest,
     ExplanationResponse,
-    FeatureSpec,
     GlobalImportanceResponse,
     GroundTruthResponse,
     HealthReady,
@@ -45,6 +44,7 @@ from .schemas import (
     PredictionResponse,
     PredictRequest,
     QualityItem,
+    ReplayResponse,
     TargetSpec,
     ValidateRequest,
     ValidateResponse,
@@ -52,7 +52,17 @@ from .schemas import (
 from .schemas import (
     Thresholds as ThresholdsSchema,
 )
-from .service import InferenceService, build_validate_response, canonical_or_block, check_pinned
+from .service import (
+    InferenceService,
+    build_validate_response,
+    canonical_or_block,
+    check_pinned,
+    feature_specs,
+    gate_report,
+    leakage_denylist,
+    lifecycle_view,
+    replay_study,
+)
 from .settings import APP_VERSION, Settings
 
 REGISTRY_FILE = ROOT / "registry" / "models.json"
@@ -180,15 +190,7 @@ class BundleService(InferenceService):
         return HealthReady(ready=True, model_version=self.model_version, artifact_manifest_sha256=self.artifact_sha)
 
     def meta(self) -> MetaResponse:
-        features = [
-            FeatureSpec(id=f.id, display=f.display, group=f.group, kind=f.kind, categories=list(f.categories),
-                        canonical_unit=f.canonical_unit, unit_unambiguous=f.unit_unambiguous,
-                        display_precision=f.display_precision,
-                        hard_valid_range=list(f.hard_valid_range) if f.hard_valid_range else None,
-                        allow_unknown=f.allow_unknown, editable=f.editable, immutable_in_whatif=f.immutable_in_whatif,
-                        input_mode=f.input_mode, constant_value=f.constant_value)
-            for f in self.registry.features
-        ]
+        features = feature_specs()
         thresholds = {t: ThresholdsSchema(t_op=a.thresholds.t_op, t_neg=a.thresholds.t_neg, t_pos=a.thresholds.t_pos)
                       for t, a in self.engine.targets.items()}
         return MetaResponse(
@@ -199,7 +201,7 @@ class BundleService(InferenceService):
                                 label_definition=t["label_definition"]) for t in self.targets_cfg["targets"]],
             features=features, thresholds=thresholds, anatomy_version=self.manifest["anatomy_version"],
             anatomy_asset_sha256=self.manifest["anatomy_asset_sha256"], anatomy_map=self.anatomy_map,
-            evidence_bands=self.targets_cfg["evidence_bands"],
+            evidence_bands=self.targets_cfg["evidence_bands"], leakage_denylist=leakage_denylist(),
         )
 
     def validate(self, req: ValidateRequest) -> ValidateResponse:
@@ -271,7 +273,15 @@ class BundleService(InferenceService):
             table2.append({k: t2[k] for k in ("pct_high_positive", "ppv", "ppv_ci", "pct_high_negative", "npv",
                                               "npv_ci", "pct_low_confidence", "accuracy_high_confidence",
                                               "fn_high_negative", "fp_high_positive")} | {"target": t})
-        return EvaluationResponse(model_version=self.model_version, table1=table1, table2=table2)
+        figures = {
+            t: {**self.metrics["targets"][t].get("figures", {}),
+                "selected_families": self.metrics["targets"][t]["selected_families"],
+                "calibration_guard_events": self.metrics["targets"][t]["calibration_guard_events"],
+                "table2_auc": self.metrics["targets"][t]["table2"]["auc"],
+                "table2_auc_ci": self.metrics["targets"][t]["table2"]["auc_ci"]}
+            for t in TARGET_IDS
+        }
+        return EvaluationResponse(model_version=self.model_version, table1=table1, table2=table2, figures=figures)
 
     def global_importance(self, target: str) -> GlobalImportanceResponse:
         return GlobalImportanceResponse(target=target, scope="OOF fold-specific model attribution distribution",
@@ -279,10 +289,14 @@ class BundleService(InferenceService):
 
     def models(self) -> ModelsResponse:
         registry = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
-        models = [{k: m[k] for k in ("version", "status", "created_at", "training_cases", "artifact_manifest_sha256")}
-                  for m in registry["models"]]
-        return ModelsResponse(production_version=registry["production_version"], models=models,
-                              verified_new_cases=0, eligible_cases=0, pending_cases=0)
+        models = [{k: m.get(k) for k in ("version", "status", "created_at", "training_cases", "gate_status",
+                                         "artifact_manifest_sha256")} for m in registry["models"]]
+        return ModelsResponse(production_version=registry["production_version"],
+                              deployed_version=self.manifest["model_version"], models=models,
+                              **lifecycle_view(REGISTRY_FILE.parent))
 
     def model_report(self, version: str) -> ModelReportResponse:
-        raise ApiError("NOT_FOUND", "No gate report: no candidate model has been validated yet.")
+        return gate_report(json.loads(REGISTRY_FILE.read_text(encoding="utf-8")), version, ROOT)
+
+    def replay(self) -> ReplayResponse:
+        return replay_study(REGISTRY_FILE.parent)

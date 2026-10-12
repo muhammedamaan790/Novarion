@@ -22,7 +22,10 @@ export function probabilityLabel(target: TargetId): string {
   return target === "cad" ? "Overall CAD probability" : `${SHORT[target]} stenosis-label probability`;
 }
 
-export const pct = (p: number) => `${Math.round(p * 100)}%`; // only the UI rounds (contract rule)
+// Only the UI rounds (contract rule). `pct` = observed rates and band edges (can truly be 0% / 100%).
+export const pct = (p: number) => `${Math.round(p * 100)}%`;
+// Model probabilities are never shown as 0% or 100%: an estimate is never certain (plan §12, no false precision).
+export const probPct = (p: number) => (p >= 0.995 ? ">99%" : p < 0.005 ? "<1%" : `${Math.round(p * 100)}%`);
 
 export const REASON_TEXT: Record<string, string> = {
   unknown_input: "an input was marked UNKNOWN",

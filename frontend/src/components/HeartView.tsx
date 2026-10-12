@@ -1,10 +1,11 @@
 // Centre column: 3D canvas + overlays (accessible selection buttons, legend, tooltip, notices). Plan §9.2, §12.
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { VESSELS, TARGET_IDS, type DisplayAnalysis, type Meta, type TargetId } from "../api/client";
+import { FallbackDiagram, webglAvailable } from "../three/FallbackDiagram";
 import { HeartScene, LABELLED_TARGETS, nodeToTarget, type AnatomyMap } from "../three/HeartScene";
 import { rampColor } from "../three/colors";
 import { useStore } from "../store/useStore";
-import { SHORT, TOOLTIPS, pct, predictionText } from "./wording";
+import { SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
 
 function Legend({ map }: { map: AnatomyMap }) {
   const ramp = (family: "warm" | "cool") =>
@@ -38,7 +39,7 @@ function Tooltip({ analysis, map }: { analysis: DisplayAnalysis | null; map: Ana
   if (target) {
     const p = analysis?.targets[target];
     text = p
-      ? `${target === "cad" ? "Heart · overall CAD" : SHORT[target]} · ${predictionText(target, p)} · ${pct(p.probability)} · ${
+      ? `${target === "cad" ? "Heart · overall CAD" : SHORT[target]} · ${predictionText(target, p)} · ${probPct(p.probability)} · ${
           p.model_confidence === "high" ? "HIGH" : "LOW"
         } MODEL CONFIDENCE`
       : `${map.targets[target].label} · no analysis loaded`;
@@ -58,9 +59,14 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const selectedTarget = useStore((s) => s.selectedTarget);
   const isolation = useStore((s) => s.isolation);
+  const showBody = useStore((s) => s.showBody);
   const notice = useStore((s) => s.notice);
+  const view = useStore((s) => s.view);
   const { selectTarget, toggleIsolation } = useStore.getState();
   const labels = useRef<Partial<Record<TargetId, HTMLElement | null>>>({});
+  const [glAvailable] = useState(webglAvailable);
+  const [contextLost, setContextLost] = useState(false);
+  const [canvasKey, setCanvasKey] = useState(0);
   const placeLabel = useCallback((target: TargetId, x: number, y: number, visible: boolean) => {
     const el = labels.current[target];
     if (!el) return;
@@ -70,7 +76,23 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
 
   return (
     <div className="relative h-full min-h-[420px] overflow-hidden rounded-lg border border-slate-200 bg-[#f4f5f7]">
-      <HeartScene meta={meta} analysis={analysis} placeLabel={placeLabel} />
+      {glAvailable ? (
+        <HeartScene key={canvasKey} meta={meta} analysis={analysis} placeLabel={placeLabel}
+                    onContextLost={() => setContextLost(true)} />
+      ) : (
+        <FallbackDiagram analysis={analysis} transfer={map.color_transfer} />
+      )}
+      {contextLost && (
+        <div role="alert" data-testid="context-lost"
+             className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-white/85 text-sm text-slate-700">
+          <p>The 3D view was paused because the graphics context was lost (e.g. a GPU reset).</p>
+          <p className="text-xs text-slate-500">Predictions and panels are unaffected.</p>
+          <button type="button" data-testid="restore-3d" className="rounded bg-slate-900 px-3 py-1 text-xs font-semibold text-white"
+                  onClick={() => { setContextLost(false); setCanvasKey((k) => k + 1); }}>
+            Restore 3D
+          </button>
+        </div>
+      )}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
         {LABELLED_TARGETS.map((t) => (
           <span
@@ -87,7 +109,11 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
                   : "bg-white/85 text-slate-800"
             }`}
           >
-            {map.targets[t].label}
+            {view === "compare" && analysis?.targets[t]
+              ? `${map.targets[t].label} · ${probPct(analysis.targets[t]!.probability)} · ${
+                  analysis.targets[t]!.predicted_class === "positive" ? "stenosis" : "no stenosis"} · ${
+                  analysis.targets[t]!.model_confidence === "high" ? "HIGH" : "LOW"}`
+              : map.targets[t].label}
           </span>
         ))}
       </div>
@@ -108,20 +134,39 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
               }`}
             >
               {t === "cad" ? "Heart · CAD" : SHORT[t]}
-              <span className="ml-1 font-normal opacity-60">{t === "cad" ? 0 : VESSELS.indexOf(t) + 1}</span>
+              <span className={`ml-1 font-normal ${selectedTarget === t ? "text-slate-300" : "text-slate-500"}`}>
+                {t === "cad" ? 0 : VESSELS.indexOf(t) + 1}
+              </span>
             </button>
           ))}
+          <button
+            type="button"
+            onClick={() => useStore.getState().showCompare()}
+            aria-pressed={view === "compare"}
+            data-testid="compare-all"
+            className={`rounded px-2 py-1 text-xs font-semibold shadow-sm ${
+              view === "compare" ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            Compare all <span className={`font-normal ${view === "compare" ? "text-slate-300" : "text-slate-500"}`}>C</span>
+          </button>
           <button
             type="button"
             onClick={() => selectTarget(null)}
             className="rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm hover:bg-slate-50"
           >
-            Reset <span className="opacity-60">Esc</span>
+            Reset <span className="text-slate-500">Esc</span>
           </button>
         </div>
-        <label className="pointer-events-auto flex items-center gap-1 rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm">
-          <input type="checkbox" checked={isolation} onChange={toggleIsolation} /> Isolate selected vessel
-        </label>
+        <div className="pointer-events-auto flex gap-1">
+          <label className="flex items-center gap-1 rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm">
+            <input type="checkbox" checked={showBody} onChange={() => useStore.getState().toggleBody()}
+                   data-testid="toggle-body" /> Body context
+          </label>
+          <label className="flex items-center gap-1 rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm">
+            <input type="checkbox" checked={isolation} onChange={toggleIsolation} /> Isolate selected vessel
+          </label>
+        </div>
       </div>
 
       {!analysis && (

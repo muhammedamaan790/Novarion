@@ -167,3 +167,196 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   schemas, evaluation, split manifest; per-file SHA-256). `demo_bundle/index.json` is
   `{"index": {artifact_manifest_sha256, patients, files: {path: sha256}}, "demo_bundle_sha256": SHA-256(JCS(index))}`.
   The backend verifies both at startup and fails closed on any mismatch (tested by tampering with a copy).
+
+---
+
+## D-011 — Body context: translucent torso + rib cage (supersedes the D-004 deferral of `torso_shell`)
+
+- **Date:** 2026-10-04
+- **Status:** DECIDED
+- **Decision:** add two **context** nodes from the same BodyParts3D 4.0 source (CC BY 4.0): `torso_shell` (skin,
+  FMA7163, cropped to the trunk: z 880–1480 mm, |x| ≤ 185 mm, keeping whole triangles only) and `rib_cage` (ribs,
+  costal cartilages, thoracic vertebrae, manubrium, sternal body, xiphoid). Budgets 20k + 30k; total 132k ≤ 150k.
+- **Why:** the brief asks for a "torso/heart model" and an understanding of *where* pathology sits in the body; the
+  heart alone did not show its position in the chest.
+- **Rules:** context nodes are never prediction targets, never pickable (raycast disabled, so they can never
+  intercept a vessel click — covered by the canvas-picking E2E test), never coloured by predictions, and never
+  occlude label anchors. Their opacity fades with camera distance (full context when zoomed out, ~12 % in vessel
+  close-ups) so they never wash out the vessel colours. A "Body context" toggle hides them; a "Whole body" camera
+  preset shows them. The heart-based normalization is unchanged, so vessel coordinates, anchors and presets are
+  identical to before.
+
+---
+
+## D-012 — Case workflow v1 (plan §12A): what is implemented, what is deferred
+
+- **Date:** 2026-10-04
+- **Status:** DECIDED
+- **Implemented:** IndexedDB CaseStore (Dexie, `case_schema_version` 1.0.0); dataset cases store the OOF bundle with a
+  case-specific `analysis_id` (the canonical `source_oof_analysis_id` is kept); new/imported cases persist through one
+  `/analyze/full` call and one IndexedDB transaction (all-or-nothing); edits after saving become a new **edited
+  scenario** (never an overwrite); immutable review revisions bound to `analysis_id` (status derived, "Review recorded",
+  no accept/diagnose button); Review Snapshot = `{snapshot, snapshot_sha256}` built only from the stored analysis +
+  stored review, RFC 8785 JCS in TypeScript (verified against 60 reference vectors from the Python `rfc8785`
+  implementation), 3D image rendered off-screen from the camera preset at final material state and embedded with its
+  `image_sha256`; PDF and JSON rendered from the same stored object; case history with JSON export; stored cases
+  reopen with the backend unreachable (E2E-tested with all API calls blocked).
+- **Deliberate deviations:** the PDF embeds a JPEG display copy of the image (the hashed record keeps the exact PNG);
+  vessel labels are not drawn into the snapshot image (they are listed in the predictions table instead).
+- **Deferred (tracked):** ~~draft recovery~~ (done 2026-10-07: IndexedDB `drafts` table via an additive Dexie v2
+  schema; offered on the next visit, never applied silently, cleared when saved), a "Re-analyze with the current model" button
+  (the outdated-model banner exists), case JSON import, outcome recording + learning loop (Tier 2, last in the cut
+  order), automatic local backups before migrations (no migration exists yet: schema 1.0.0).
+
+---
+
+## D-013 — Model freeze v1.0.0, golden set, demo patients, ablation and error-analysis scope
+
+- **Date:** 2026-10-04
+- **Status:** DECIDED
+- **Model freeze:** the trained models are packaged as bundle **v1.0.0** (`scripts/build_bundle.py`, default
+  version). No feature-schema, grid, training, calibration or threshold change after this point; a release-blocking
+  fix becomes a new artifact version with every affected validation rerun (plan §11A "Freeze types"). The registry
+  keeps the history (v0.1.0 → `retired`, never deleted).
+- **Golden prediction set:** `golden/golden_predictions.json` inside the bundle (21 dataset records + 3 edge cases:
+  UNKNOWN input, out-of-cohort triglycerides, female with typical chest pain) records classes, confidence regions and
+  reasons (exact), probabilities and calibrated logits (|Δ| ≤ 1e-6) and every contribution (rtol 1e-6, atol 1e-5).
+  `tests/test_golden.py` requires the production bundle to reproduce them; a release that cannot is not a patch.
+- **Demo patients:** `config/demo_config.yaml` picks the main demo patient and Case B by an **outcome-blind hash
+  rule** (`int(sha256(seed), 16) mod 303`). Some patients' predictions were seen during development, so no person
+  chooses; the rule is recomputable (`tests/test_demo_config.py`). Case B's correctness is revealed live.
+- **Ablation (descriptive):** each feature group removed and the training-side procedure re-run on the same 25 outer
+  folds, **restricted to the logistic-regression family** of the grid (LR was selected in 79/100 outer folds). The
+  full four-family re-run per variant (~9 h) is not justified for a descriptive analysis; the scope is printed in
+  every output.
+- **Error analysis:** representative cases chosen by stated rules (lowest patient id meeting each criterion). The
+  rule for "error in the CAD high-positive region" selects ZAS-0094, which is exactly the D-001 label-discordant
+  record; this is reported, not hidden.
+
+---
+
+## D-014 — Docker verified; slimmer inference dependencies
+
+- **Date:** 2026-10-07
+- **Status:** DECIDED
+- **Verification:** `docker compose up` (backend + nginx frontend, weights host-mounted read-only) → backend healthy and
+  READY with model v1.0.0 in **14 s** from cold start; **all 16 Playwright E2E flows pass against the Docker stack**
+  (`E2E_BACKEND=real E2E_BASE_URL=http://127.0.0.1:8080 npx playwright test`). The check found and fixed one real
+  defect: the frontend image did not contain `contracts/`, which the production type-check needs.
+- **Dependencies:** `shap` was never imported (explainers are native, D-009) → removed. `interpret` → `interpret-core`
+  (same `interpret.glassbox` EBM classes, no dashboard stack). `xgboost` → `xgboost-cpu` (official CPU-only wheel,
+  same module and model format, without ~470 MB of NCCL/CUDA libraries; the system must run without a dedicated GPU).
+  All 28 saved models in the v1.0.0 bundle load unchanged and the golden prediction set still reproduces.
+  Backend image: **3.03 GB → 1.28 GB**; frontend image 81 MB. CatBoost is kept although no v1.0.0 model uses it, so a
+  future bundle that selects it still loads.
+
+---
+
+## D-015 — Hardening pass 1 (plan Days 15–17)
+
+- **Date:** 2026-10-07
+- **Status:** DECIDED
+- **Rate limiting:** per-client token bucket (600/min, burst 200; env-configurable) on every API route except health
+  checks; 429 uses the standard error envelope + `Retry-After`. Behind our nginx the client address comes from
+  `X-Real-IP`, trusted only when `NOVARION_TRUST_PROXY=1` (set in docker-compose), so the header cannot be spoofed on a
+  directly exposed backend (tested).
+- **Latency (Docker, this laptop, `results/perf.json`):** `/predict` p50 46 ms / **p95 67 ms** (budget 200 ms);
+  `/validate` p95 19 ms; `/explain` p95 76 ms; `/analyze/full` p95 112 ms; patient bundle p95 51 ms.
+- **WebGL:** no WebGL → the emergency 2D schematic (same store, same colours, clickable); context lost mid-session →
+  an explanatory overlay with "Restore 3D" while all panels keep working.
+- **Failure injection (E2E):** backend unreachable → visible message, no predictions; a failing prediction fails
+  closed (no stale cards or colours, neutral anatomy); rapid edits are debounced and only the final value is sent.
+- **Accessibility:** axe-core reports no serious/critical violations on the Command Center or Model Evidence pages
+  (fixed: an ARIA attribute without a role on the 3D container, low-contrast keyboard hints and secondary text).
+
+---
+
+## D-016 — Offline demo mode (plan §10 run modes)
+
+- **Date:** 2026-10-07
+- **Status:** DECIDED
+- **Implemented:** `scripts/export_demo_bundle.py` (also run by `make bundle`) copies the production bundle's
+  per-patient OOF files plus static `/meta` and `/evaluation` snapshots to `frontend/public/demo_bundle/` (gitignored,
+  29.8 MB raw; ~14 KB per patient over gzip). At startup the frontend uses the live API if `/health/ready` answers
+  within 4 s; otherwise it loads the static bundle **only if** its `demo_bundle_sha256` (RFC 8785 JCS) verifies and its
+  schema/compatibility range matches, and shows "DEMO MODE · STATIC BUNDLE". A tampered bundle is refused (tested).
+  Offline: all dataset-patient flows, label reveal, Model Evidence, saving/reviewing cases and Review Snapshots work;
+  new cases, live editing and validation are disabled with an explanation (no claim of live inference). If the backend
+  dies mid-session, the error offers "Switch to offline demo" (tested).
+- **Found and fixed:** re-selecting the already-open dataset patient cleared its analysis without reloading it.
+- **Not cut, not done:** the OOF stability bootstrap (plan §6.10a, Tier 2) remains unimplemented; adding intervals now
+  would change the frozen bundle's patient files, and every vessel is already LOW confidence, so it is the first
+  candidate to cut under the plan's cut order.
+- **Addendum (2026-10-07) — 3D frame rate:** `frontend/scripts/bench_fps.mjs` (30 s scripted orbit drags, vessel
+  selections, compare mode and the whole-body preset, 1600×900, 131,990 triangles) on this laptop's **Intel Iris Xe
+  integrated GPU** (ANGLE/D3D11, renderer string recorded): **median 59.9 fps, p5 58.8 fps** — the plan's 60 fps
+  design goal on integrated graphics (acceptance ≥ 45 fps). Stored in `results/perf.json`.
+- **Addendum (2026-10-07) — browser compatibility:** the full Playwright suite (28 flows: dataset review, 3D picking,
+  compare, import, new case, cases/snapshots, draft recovery, offline mode, failure injection, WebGL fallback and
+  context loss, accessibility) passes in **Edge, Chrome and Firefox** (`PW_CHANNEL=chrome`, `PW_BROWSER=firefox`).
+
+## D-017 — Stability intervals (plan §6.10a) → bundle v1.0.1 (patch)
+
+- **Date:** 2026-10-07
+- **Status:** DECIDED (supersedes the D-016 note that the stability bootstrap was not done)
+- **Method (algorithm B, as pre-registered):** per target and evaluation-repeat outer fold k: 100 replicates; each
+  draws |T_k| rows with replacement from fold k's outer-training rows only (asserted: held-out rows never enter the
+  pool), cross-fits 3 internal folds **grouped by patient** (bootstrap copies never straddle a split; asserted), fits
+  Platt on those cross-fitted logits (a ≤ 0 → replicate invalid, logged), refits fold k's selected configuration once
+  on the whole replicate, and predicts every held-out patient. Hyperparameters are never re-tuned; t_op is unchanged.
+  Interval = 10th–90th percentile, shown only with ≥ 80 valid replicates. `scripts/stability.py` →
+  `results/stability.json` (20 folds, 98–100 valid replicates each; ~8,000 fits; 20 min wall time, dominated by the
+  one EBM fold).
+- **Effect:** an interval that straddles t_op adds the reason **"unstable"** and forces LOW model confidence for that
+  dataset patient. Crossings: CAD 63, LAD 95, LCX 201, RCA 158 of 303. Only CAD has HIGH regions in the evaluation
+  repeat, so the visible change is that **27 of 187 HIGH-confidence CAD patients (14%) become LOW**. Median interval
+  width (p90 − p10): CAD 0.15, vessels 0.22–0.26. The Why panel shows "Model stability interval: a–b (10th–90th
+  percentile of n valid refits)" with a tooltip that it measures model stability, not the patient's true risk.
+- **Scope:** dataset (OOF) patients only, as the plan specifies; new cases have no interval (it would need refits at
+  request time). Table 2's tier metrics remain those of the threshold regions; "unstable" only removes patients from
+  HIGH, so a displayed HIGH tier is a subset of the region whose PPV/NPV is quoted.
+- **Versioning:** models, calibrators, thresholds and all 24 final-model golden predictions are byte-identical to
+  v1.0.0 (checked), and no OOF probability changed, so this is a **patch release, v1.0.1**. v1.0.0 stays in the
+  registry (retired) and its nested-CV evaluation remains the official result. v1.1.0+ is reserved for learning-loop
+  candidates.
+
+## D-018 — Governed learning loop (plan §12B) implemented; replay study
+
+- **Date:** 2026-10-07
+- **Status:** DECIDED
+- **Implemented:** `ml/novarion_ml/lifecycle/` (package, verify, gate, procedure, candidate, promote, replay, log) +
+  `scripts/lifecycle.py` (CLI; `make verify-outcomes / candidate / promote / reject / rollback / verify-log`) +
+  `config/promotion_gate.yaml` + `config/replay.yaml` (both written before any run) + Model Center screen + outcome
+  recording and learning-package export in the browser. 14 pytest cases (`tests/test_lifecycle.py`) including an
+  end-to-end verify → candidate → reject → PASS → promote → rollback drill, and 3 vitest cases for the browser side.
+- **Trust boundary:** the browser can only write `pending`; the package parser ignores any status in case JSON and
+  rejects the whole file if a field outside the allowlist appears. Eligibility comes only from the steward's
+  verification manifest, whose hash must appear in the lifecycle log. Temporal eligibility is a manual steward
+  attestation (`temporal_evidence_ref`) — there is no automated time source in v1.
+- **Choices the plan left open:**
+  - **Incomplete inputs are not eligible.** A training example must have every feature measured (no Unknown values);
+    the UI blocks recording otherwise and says why. Imputing training rows would mix two kinds of evidence.
+  - **A copy of a training row is flagged** (`input_matches_training_row`) and needs `provenance_confirmed`, like a
+    duplicate across learning records.
+  - **What promotion changes:** only the four final (new-case) models, refit from the frozen gated configuration on
+    303 + all eligible rows, with Platt and thresholds from cross-fitted margins of that set. Dataset patients keep
+    their OOF analyses from the frozen v1.0 nested CV; ReferenceContexts (imputation, similar patients, comparisons,
+    ledger) stay the public 303-patient cohort, so learning rows are training-only and never shown as "similar
+    patients"; the cohort evaluation context stays v1.0's Table 2. All of this is written into the promoted
+    manifest's `lineage`, and the Model Center labels gate metrics "pre-promotion validation evidence".
+  - **Deployment after promote/rollback is a restart** (`docker compose restart backend`); the registry pointer is
+    written atomically and the Model Center shows "deployed bundle vX: restart pending" if they differ. The plan's
+    in-process handle swap is not implemented.
+  - **"All tests pass"** is evaluated by the CLI (leakage, core ML, contract, anatomy, lifecycle suites) and recorded
+    in the gate report; a failure turns PASS into FAIL.
+- **Replay (research demonstration):** the replay procedure searches the **LR + XGBoost** part of the grid (56 of 92
+  configurations; 19 of the 20 fold selections and all four deployed models), a documented compute reduction allowed
+  by the plan. On PASS the champion becomes the challenger itself (the procedure already ends with the refit on the
+  same rows). Results in `results/replay.json` and `registry/replay.json` (served at `GET /models/replay`).
+- **Replay results (10 arrival orders; AUC of the step model on the next 50 arrivals, mean ± SD across orders):**
+  CAD 0.910 ± 0.050 (153 patients) → 0.924 ± 0.044 (203) → 0.922 ± 0.035 (253); LAD 0.821 → 0.846 → 0.826;
+  LCX 0.671 → 0.695 → 0.714; RCA 0.731 → 0.752 → 0.730 (SDs 0.03–0.08). Only LCX shows a consistent upward trend;
+  the other targets plateau within the across-order spread. Gates: **1 PASS of 20** (gate 1: 1/10, gate 2: 0/10);
+  the most frequent failing rule is the ΔAUC 95% CI lower bound ≤ −0.05 (LCX 16, LAD 12, RCA 12 of 20 gates) — with
+  50-patient holdouts the paired CI is wide, so the gate is conservative by design, as the plan anticipated. Wall
+  time 20 min (8.7 min of fits on 11 workers; the rest is 2,000-replicate paired bootstraps).

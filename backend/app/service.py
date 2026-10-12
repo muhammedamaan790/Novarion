@@ -8,8 +8,11 @@ The API layer only talks to an `InferenceService`. Implementations:
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 from novarion_ml.data.canonical import BLOCK, CanonicalResult, canonicalize_case
 from novarion_ml.data.registry import default_registry
@@ -23,6 +26,7 @@ from .schemas import (
     EvidenceResponse,
     ExplainRequest,
     ExplanationResponse,
+    FeatureSpec,
     GlobalImportanceResponse,
     GroundTruthResponse,
     HealthReady,
@@ -37,6 +41,7 @@ from .schemas import (
     Provenance,
     QualityCounts,
     QualityItem,
+    ReplayResponse,
     ValidateRequest,
     ValidateResponse,
 )
@@ -89,6 +94,9 @@ class InferenceService(ABC):
     @abstractmethod
     def model_report(self, version: str) -> ModelReportResponse: ...
 
+    @abstractmethod
+    def replay(self) -> ReplayResponse: ...
+
 
 class UnavailableService(InferenceService):
     """Fail closed: without a verified bundle nothing but the health endpoints answers."""
@@ -103,10 +111,88 @@ class UnavailableService(InferenceService):
         raise ApiError("NOT_READY", "Prediction service is not ready.", {"reason": self.reason})
 
     meta = validate = predict = analyze_full = explain = evidence = _not_ready
-    patients = patient = ground_truth = evaluation = global_importance = models = model_report = _not_ready
+    patients = patient = ground_truth = evaluation = global_importance = models = model_report = replay = _not_ready
 
 
 # ------------------------------------------------------------------------------------------------ shared logic
+def _event_summary(e: dict[str, Any]) -> str:
+    d = e["details"]
+    if e["event"] == "verify_outcomes":
+        c = d.get("counts", {})
+        return (f"Steward verification: {c.get('verified', 0)} verified, {c.get('rejected', 0)} rejected, "
+                f"{c.get('conflicted', 0)} conflicted, {c.get('pending_no_attestation', 0)} left pending")
+    if e["event"] == "candidate":
+        return f"Candidate v{d.get('candidate')} gated against production v{d.get('champion')}: {d.get('gate_status')}"
+    if e["event"] == "promote":
+        return f"v{d.get('candidate')} promoted to production by a human approver (previous v{d.get('previous_production')})"
+    if e["event"] == "reject":
+        return f"Candidate v{d.get('candidate')} rejected by a human reviewer (gate {d.get('gate_status')})"
+    return f"Production restored to v{d.get('restored')} (from v{d.get('previous_production')})"
+
+
+def lifecycle_view(registry_dir: Path) -> dict[str, Any]:
+    """Model Center counts + recent lifecycle events from registry/ (verification manifest + hash-chained log)."""
+    from novarion_ml.lifecycle.log import LifecycleLog, LogIntegrityError
+    from novarion_ml.lifecycle.verify import eligible
+
+    manifest_path = registry_dir / "verification_manifest.json"
+    records = (json.loads(manifest_path.read_text(encoding="utf-8"))["verification_manifest"]["records"].values()
+               if manifest_path.exists() else [])
+    log = LifecycleLog(registry_dir / "lifecycle_log.jsonl")
+    try:
+        entries = log.verify()
+        status = "intact" if entries else "empty"
+    except LogIntegrityError:
+        entries, status = [], "broken"
+    events = [{"seq": e["seq"], "timestamp": e["timestamp"], "event": e["event"], "summary": _event_summary(e),
+               "entry_hash": e["entry_hash"]} for e in reversed(entries[-20:])]
+    return {"verified_new_cases": sum(r["outcome_status"] == "verified" for r in records),
+            "eligible_cases": sum(eligible(r) for r in records), "pending_cases": 0,
+            "lifecycle_log_status": status, "lifecycle_events": events}
+
+
+def gate_report(registry: dict[str, Any], version: str, root: Path) -> ModelReportResponse:
+    entry = next((m for m in registry["models"] if m["version"] == version), None)
+    path = root / (entry.get("candidate_path") or entry["path"]) / "gate_report.json" if entry else None
+    if path is None or not path.exists():
+        raise ApiError("NOT_FOUND", f"No gate report for version {version}.")
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    rep = doc["report"]
+    keys = ("evaluable", "auc_champion", "auc_challenger", "delta_auc_ci95", "brier_champion", "brier_challenger",
+            "delta_brier_ci95", "cal_slope_ci95", "rules")
+    return ModelReportResponse(version=version, champion_version=rep["champion_version"],
+                               gate_status=rep["gate_status"], gate_report_sha256=doc["gate_report_sha256"],
+                               targets={t: {k: r[k] for k in keys} for t, r in rep["targets"].items()})
+
+
+def replay_study(registry_dir: Path) -> ReplayResponse:
+    path = registry_dir / "replay.json"
+    if not path.exists():
+        raise ApiError("NOT_FOUND", "The replay study has not been run (scripts/replay.py).")
+    return ReplayResponse.model_validate(json.loads(path.read_text(encoding="utf-8")))
+
+
+def feature_specs() -> list[FeatureSpec]:
+    """Registry → /meta feature specs (one builder for every service implementation)."""
+    specs = []
+    for f in default_registry().features:
+        tokens = {str(k): v for k, v in f.source_tokens.items()}
+        if f.kind != "binary":
+            tokens.update({c: c for c in f.categories})
+        specs.append(FeatureSpec(
+            id=f.id, display=f.display, group=f.group, kind=f.kind, categories=list(f.categories),
+            canonical_unit=f.canonical_unit, unit_unambiguous=f.unit_unambiguous, display_precision=f.display_precision,
+            hard_valid_range=list(f.hard_valid_range) if f.hard_valid_range else None, allow_unknown=f.allow_unknown,
+            editable=f.editable, immutable_in_whatif=f.immutable_in_whatif, input_mode=f.input_mode,
+            constant_value=f.constant_value, aliases=list(f.aliases), import_tokens=tokens,
+        ))
+    return specs
+
+
+def leakage_denylist() -> list[str]:
+    return sorted(default_registry().leakage_denylist)
+
+
 def quality_items(result: CanonicalResult) -> list[QualityItem]:
     return [
         QualityItem(code=i.code, severity=i.severity, feature_id=i.feature_id, message=i.message, details=i.details)

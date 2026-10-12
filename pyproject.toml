@@ -14,20 +14,18 @@ dependencies = [
 # Training-side dependencies (never installed in the inference image)
 train = [
     "scikit-learn>=1.5",
-    "xgboost>=2.1",
+    "xgboost-cpu==3.2.0",  # CPU-only wheel (no ~470 MB NCCL/CUDA libs); same module + model format
     "catboost>=1.2",
-    "interpret>=0.6",
-    "shap>=0.46",
+    "interpret-core==0.7.8",  # EBM only (interpret.glassbox); no dashboard stack. Explainers are native (D-009).
     "pandera>=0.20",
     "rfc8785>=0.1",
 ]
 # Inference-side dependencies (only these go into the backend image)
 inference = [
     "scikit-learn>=1.5",
-    "xgboost>=2.1",
+    "xgboost-cpu==3.2.0",  # CPU-only wheel (no ~470 MB NCCL/CUDA libs); same module + model format
     "catboost>=1.2",
-    "interpret>=0.6",
-    "shap>=0.46",
+    "interpret-core==0.7.8",  # EBM only (interpret.glassbox); no dashboard stack. Explainers are native (D-009).
     "fastapi>=0.115",
     "uvicorn>=0.30",
     "pydantic>=2.8",

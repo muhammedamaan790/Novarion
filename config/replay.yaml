@@ -1,0 +1,16 @@
+# NOVARION historical replay study — pre-registered before running (plan §12B, §11A "Exact replay algorithm").
+# A research demonstration of the governed update process on the SAME 303 public patients. The dataset has no dates,
+# so the arrival order is a seeded random permutation: "forward-by-eligibility-sequence", NOT temporal validation.
+# Replay models live in results/replay/ and can never become production.
+schema_version: "1.0.0"
+
+REPLAY_SEED: 20261008
+seeds: 10                       # arrival orders; the learning curve is the across-seed mean with its spread
+partition: {initial: 153, batches: [50, 50, 50]}   # exact partition of the 303 patients (asserted)
+
+# Compute reduction (allowed by plan §12B, documented): the replay "final-model procedure" searches the LR + XGBoost
+# part of the pre-registered train.yaml grid (56 of 92 configurations; these two families account for 19 of the 20
+# evaluation-repeat fold selections and all four deployed models). EBM and CatBoost are excluded from replay only.
+families: [lr, xgboost]
+
+title: "Historical replay · random eligibility order · NOT temporal validation"

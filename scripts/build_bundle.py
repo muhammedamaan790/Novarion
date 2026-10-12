@@ -42,7 +42,15 @@ from novarion_ml.thresholds.layers import Qualification, Thresholds
 from novarion_ml.train.config import default_train_config
 from novarion_ml.uncertainty.reference import Ledger, ReferenceContext
 
-VERSION = "0.1.0"
+
+def _version_arg() -> str:
+    """`--version X.Y.Z` (default 1.0.1 = 1.0.0 + stability intervals, D-017; 0.1.0 was the dev bundle)."""
+    if "--version" in sys.argv:
+        return sys.argv[sys.argv.index("--version") + 1]
+    return "1.0.1"
+
+
+VERSION = _version_arg()
 PREPROCESSING_VERSION = "1.0.0"
 TARGETS = ("cad", "lad", "lcx", "rca")
 UUID_NAMESPACE = uuid.UUID("6f1d3c1e-6c55-4c5e-9a43-6e6f76617269")
@@ -135,6 +143,15 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
             fold_art[(t, k)] = TargetArtifact(t, spec[t]["display"], spec[t]["anatomy_key"], model, platt, thr, ref,
                                               placeholder, evaluation[t])
 
+    # Stability intervals (plan §6.10a) for the OOF fold artifacts, if the bootstrap has been run
+    stability_path = RESULTS / "stability.json"
+    if stability_path.exists():
+        stab = json.loads(stability_path.read_text(encoding="utf-8"))["targets"]
+        for (t, k), art in fold_art.items():
+            fold_ids = {int(i) for i in fold_records[t][k]["test_ids"]}
+            art.stability = {rid: stab[t][patient_id(rid)] for rid in fold_ids if patient_id(rid) in stab[t]}
+        shutil.copy(stability_path, OUT / "stability.json")
+
     def oof_engine(rid: int) -> Engine:
         return Engine({t: fold_art[(t, fold_of[t][rid])] for t in TARGETS}, mode="oof", registry=registry)
 
@@ -187,6 +204,33 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
                                  "points": []} for f, v in per.items()),
                                key=lambda r: (-r["mean_abs_contribution"], r["feature"]))
     write_json(OUT / "global_importance.json", global_imp)
+
+    # ---------------------------------------------------------------- golden prediction set (plan §11 versioning)
+    # Fixed inputs whose outputs any PATCH release must reproduce exactly (else it is not a patch). Part of the
+    # hashed artifact set, generated with the deployed (final) models.
+    from novarion_ml.data.canonical import canonicalize_case
+
+    entered = [f.id for f in registry.features if f.input_mode == "entered"]
+    golden_inputs = [(f"dataset_{patient_id(rid)}", {k: canonical[rid][k] for k in entered}) for rid in range(0, 303, 15)]
+    base = golden_inputs[0][1]
+    golden_inputs += [("edge_unknown_ldl", {**base, "ldl": registry.unknown_token}),
+                      ("edge_high_triglycerides", {**base, "triglycerides": 1200}),
+                      ("edge_female_typical_pain", {**base, "sex": 0, "typical_chest_pain": 1})]
+    final_engine = Engine(final_art, mode="final_model", registry=registry)
+    golden = []
+    for name, inputs in golden_inputs:
+        result = canonicalize_case(inputs)
+        out = final_engine.analyze(result.canonical)
+        golden.append({"name": name, "inputs": inputs, "input_sha256": result.input_sha256, "targets": {
+            t: {"probability": out["targets"][t]["probability"], "calibrated_logit": out["targets"][t]["calibrated_logit"],
+                "predicted_class": out["targets"][t]["predicted_class"],
+                "model_confidence_region": out["targets"][t]["model_confidence_region"],
+                "model_confidence_reasons": out["targets"][t]["model_confidence_reasons"],
+                "contributions": {c["feature"]: c["contribution"] for c in out["explanations"][t]["contributions"]}}
+            for t in TARGETS}})
+    write_json(OUT / "golden" / "golden_predictions.json",
+               {"tolerances": {"probability_abs": 1e-6, "calibrated_logit_abs": 1e-6, "contribution_rtol": 1e-6,
+                               "contribution_atol": 1e-5, "classes_and_regions": "exact"}, "cases": golden})
 
     # ---------------------------------------------------------------- shared files + artifact manifest
     write_json(OUT / "split_manifest.json", split)
@@ -266,7 +310,11 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
 
     # ---------------------------------------------------------------- registry pointer
     registry_file = registry_file or ROOT / "registry" / "models.json"
-    write_json(registry_file, {"production_version": VERSION, "models": [{
+    # Keep the history: earlier versions become "retired" (bundles referenced by the registry are never deleted).
+    previous = json.loads(registry_file.read_text(encoding="utf-8"))["models"] if registry_file.exists() else []
+    history = [{**m, "status": "retired" if m["status"] == "production" else m["status"]}
+               for m in previous if m["version"] != VERSION]
+    write_json(registry_file, {"production_version": VERSION, "models": [*history, {
         "version": VERSION, "status": "production", "created_at": manifest["created_at"], "training_cases": len(X),
         "artifact_manifest_sha256": artifact_sha, "path": str(OUT.relative_to(ROOT)).replace("\\", "/")
         if OUT.is_relative_to(ROOT) else str(OUT),

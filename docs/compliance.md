@@ -1,0 +1,74 @@
+# Track A compliance audit
+
+Audit of NOVARION against the Track A brief (Cardiovascular Risk Visualization & Prediction). Each item lists the
+evidence: the code, a test or a measured result. Status: **Met**, **Met (interpreted)** where the brief is open and
+our reading is stated, or **Open** where work remains.
+
+Audited 2026-10-07 against production model **v1.0.1**: the same models as the frozen v1.0.0, plus stability
+intervals (D-017).
+
+## Prediction
+
+| Brief item | Evidence | Status |
+|---|---|---|
+| Predict CAD and overall cardiac risk | The CAD classifier is one of four per-target models (`config/targets.yaml`). We define "overall cardiac risk" as the calibrated probability of the dataset's CAD label (`Cath`). The brief supplies no separate risk target, and we never present a 10-year, event or mortality risk. | Met (interpreted) |
+| 1a CAD classifier · 1b LAD / LCX / RCA classifiers | There is one nested-CV-selected, calibrated model per target (`scripts/train.py`, `results/metrics.json`). Deployed: LR for CAD, LAD and RCA; shallow XGBoost for LCX. | Met |
+| 1c Demographic, exam, ECG, lab and echo inputs | All 55 predictors are covered by `config/feature_registry.yaml`, with types, units, valid ranges and the UNKNOWN policy. Inputs are entered manually or imported from CSV/JSON. | Met |
+| 1d Exclude LAD/LCX/RCA/Cath from inputs | A lineage-aware denylist covers {Cath, CAD, LAD, LCX, RCA} and anything derived from them. Tested by `tests/test_leakage.py`; imports strip label columns. | Met |
+| 1e Accuracy, precision, recall, F1, ROC-AUC | Table 1 reports these as outer-fold mean ± SD over 5 × 5 nested CV, beside an always-positive baseline. PR-AUC, Brier and calibration are also reported (`results/tables.md`, Model Evidence page, report §4). | Met |
+
+## 3D visualization
+
+| Brief item | Evidence | Status |
+|---|---|---|
+| 2a Interactive 3D torso/heart (React Three Fiber) | A BodyParts3D heart with named LAD/LCX/RCA/left-main nodes, plus a translucent torso and rib cage (`frontend/public/models/heart.glb`, `config/anatomy_manifest.json`). | Met |
+| 2b Vessel colour driven by predicted probability | OKLCH transfer: the colour family is the predicted class, and the depth is a monotone function of the calibrated probability with t_op as zero. LOW confidence adds hatching. The exact probability is always shown (`frontend/src/three/colors.ts`; `config/anatomy_map.json`). | Met |
+| 2c Rotate, zoom, select anatomical regions | Orbit and zoom, five camera presets and a whole-body view. Vessels and the heart can be clicked in 3D or selected from cards (one store action). The torso and ribs are deliberately not pickable, so a click can't land on context instead of a vessel (D-011). | Met |
+| Show **where** and **how** | **Where:** the predicted vessel on the heart, tinted as a whole; we never imply a lesion location. **How:** per-vessel feature contributions and group sums. The data has one visit per patient, so we show contributing factors, not progression. | Met (interpreted) |
+| Output ↔ vessel correspondence | `config/anatomy_map.json` binds each target to its node, camera and label anchor (`tests/test_anatomy.py`). | Met |
+| Real-time visualization updates | Editing a measurement triggers a debounced (300 ms) `/predict`; vessels recolour with easing and stale responses are discarded. `/predict` p95 is 67 ms (`results/perf.json`). | Met |
+| No dedicated GPU required | 3D runs at a median 59.9 fps (p5 58.8) on Intel Iris Xe integrated graphics (`frontend/scripts/bench_fps.mjs`). A 2D SVG fallback covers missing WebGL, and the scene recovers from context loss. | Met |
+
+## Explanations and dashboard
+
+| Brief item | Evidence | Status |
+|---|---|---|
+| 3a CAD status and vessel probabilities beside the canvas | Four cards in the right panel, each with the binary call, probability and model confidence (screenshot `docs/img/command-center-lad.png`). | Met |
+| 3b SHAP/LIME explanation | Exact additive SHAP in calibrated log-odds: linear SHAP, TreeSHAP or EBM terms. The sum rule is tested for every served explanation (`tests/test_ml_core.py`, `tests/test_bundle.py`). | Met |
+| 3c Measurements and their relative contribution | The Why panel's measurement table shows each value, its contribution, a relative-share column and cohort percentiles; a compare-all-vessels heatmap sits alongside. | Met |
+| Explanation dashboard | The Model Evidence page carries Tables 1–2, ROC/PR curves with bootstrap bands, reliability, threshold sweep and family benchmarks. | Met |
+
+## Assets, safety and technology
+
+| Brief item | Evidence | Status |
+|---|---|---|
+| 4 Open-source meshes | BodyParts3D 4.0 (CC BY 4.0), attributed in `CREDITS.md` and in the UI footer. | Met |
+| 5 Clinical-safety disclaimer | A persistent banner on every screen ("Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."), also on Review Snapshot PDFs. E2E checks it is always visible. | Met |
+| Extensibility | Features, targets and anatomy are driven by registries. An adjacent example is the learning loop, which adds models without code changes (D-018). | Met |
+
+## Deliverables
+
+| Deliverable | Evidence | Status |
+|---|---|---|
+| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~14 s) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
+| Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.1` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
+| ≤ 6-page documentation | `docs/report.pdf`, 4 pages, with every number read from `results/` at build time. Also `docs/model_card.md` and `docs/decisions.md`. | Met |
+| 3–10 min YouTube demo | Recorded at the end of the project, by the team. | **Open** |
+
+## Verification status (plan §15 order)
+
+| Gate | Result |
+|---|---|
+| Python tests | 137 pass: leakage, contract, additivity, calibration, thresholds, hashing, bundle integrity, golden set, stability, learning loop. |
+| Frontend unit tests | 19 pass (vitest), plus typecheck and lint. |
+| Browser E2E | 33 flows pass on the Docker stack with the real model in **Edge, Chrome and Firefox** (`results/browser_matrix_log.txt`). They include axe accessibility checks, failure injection, offline mode, WebGL fallback and the learning loop. |
+| Fresh-clone reproduction · GitHub CI | **Open.** Both need the current work committed and pushed (80+ files are uncommitted). |
+| Second-machine test · rehearsals · outside-user usability test | **Open** (team). |
+
+## Claims we deliberately do not make
+
+- No diagnosis, lesion localization, or test or treatment recommendation.
+- No external validation: everything is internal nested CV on one public, 303-patient, high-prevalence cohort.
+- The vessel models never reach HIGH confidence, because no region met the pre-registered PPV/NPV targets. They still give a binary call.
+- The replay study is a "historical replay · NOT temporal validation". It shows a flat learning curve for CAD, LAD and RCA and a rising one for LCX, and the gate passed in only 1 of 20 replays.
+- The learning loop is "designed for continual supervised updating". It never learns from its own predictions and never promotes a model without a person.

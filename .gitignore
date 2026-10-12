@@ -17,6 +17,8 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 frontend/src/api/types.check.ts
+# exported from the (gitignored) model bundle by scripts/export_demo_bundle.py
+frontend/public/demo_bundle/
 
 # Generated test artifacts (E2E screenshots)
 results/ui/
@@ -26,6 +28,8 @@ artifacts/
 results/nested/
 results/final/
 results/train_log.txt
+results/ablation_log.txt
+results/docker_build_log.txt
 
 # Secrets — never committed
 .env

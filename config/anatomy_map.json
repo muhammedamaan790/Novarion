@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "asset": "frontend/public/models/heart.glb",
-  "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB).",
+  "note": "Owner (single writer): 3D lead. TargetId <-> mesh node <-> camera preset. Each vessel node is the named artery including its anatomical branches (LAD incl. diagonal/septal/conus branches; RCA incl. posterior descending and ventricular branches) and is tinted uniformly; location of stenosis within a vessel is not known (plan §9.4). label_anchor: a vessel vertex visible from that target's camera preset, nearest to the centroid of its visible part (scripts: computed by ray casting against the GLB). Context nodes (torso_shell, rib_cage) are translucent, never pickable and never prediction targets; they only show where the heart sits in the body.",
   "targets": {
     "cad": {
       "nodes": [
@@ -166,6 +166,27 @@
       "near": 0.01,
       "far": 50,
       "projection": "perspective"
+    },
+    "body": {
+      "position": [
+        0.0,
+        -0.3,
+        9.0
+      ],
+      "target": [
+        -0.18,
+        -0.4,
+        0.0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "fov": 35,
+      "near": 0.01,
+      "far": 50,
+      "projection": "perspective"
     }
   },
   "color_transfer": {
@@ -194,10 +215,14 @@
         225
       ]
     },
-    "low_confidence_chroma_factor": 0.5,
+    "low_confidence_chroma_factor": 0.75,
     "formula": "positive: i=(p-t_op)/(1-t_op); negative: i=(t_op-p)/t_op; clamp [0,1]; L=L_light-i*(L_light-L_deep); C=C_light+i*(C_deep-C_light); h=h_light+i*(h_deep-h_light); LOW: C*=low_confidence_chroma_factor"
   },
   "view_presets": [
+    {
+      "id": "body",
+      "label": "Whole body"
+    },
     {
       "id": "overview",
       "label": "Anterior"
@@ -214,5 +239,27 @@
       "id": "posterior",
       "label": "Posterior"
     }
-  ]
+  ],
+  "context_nodes": {
+    "torso_shell": {
+      "label": "Torso (skin surface)",
+      "opacity": 0.09,
+      "color_oklch": [
+        0.82,
+        0.03,
+        60
+      ],
+      "pickable": false
+    },
+    "rib_cage": {
+      "label": "Rib cage, sternum and thoracic spine",
+      "opacity": 0.22,
+      "color_oklch": [
+        0.9,
+        0.02,
+        85
+      ],
+      "pickable": false
+    }
+  }
 }

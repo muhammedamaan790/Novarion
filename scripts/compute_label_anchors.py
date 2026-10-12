@@ -47,7 +47,8 @@ def first_hit_distances(origin: np.ndarray, directions: np.ndarray, triangles: n
 def main() -> None:
     scene = trimesh.load(GLB)
     amap = json.loads(MAP.read_text(encoding="utf-8"))
-    triangles = np.concatenate([world_mesh(scene, n).triangles for n in scene.graph.nodes_geometry])
+    context = set(amap.get("context_nodes", {}))  # translucent body context never hides a vessel label
+    triangles = np.concatenate([world_mesh(scene, n).triangles for n in scene.graph.nodes_geometry if n not in context])
     for target in ("lad", "lcx", "rca"):
         spec = amap["targets"][target]
         camera = np.array(amap["camera_presets"][spec["camera_preset"]]["position"], float)

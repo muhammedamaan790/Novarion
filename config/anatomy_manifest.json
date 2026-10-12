@@ -8,19 +8,20 @@
     "license": "CC BY 4.0",
     "license_url": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
     "attribution": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
-    "derivative_status": "modified: element meshes merged per node, decimated, re-centred, rescaled, axis-converted",
+    "derivative_status": "modified: element meshes merged per node, decimated, re-centred, rescaled, axis-converted; skin cropped to the trunk {'z_min': 880.0, 'z_max': 1480.0, 'abs_x_max': 185.0} (mm, source axes)",
     "kind": "mesh",
     "units": "normalized (heart largest extent = 1.0); source units mm",
     "orientation": "+Y superior, +Z anterior (three.js convention); converted from BodyParts3D +Z superior, -Y anterior",
     "scale_factor_from_mm": 0.008662261040701367,
     "glb_path": "frontend/public/models/heart.glb",
-    "glb_sha256": "de34157d6a13d1f317bbe35239cf50719d49c37ec8905b474f645a368f2af427",
-    "triangles_total": 81992,
+    "glb_sha256": "918c47bbe4b5bf5c609601a7baaf76e49f8d8649cf84817aab30653509621b92",
+    "triangles_total": 131990,
     "nodes": [
       {
         "node": "vessel_lad",
         "target_id": "lad",
         "prediction_target": true,
+        "role": "anatomy",
         "fma_concepts": [
           {
             "id": "FMA74912",
@@ -75,6 +76,7 @@
         "node": "vessel_lcx",
         "target_id": "lcx",
         "prediction_target": true,
+        "role": "anatomy",
         "fma_concepts": [
           {
             "id": "FMA3895",
@@ -110,6 +112,7 @@
         "node": "vessel_rca",
         "target_id": "rca",
         "prediction_target": true,
+        "role": "anatomy",
         "fma_concepts": [
           {
             "id": "FMA3802",
@@ -174,6 +177,7 @@
         "node": "vessel_lm",
         "target_id": null,
         "prediction_target": false,
+        "role": "anatomy",
         "fma_concepts": [
           {
             "id": "FMA3855",
@@ -204,6 +208,7 @@
         "node": "heart_myocardium",
         "target_id": "cad",
         "prediction_target": true,
+        "role": "anatomy",
         "fma_concepts": [
           {
             "id": "FMA13256",
@@ -231,9 +236,143 @@
           ]
         ],
         "materials": 1
+      },
+      {
+        "node": "rib_cage",
+        "target_id": null,
+        "prediction_target": false,
+        "role": "context",
+        "fma_concepts": [
+          {
+            "id": "FMA7574",
+            "name": "rib"
+          },
+          {
+            "id": "FMA7591",
+            "name": "costal cartilage"
+          },
+          {
+            "id": "FMA9139",
+            "name": "thoracic vertebra"
+          },
+          {
+            "id": "FMA7486",
+            "name": "manubrium"
+          },
+          {
+            "id": "FMA7487",
+            "name": "body of sternum"
+          },
+          {
+            "id": "FMA7488",
+            "name": "xiphoid process"
+          }
+        ],
+        "element_files": [
+          "FJ3153",
+          "FJ3154",
+          "FJ3155",
+          "FJ3156",
+          "FJ3158",
+          "FJ3160",
+          "FJ3163",
+          "FJ3166",
+          "FJ3169",
+          "FJ3171",
+          "FJ3173",
+          "FJ3174",
+          "FJ3175",
+          "FJ3178",
+          "FJ3225",
+          "FJ3226",
+          "FJ3227",
+          "FJ3228",
+          "FJ3229",
+          "FJ3230",
+          "FJ3231",
+          "FJ3232",
+          "FJ3233",
+          "FJ3234",
+          "FJ3235",
+          "FJ3236",
+          "FJ3239",
+          "FJ3242",
+          "FJ3245",
+          "FJ3248",
+          "FJ3251",
+          "FJ3254",
+          "FJ3255",
+          "FJ3290",
+          "FJ3330",
+          "FJ3331",
+          "FJ3332",
+          "FJ3333",
+          "FJ3334",
+          "FJ3335",
+          "FJ3336",
+          "FJ3337",
+          "FJ3338",
+          "FJ3339",
+          "FJ3340",
+          "FJ3341",
+          "FJ3342",
+          "FJ3343",
+          "FJ3344",
+          "FJ3345",
+          "FJ3346",
+          "FJ3347",
+          "FJ3348"
+        ],
+        "triangles_source": 222200,
+        "triangles": 30000,
+        "triangle_budget": 30000,
+        "bounds": [
+          [
+            -1.37386,
+            -1.89511,
+            -1.06898
+          ],
+          [
+            0.99143,
+            1.29956,
+            0.78255
+          ]
+        ],
+        "materials": 1
+      },
+      {
+        "node": "torso_shell",
+        "target_id": null,
+        "prediction_target": false,
+        "role": "context",
+        "fma_concepts": [
+          {
+            "id": "FMA7163",
+            "name": "skin"
+          }
+        ],
+        "element_files": [
+          "FJ2810"
+        ],
+        "triangles_source": 41619,
+        "triangles": 19998,
+        "triangle_budget": 20000,
+        "bounds": [
+          [
+            -1.78718,
+            -3.00266,
+            -1.46109
+          ],
+          [
+            1.41634,
+            2.19168,
+            0.88477
+          ]
+        ],
+        "materials": 1
       }
     ]
   },
-  "anatomy_manifest_sha256": "594df6814d330d6d0905b389b66bca7c7c94c023a2221962aae7db84fa23bb25",
-  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e"
+  "anatomy_manifest_sha256": "58156acf63fa2134ac7646e42140bd21941ecebf798ceead8605c06a29c26821",
+  "anatomy_asset_sha256": "481b09fb81eb34783f9bf827f3ad9881a2805fd2473131c90009c5ceb412afca"
 }

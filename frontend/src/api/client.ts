@@ -63,6 +63,7 @@ export const newRequestId = () => crypto.randomUUID();
 
 export interface CaseRequest {
   inputs: Record<string, InputValue>;
+  unit_status?: Record<string, "explicit" | "canonical_assumed">;
   input_revision: number;
   dataset_record_id?: number | null;
 }
@@ -75,20 +76,163 @@ function pinnedBody(analysis: DisplayAnalysis, target: TargetId) {
   };
 }
 
+// ------------------------------------------------------------------------------------------------ run modes
+// LIVE BACKEND: the API answers. OFFLINE DEMO MODE: the API is unreachable, so the static, hash-verified demo bundle
+// (scripts/export_demo_bundle.py → /demo_bundle/) drives every dataset-patient flow (plan §10). New cases, live
+// editing and validation need the model and are disabled — the app never claims live inference offline.
+export type RunMode = "live" | "offline";
+export const FRONTEND_VERSION = "0.1.0";
+const BUNDLE_SCHEMA_MAJOR = "1";
+
+interface DemoIndex {
+  bundle_schema_version: string;
+  frontend_compatibility_range: string;
+  model_version: string;
+  patients: Schemas["PatientListItem"][];
+}
+
+let modePromise: Promise<RunMode> | null = null;
+let demoIndex: DemoIndex | null = null;
+
+const versionTuple = (v: string) => v.split(".").map(Number) as [number, number, number];
+const cmp = (a: string, b: string) => {
+  const [x, y] = [versionTuple(a), versionTuple(b)];
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i]! - y[i]!;
+  return 0;
+};
+/** ">=0.1.0 <1.0.0" style ranges (the only form the bundle writes). */
+export function satisfies(version: string, range: string): boolean {
+  return range.split(/\s+/).every((part) => {
+    const m = part.match(/^(>=|<=|>|<|=)?(\d+\.\d+\.\d+)$/);
+    if (!m) return false;
+    const c = cmp(version, m[2]!);
+    return { ">=": c >= 0, "<=": c <= 0, ">": c > 0, "<": c < 0, "=": c === 0 }[m[1] ?? "="]!;
+  });
+}
+
+/** Load + verify the static demo bundle (integrity hash and compatibility); null if absent or invalid. */
+async function loadDemoBundle(): Promise<DemoIndex | null> {
+  try {
+    const response = await fetch("/demo_bundle/index.json");
+    if (!response.ok) return null;
+    const doc = (await response.json()) as { index: DemoIndex; demo_bundle_sha256: string };
+    const { jcsSha256 } = await import("../cases/jcs");
+    if ((await jcsSha256(doc.index)) !== doc.demo_bundle_sha256) {
+      console.error("offline demo bundle failed its integrity check");
+      return null;
+    }
+    if (doc.index.bundle_schema_version.split(".")[0] !== BUNDLE_SCHEMA_MAJOR
+        || !satisfies(FRONTEND_VERSION, doc.index.frontend_compatibility_range)) {
+      console.error("offline demo bundle is not compatible with this frontend");
+      return null;
+    }
+    return doc.index;
+  } catch {
+    return null;
+  }
+}
+
+/** Decided once per page load: LIVE if the backend answers in time, else OFFLINE if a valid static bundle exists. */
+export function detectRunMode(): Promise<RunMode> {
+  modePromise ??= (async () => {
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const r = await fetch("/api/v1/health/ready", { signal: controller.signal });
+      clearTimeout(timer);
+      if (r.ok) return "live";
+    } catch {
+      /* unreachable → try the static bundle */
+    }
+    demoIndex = await loadDemoBundle();
+    return demoIndex ? "offline" : "live";
+  })();
+  return modePromise;
+}
+
+/** Mid-session fallback ("Switch to offline demo"): true if a valid static bundle is available. */
+export async function switchToOffline(): Promise<boolean> {
+  demoIndex = await loadDemoBundle();
+  if (!demoIndex) return false;
+  modePromise = Promise.resolve("offline");
+  return true;
+}
+
+async function offline(): Promise<boolean> {
+  return (await detectRunMode()) === "offline";
+}
+
+async function staticJson<T>(path: string): Promise<ApiResult<T>> {
+  const response = await fetch(`/demo_bundle/${path}`);
+  if (!response.ok) throw new ApiError(response.status, null);
+  return { data: (await response.json()) as T, mock: false };
+}
+
+const NOT_OFFLINE = new ApiError(503, {
+  error_code: "NOT_READY", message: "Not available in offline demo mode: it needs the live model.",
+  details: { reason: "offline_demo_mode" }, request_id: null, api_schema_version: API_SCHEMA_VERSION,
+} as ErrorResponse);
+
+const offlineOnly = <A extends unknown[], T>(live: (...args: A) => Promise<T>) =>
+  async (...args: A): Promise<T> => {
+    if (await offline()) throw NOT_OFFLINE;
+    return live(...args);
+  };
+
+async function offlinePatient(id: string): Promise<{ bundle: PatientBundle; ground_truth: Record<string, number> }> {
+  const r = await staticJson<{ bundle: PatientBundle; ground_truth: Record<string, number> }>(
+    `patients/${encodeURIComponent(id)}.json`);
+  return r.data;
+}
+
 export const api = {
-  ready: () => get<Schemas["HealthReady"]>("/health/ready"),
-  meta: () => get<Meta>("/meta"),
-  patients: () => get<Schemas["PatientListResponse"]>("/patients"),
-  patient: (id: string) => get<PatientBundle>(`/patients/${encodeURIComponent(id)}`),
-  groundTruth: (id: string) => get<Schemas["GroundTruthResponse"]>(`/patients/${encodeURIComponent(id)}/ground-truth`),
-  validate: (req: CaseRequest, signal?: AbortSignal) =>
-    post<ValidateResponse>("/validate", { request_id: newRequestId(), api_schema_version: API_SCHEMA_VERSION, ...req }, signal),
-  predict: (req: CaseRequest, signal?: AbortSignal) =>
+  ready: async (): Promise<ApiResult<Schemas["HealthReady"]>> =>
+    (await offline())
+      ? { data: { ready: true, reason: "offline demo bundle", model_version: demoIndex!.model_version }, mock: false }
+      : get<Schemas["HealthReady"]>("/health/ready"),
+  meta: async () => ((await offline()) ? staticJson<Meta>("meta.json") : get<Meta>("/meta")),
+  patients: async (): Promise<ApiResult<Schemas["PatientListResponse"]>> =>
+    (await offline())
+      ? { data: { patients: demoIndex!.patients, count: demoIndex!.patients.length }, mock: false }
+      : get<Schemas["PatientListResponse"]>("/patients"),
+  evaluation: async () => ((await offline()) ? staticJson<Schemas["EvaluationResponse"]>("evaluation.json")
+    : get<Schemas["EvaluationResponse"]>("/evaluation")),
+  // Model Center (plan §12B): read-only everywhere; promotion is CLI-only.
+  models: async () => ((await offline()) ? staticJson<Schemas["ModelsResponse"]>("models.json")
+    : get<Schemas["ModelsResponse"]>("/models")),
+  replay: async () => ((await offline()) ? staticJson<Schemas["ReplayResponse"]>("replay.json")
+    : get<Schemas["ReplayResponse"]>("/models/replay")),
+  modelReport: offlineOnly((version: string) =>
+    get<Schemas["ModelReportResponse"]>(`/models/${encodeURIComponent(version)}/report`)),
+  patient: async (id: string): Promise<ApiResult<PatientBundle>> => {
+    if (!(await offline())) return get<PatientBundle>(`/patients/${encodeURIComponent(id)}`);
+    const [file, meta] = await Promise.all([offlinePatient(id), staticJson<Meta>("meta.json")]);
+    return { data: { ...file.bundle, app_version: meta.data.app_version }, mock: false }; // ground truth stays out
+  },
+  groundTruth: async (id: string): Promise<ApiResult<Schemas["GroundTruthResponse"]>> => {
+    if (!(await offline())) return get<Schemas["GroundTruthResponse"]>(`/patients/${encodeURIComponent(id)}/ground-truth`);
+    const [file, meta] = await Promise.all([offlinePatient(id), staticJson<Meta>("meta.json")]);
+    const definitions = Object.fromEntries(meta.data.targets.map((t) => [t.id, t.label_definition]));
+    return { data: { patient_id: id, labels: file.ground_truth, label_definitions: definitions } as never, mock: false };
+  },
+  // Model-dependent endpoints: unavailable in offline demo mode (they would need live inference).
+  validate: offlineOnly((req: CaseRequest, signal?: AbortSignal) =>
+    post<ValidateResponse>("/validate", { request_id: newRequestId(), api_schema_version: API_SCHEMA_VERSION, ...req }, signal)),
+  predict: offlineOnly((req: CaseRequest, signal?: AbortSignal) =>
     post<PredictionResponse>("/predict", {
       request_id: newRequestId(), api_schema_version: API_SCHEMA_VERSION, inputs: req.inputs,
-      input_revision: req.input_revision,
-    }, signal),
+      unit_status: req.unit_status ?? {}, input_revision: req.input_revision,
+    }, signal)),
+  // Persistence path: predictions + all 4 explanations + evidence in ONE request on one bundle handle (plan §1).
+  analyzeFull: offlineOnly((inputs: Record<string, InputValue>, unitStatus: Record<string, string>,
+    datasetRecordId: number | null) =>
+    post<Schemas["AnalyzeFullResponse"]>("/analyze/full", {
+      request_id: newRequestId(), api_schema_version: API_SCHEMA_VERSION, inputs, unit_status: unitStatus,
+      ...(datasetRecordId != null ? { dataset_record_id: datasetRecordId } : {}),
+    })),
   // Transient analyses only, pinned to the bundle that produced them (409 on any mismatch, plan §11).
-  explain: (a: DisplayAnalysis, target: TargetId) => post<Schemas["ExplanationResponse"]>("/explain", pinnedBody(a, target)),
-  evidence: (a: DisplayAnalysis, target: TargetId) => post<Schemas["EvidenceResponse"]>("/evidence", pinnedBody(a, target)),
+  explain: offlineOnly((a: DisplayAnalysis, target: TargetId) =>
+    post<Schemas["ExplanationResponse"]>("/explain", pinnedBody(a, target))),
+  evidence: offlineOnly((a: DisplayAnalysis, target: TargetId) =>
+    post<Schemas["EvidenceResponse"]>("/evidence", pinnedBody(a, target))),
 };

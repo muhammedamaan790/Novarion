@@ -1,0 +1,323 @@
+{
+ "scope": "pooled OOF predictions of the prespecified outer repeat (each patient exactly once)",
+ "targets": {
+  "cad": {
+   "n": 303,
+   "errors": 42,
+   "fp": 12,
+   "fn": 30,
+   "errors_high_confidence": 8,
+   "errors_low_confidence": 34,
+   "profile": {
+    "Age (y)": {
+     "correct": 59.03448275862069,
+     "misclassified": 58.04761904761905
+    },
+    "Typical chest pain": {
+     "correct": 0.5862068965517241,
+     "misclassified": 0.2619047619047619
+    },
+    "Region RWMA \u2260 0": {
+     "correct": 0.30268199233716475,
+     "misclassified": 0.16666666666666666
+    },
+    "EF (%)": {
+     "correct": 46.900383141762454,
+     "misclassified": 49.285714285714285
+    },
+    "Diabetes": {
+     "correct": 0.31417624521072796,
+     "misclassified": 0.19047619047619047
+    },
+    "Hypertension": {
+     "correct": 0.6168582375478927,
+     "misclassified": 0.42857142857142855
+    },
+    "Male": {
+     "correct": 0.5708812260536399,
+     "misclassified": 0.6428571428571429
+    }
+   }
+  },
+  "lad": {
+   "n": 303,
+   "errors": 76,
+   "fp": 35,
+   "fn": 41,
+   "errors_high_confidence": 0,
+   "errors_low_confidence": 76,
+   "profile": {
+    "Age (y)": {
+     "correct": 58.99559471365639,
+     "misclassified": 58.60526315789474
+    },
+    "Typical chest pain": {
+     "correct": 0.5286343612334802,
+     "misclassified": 0.5789473684210527
+    },
+    "Region RWMA \u2260 0": {
+     "correct": 0.32599118942731276,
+     "misclassified": 0.15789473684210525
+    },
+    "EF (%)": {
+     "correct": 46.590308370044056,
+     "misclassified": 49.14473684210526
+    },
+    "Diabetes": {
+     "correct": 0.27312775330396477,
+     "misclassified": 0.3684210526315789
+    },
+    "Hypertension": {
+     "correct": 0.5770925110132159,
+     "misclassified": 0.631578947368421
+    },
+    "Male": {
+     "correct": 0.5903083700440529,
+     "misclassified": 0.5526315789473685
+    }
+   }
+  },
+  "lcx": {
+   "n": 303,
+   "errors": 101,
+   "fp": 73,
+   "fn": 28,
+   "errors_high_confidence": 0,
+   "errors_low_confidence": 101,
+   "profile": {
+    "Age (y)": {
+     "correct": 58.21287128712871,
+     "misclassified": 60.26732673267327
+    },
+    "Typical chest pain": {
+     "correct": 0.45544554455445546,
+     "misclassified": 0.7128712871287128
+    },
+    "Region RWMA \u2260 0": {
+     "correct": 0.2376237623762376,
+     "misclassified": 0.37623762376237624
+    },
+    "EF (%)": {
+     "correct": 47.54950495049505,
+     "misclassified": 46.59405940594059
+    },
+    "Diabetes": {
+     "correct": 0.29207920792079206,
+     "misclassified": 0.3069306930693069
+    },
+    "Hypertension": {
+     "correct": 0.5693069306930693,
+     "misclassified": 0.6336633663366337
+    },
+    "Male": {
+     "correct": 0.5742574257425742,
+     "misclassified": 0.594059405940594
+    }
+   }
+  },
+  "rca": {
+   "n": 303,
+   "errors": 95,
+   "fp": 55,
+   "fn": 40,
+   "errors_high_confidence": 0,
+   "errors_low_confidence": 95,
+   "profile": {
+    "Age (y)": {
+     "correct": 58.27403846153846,
+     "misclassified": 60.26315789473684
+    },
+    "Typical chest pain": {
+     "correct": 0.46153846153846156,
+     "misclassified": 0.7157894736842105
+    },
+    "Region RWMA \u2260 0": {
+     "correct": 0.22596153846153846,
+     "misclassified": 0.4105263157894737
+    },
+    "EF (%)": {
+     "correct": 47.69711538461539,
+     "misclassified": 46.21052631578947
+    },
+    "Diabetes": {
+     "correct": 0.28846153846153844,
+     "misclassified": 0.3157894736842105
+    },
+    "Hypertension": {
+     "correct": 0.5769230769230769,
+     "misclassified": 0.6210526315789474
+    },
+    "Male": {
+     "correct": 0.5432692307692307,
+     "misclassified": 0.6631578947368421
+    }
+   }
+  }
+ },
+ "representative_cases": [
+  {
+   "rule": "Correct, HIGH confidence (CAD): lowest id with high_positive and CAD label = 1",
+   "patient_id": "ZAS-0002",
+   "focus_target": "cad",
+   "predictions": {
+    "cad": {
+     "probability": 0.999,
+     "predicted": "positive",
+     "confidence": "high",
+     "label": 1
+    },
+    "lad": {
+     "probability": 0.99,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 1
+    },
+    "lcx": {
+     "probability": 0.635,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 1
+    },
+    "rca": {
+     "probability": 0.377,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    }
+   },
+   "atypical": {
+    "flag": false,
+    "distance_percentile": 80.6
+   },
+   "top_contributions": [
+    "Region with RWMA = 4 (up, strong)",
+    "Typical chest pain = Yes (up, strong)",
+    "T inversion = Yes (up, strong)",
+    "Triglycerides = 309 mg/dL (up, strong)"
+   ]
+  },
+  {
+   "rule": "Error in the high-positive region (CAD): lowest id with high_positive and CAD label = 0",
+   "patient_id": "ZAS-0094",
+   "focus_target": "cad",
+   "predictions": {
+    "cad": {
+     "probability": 0.98,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 0
+    },
+    "lad": {
+     "probability": 0.697,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 1
+    },
+    "lcx": {
+     "probability": 0.688,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 0
+    },
+    "rca": {
+     "probability": 0.551,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 0
+    }
+   },
+   "atypical": {
+    "flag": true,
+    "distance_percentile": 46.5
+   },
+   "top_contributions": [
+    "Typical chest pain = Yes (up, strong)",
+    "Region with RWMA = 0 (down, strong)",
+    "Atypical chest pain = No (up, strong)",
+    "Hypertension = Yes (up, strong)"
+   ]
+  },
+  {
+   "rule": "Near the operating threshold (LAD): smallest |p \u2212 t_op|",
+   "patient_id": "ZAS-0288",
+   "focus_target": "lad",
+   "predictions": {
+    "cad": {
+     "probability": 0.311,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    },
+    "lad": {
+     "probability": 0.554,
+     "predicted": "positive",
+     "confidence": "low",
+     "label": 0
+    },
+    "lcx": {
+     "probability": 0.149,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    },
+    "rca": {
+     "probability": 0.127,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    }
+   },
+   "atypical": {
+    "flag": false,
+    "distance_percentile": 45.5
+   },
+   "top_contributions": [
+    "Typical chest pain = No (down, strong)",
+    "Creatinine = 1.40 mg/dL (up, strong)",
+    "Region with RWMA = 0 (down, strong)",
+    "Ejection fraction (TTE) = 45% (up, strong)"
+   ]
+  },
+  {
+   "rule": "Atypical profile: lowest id with the atypical flag",
+   "patient_id": "ZAS-0004",
+   "focus_target": "cad",
+   "predictions": {
+    "cad": {
+     "probability": 0.18,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    },
+    "lad": {
+     "probability": 0.368,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    },
+    "lcx": {
+     "probability": 0.176,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    },
+    "rca": {
+     "probability": 0.275,
+     "predicted": "negative",
+     "confidence": "low",
+     "label": 0
+    }
+   },
+   "atypical": {
+    "flag": true,
+    "distance_percentile": 98.8
+   },
+   "top_contributions": [
+    "Typical chest pain = No (down, strong)",
+    "Non-anginal chest pain = Yes (down, strong)",
+    "Age = 66 years (up, strong)",
+    "Triglycerides = 63 mg/dL (down, strong)"
+   ]
+  }
+ ]
+}

@@ -9,8 +9,9 @@
 
 - Source: BodyParts3D 4.0 IS-A tree OBJ set — https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip
 - Licence: https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html (CC BY 4.0; redistribution and derivative works permitted with attribution)
-- Changes made (derivative work): element meshes merged per anatomy node (LAD, LCX, RCA, left main, heart wall),
-  triangle-decimated, re-centred, rescaled and axis-converted for three.js. Full provenance (FMA concepts, element
+- Changes made (derivative work): element meshes merged per anatomy node (LAD, LCX, RCA, left main, heart wall, and
+  the body-context nodes: skin cropped to the trunk, rib cage with sternum and thoracic spine), triangle-decimated,
+  re-centred, rescaled and axis-converted for three.js. Full provenance (FMA concepts, element
   files, source archive SHA-256, triangle counts) in `config/anatomy_manifest.json`.
 
 ## Feature documentation

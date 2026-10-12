@@ -1371,6 +1371,97 @@
         }
       }
     },
+    "/api/v1/models/replay": {
+      "get": {
+        "tags": [
+          "models"
+        ],
+        "summary": "Replay",
+        "operationId": "replay_api_v1_models_replay_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReplayResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Request Entity Too Large",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/models/{version}/report": {
       "get": {
         "tags": [
@@ -2940,6 +3031,27 @@
               }
             ],
             "title": "Constant Value"
+          },
+          "aliases": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Aliases"
+          },
+          "import_tokens": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": "object",
+            "title": "Import Tokens"
           }
         },
         "additionalProperties": false,
@@ -3381,6 +3493,50 @@
         ],
         "title": "Imputation"
       },
+      "LifecycleEvent": {
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seq"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "verify_outcomes",
+              "candidate",
+              "promote",
+              "reject",
+              "rollback"
+            ],
+            "title": "Event"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "entry_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Entry Hash"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seq",
+          "timestamp",
+          "event",
+          "summary",
+          "entry_hash"
+        ],
+        "title": "LifecycleEvent",
+        "description": "One lifecycle-log entry as shown in the Model Center (the actor's name stays in the local log only)."
+      },
       "MetaResponse": {
         "properties": {
           "app_version": {
@@ -3474,6 +3630,13 @@
             },
             "type": "array",
             "title": "Evidence Bands"
+          },
+          "leakage_denylist": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Leakage Denylist"
           },
           "disclaimer": {
             "type": "string",
@@ -3671,6 +3834,11 @@
             "pattern": "^\\d+\\.\\d+\\.\\d+$",
             "title": "Production Version"
           },
+          "deployed_version": {
+            "type": "string",
+            "pattern": "^\\d+\\.\\d+\\.\\d+$",
+            "title": "Deployed Version"
+          },
           "models": {
             "items": {
               "$ref": "#/components/schemas/ModelEntry"
@@ -3692,16 +3860,35 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Pending Cases"
+          },
+          "lifecycle_log_status": {
+            "type": "string",
+            "enum": [
+              "intact",
+              "broken",
+              "empty"
+            ],
+            "title": "Lifecycle Log Status"
+          },
+          "lifecycle_events": {
+            "items": {
+              "$ref": "#/components/schemas/LifecycleEvent"
+            },
+            "type": "array",
+            "title": "Lifecycle Events"
           }
         },
         "additionalProperties": false,
         "type": "object",
         "required": [
           "production_version",
+          "deployed_version",
           "models",
           "verified_new_cases",
           "eligible_cases",
-          "pending_cases"
+          "pending_cases",
+          "lifecycle_log_status",
+          "lifecycle_events"
         ],
         "title": "ModelsResponse"
       },
@@ -4431,6 +4618,215 @@
           "message"
         ],
         "title": "QualityNotice"
+      },
+      "ReplayGate": {
+        "properties": {
+          "seed": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Seed"
+          },
+          "gate": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Gate"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PASS",
+              "FAIL",
+              "INSUFFICIENT_EVIDENCE"
+            ],
+            "title": "Status"
+          },
+          "promoted": {
+            "type": "boolean",
+            "title": "Promoted"
+          },
+          "failed_rules": {
+            "additionalProperties": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Failed Rules"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "seed",
+          "gate",
+          "status",
+          "promoted",
+          "failed_rules"
+        ],
+        "title": "ReplayGate"
+      },
+      "ReplayPoint": {
+        "properties": {
+          "training_size": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Training Size"
+          },
+          "n_seeds": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "N Seeds"
+          },
+          "auc_mean": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Auc Mean"
+          },
+          "auc_sd": {
+            "type": "number",
+            "title": "Auc Sd"
+          },
+          "auc_min": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Auc Min"
+          },
+          "auc_max": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Auc Max"
+          },
+          "brier_mean": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Brier Mean"
+          },
+          "brier_sd": {
+            "type": "number",
+            "title": "Brier Sd"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "training_size",
+          "n_seeds",
+          "auc_mean",
+          "auc_sd",
+          "auc_min",
+          "auc_max",
+          "brier_mean",
+          "brier_sd"
+        ],
+        "title": "ReplayPoint"
+      },
+      "ReplayResponse": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "const": "Historical replay · random eligibility order · NOT temporal validation",
+            "title": "Title"
+          },
+          "seeds": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Seeds"
+          },
+          "families": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Families"
+          },
+          "training_sizes": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Training Sizes"
+          },
+          "holdout_batch_size": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Holdout Batch Size"
+          },
+          "learning_curve": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/ReplayPoint"
+              },
+              "type": "array"
+            },
+            "propertyNames": {
+              "enum": [
+                "cad",
+                "lad",
+                "lcx",
+                "rca"
+              ]
+            },
+            "type": "object",
+            "title": "Learning Curve"
+          },
+          "gate_frequencies": {
+            "additionalProperties": {
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "propertyNames": {
+                "enum": [
+                  "PASS",
+                  "FAIL",
+                  "INSUFFICIENT_EVIDENCE"
+                ]
+              },
+              "type": "object"
+            },
+            "type": "object",
+            "title": "Gate Frequencies"
+          },
+          "gate_log": {
+            "items": {
+              "$ref": "#/components/schemas/ReplayGate"
+            },
+            "type": "array",
+            "title": "Gate Log"
+          },
+          "replay_config_sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Replay Config Sha256"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "title",
+          "seeds",
+          "families",
+          "training_sizes",
+          "holdout_batch_size",
+          "learning_curve",
+          "gate_frequencies",
+          "gate_log",
+          "replay_config_sha256"
+        ],
+        "title": "ReplayResponse",
+        "description": "Historical replay study (research demonstration; never production; NOT temporal validation)."
       },
       "SimilarPatient": {
         "properties": {

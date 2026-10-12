@@ -1,0 +1,4 @@
+Real backend (Docker stack, model v1.0.1), 2026-10-07:
+edge:    33 passed
+chrome:  33 passed (1.5m)
+firefox: 33 passed (1.8m)

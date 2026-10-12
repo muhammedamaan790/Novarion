@@ -335,3 +335,23 @@ def test_constant_feature_is_not_asked_and_case_origin_is_client_owned(client, b
     assert "exertional_chest_pain" not in body["inputs"]
     pred = post(client, "/predict", body).json()
     assert pred["patient"] == {"prediction_mode": "final_model"}  # the server never guesses the case origin
+
+
+def test_rate_limit_returns_the_envelope_and_spares_health_checks(body):
+    c = TestClient(create_app(Settings(mock=True, rate_limit_per_minute=60, rate_limit_burst=3)))
+    for _ in range(3):
+        assert post(c, "/predict", body).status_code == 200
+    r = post(c, "/predict", body)
+    data = assert_envelope(r, 429, "RATE_LIMITED")
+    assert int(r.headers["Retry-After"]) >= 1 and data["details"]["retry_after_s"] > 0
+    assert c.get("/api/v1/health/ready").status_code == 200  # never throttled
+
+
+def test_proxy_header_is_trusted_only_when_configured(body):
+    tight = {"mock": True, "rate_limit_per_minute": 60, "rate_limit_burst": 1}
+    spoofed = TestClient(create_app(Settings(**tight)))
+    assert post(spoofed, "/predict", body, headers={"X-Real-IP": "1.1.1.1"}).status_code == 200
+    assert post(spoofed, "/predict", body, headers={"X-Real-IP": "2.2.2.2"}).status_code == 429  # header ignored
+    proxied = TestClient(create_app(Settings(**tight, trust_proxy=True)))
+    assert post(proxied, "/predict", body, headers={"X-Real-IP": "1.1.1.1"}).status_code == 200
+    assert post(proxied, "/predict", body, headers={"X-Real-IP": "2.2.2.2"}).status_code == 200  # separate buckets

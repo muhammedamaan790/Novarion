@@ -1,0 +1,10 @@
+replay: 10 seeds x 4 targets x 3 procedure runs = 120 jobs (families ['lr', 'xgboost'])
+[Parallel(n_jobs=11)]: Using backend LokyBackend with 11 concurrent workers.
+[Parallel(n_jobs=11)]: Done  50 tasks      | elapsed:  3.8min
+[Parallel(n_jobs=11)]: Done 120 out of 120 | elapsed:  8.7min finished
+  cad: AUC 153: 0.910+-0.050 -> 203: 0.924+-0.044 -> 253: 0.922+-0.035
+  lad: AUC 153: 0.821+-0.052 -> 203: 0.846+-0.027 -> 253: 0.826+-0.037
+  lcx: AUC 153: 0.671+-0.084 -> 203: 0.695+-0.052 -> 253: 0.714+-0.057
+  rca: AUC 153: 0.731+-0.050 -> 203: 0.752+-0.069 -> 253: 0.730+-0.041
+  gates: {'gate 1': {'PASS': 1, 'FAIL': 9, 'INSUFFICIENT_EVIDENCE': 0}, 'gate 2': {'PASS': 0, 'FAIL': 10, 'INSUFFICIENT_EVIDENCE': 0}}  (1187s)
+exit 0

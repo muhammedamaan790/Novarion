@@ -147,3 +147,28 @@ def test_dataset_endpoints_and_evaluation(client):
     assert set(truth["labels"]) == set(TARGETS)
     S.EvaluationResponse.model_validate(client.get("/api/v1/evaluation").json())
     assert client.get("/api/v1/global-importance/lad").json()["features"]
+
+
+def test_stability_interval_crossing_t_op_forces_low_confidence(patient_files, client, service):
+    """Plan §6.10a: dataset patients carry the fold's refit-bootstrap interval; straddling t_op → reason "unstable"."""
+    if not (BUNDLE / "stability.json").exists():
+        pytest.skip("bundle built without stability intervals")
+    crossing = 0
+    for doc in patient_files.values():
+        bundle = doc["bundle"]
+        for t in TARGETS:
+            pred, ev = bundle["targets"][t], bundle["evidence"][t]
+            interval = pred["stability_interval"]
+            assert interval is not None and ev["stability_interval"] == interval  # same object in both payloads
+            straddles = interval["p10"] < pred["operating_threshold"] <= interval["p90"]
+            assert ("unstable" in pred["model_confidence_reasons"]) == straddles
+            if straddles:
+                crossing += 1
+                assert pred["model_confidence"] == "low" and pred["confidence_qualification"] is None
+    assert crossing > 0
+    inputs = {k: v for k, v in next(iter(patient_files.values()))["bundle"]["canonical_inputs"].items()
+              if k in {f.id for f in service.registry.features if f.input_mode == "entered"}}
+    body = {"request_id": str(uuid.uuid4()), "api_schema_version": "1.0.0", "input_revision": 1, "inputs": inputs}
+    r = client.post("/api/v1/predict", json=body)
+    assert r.status_code == 200, r.text
+    assert all(p["stability_interval"] is None for p in r.json()["targets"].values())  # new cases: no interval

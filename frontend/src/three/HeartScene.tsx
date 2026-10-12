@@ -5,12 +5,13 @@ import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import type { DisplayAnalysis, Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
-import { MYOCARDIUM_LINEAR, NEUTRAL_LINEAR, vesselColor, type ColorTransfer } from "./colors";
+import { MYOCARDIUM_LINEAR, NEUTRAL_LINEAR, oklchToLinearSrgb, vesselColor, type ColorTransfer } from "./colors";
 
 export const MODEL_URL = "/models/heart.glb";
 export const LABELLED_TARGETS = ["lad", "lcx", "rca"] as const satisfies readonly TargetId[];
 const VESSEL_NODES = ["vessel_lad", "vessel_lcx", "vessel_rca", "vessel_lm"] as const;
-const KNOWN_NODES = new Set<string>([...VESSEL_NODES, "heart_myocardium"]);
+const CONTEXT_NODES = ["torso_shell", "rib_cage"] as const; // translucent body context, never pickable
+const KNOWN_NODES = new Set<string>([...VESSEL_NODES, "heart_myocardium", ...CONTEXT_NODES]);
 const ISOLATED_OPACITY = 0.15;
 const SCRATCH = new THREE.Vector3(); // reused per frame for label projection (no per-frame allocation)
 
@@ -20,6 +21,7 @@ export interface AnatomyMap {
   click_behavior: Record<string, string>;
   camera_presets: Record<string, { position: number[]; target: number[]; up: number[]; fov: number }>;
   view_presets?: { id: string; label: string }[];
+  context_nodes?: Record<string, { label: string; opacity: number; color_oklch: [number, number, number] }>;
   color_transfer: ColorTransfer;
 }
 
@@ -73,16 +75,49 @@ function makeMaterial(): THREE.MeshStandardMaterial {
         "#include <color_fragment>",
         "if (uHatch > 0.5) {",
         "  float stripe = step(0.55, fract((vNovWorld.x + vNovWorld.y - vNovWorld.z) * 45.0));",
-        "  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), stripe * 0.5);",
+        "  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), stripe * 0.3);",
         "}",
       ));
   };
   return material;
 }
 
+function setOpacity(object: THREE.Object3D | undefined, opacity: number): void {
+  const material = (object as THREE.Mesh | undefined)?.material as THREE.Material | undefined;
+  if (material) material.opacity = opacity;
+}
+
+// Body context fades with camera distance: full context when zoomed out ("where in the body"), nearly invisible
+// in vessel close-ups so ribs and skin never wash out the vessel colours.
+const CONTEXT_FADE = { near: 3.2, far: 7.0, minFactor: 0.12 };
+
+function setVisible(object: THREE.Object3D | undefined, visible: boolean): void {
+  if (object) object.visible = visible;
+}
+
 function setHatch(material: THREE.Material, on: boolean): void {
   (material.userData.uniforms as { uHatch: { value: number } }).uHatch.value = on ? 1 : 0;
 }
+
+/** Final material state for a snapshot: colours jump to their targets (t = 0, no mid-animation frames). */
+function settleColours(meshes: Record<string, THREE.Mesh>, goals: Map<string, THREE.Color>): void {
+  for (const [name, goal] of goals) (meshes[name]?.material as THREE.MeshStandardMaterial | undefined)?.color.copy(goal);
+}
+
+function pixelsToPng(pixels: Uint8Array, width: number, height: number): string {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  const image = ctx.createImageData(width, height);
+  for (let row = 0; row < height; row++) { // WebGL rows are bottom-up
+    image.data.set(pixels.subarray((height - 1 - row) * width * 4, (height - row) * width * 4), row * width * 4);
+  }
+  ctx.putImageData(image, 0, 0);
+  return canvas.toDataURL("image/png");
+}
+
+const SNAPSHOT_SIZE = { width: 1600, height: 1000 };
 
 const RECOLOUR_TAU_S = 0.15; // exponential ease: ~600 ms to settle (plan §9.2 state 2)
 
@@ -95,6 +130,7 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
   const selectedTarget = useStore((s) => s.selectedTarget);
   const isolation = useStore((s) => s.isolation);
   const hoverNode = useStore((s) => s.hover?.node ?? null);
+  const showBody = useStore((s) => s.showBody);
   const nodeTarget = useMemo(() => nodeToTarget(map), [map]);
 
   // One material per named node, created once.
@@ -105,12 +141,28 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
       const name = nodeName(o);
       if (name && (o as THREE.Mesh).isMesh) {
         const mesh = o as THREE.Mesh;
-        mesh.material = makeMaterial();
+        const context = map.context_nodes?.[name];
+        if (context) {
+          // Glass-like body context: transparent, both faces, drawn after the heart, invisible to the pointer.
+          mesh.material = new THREE.MeshStandardMaterial({
+            color: new THREE.Color().setRGB(...oklchToLinearSrgb(context.color_oklch), THREE.LinearSRGBColorSpace),
+            transparent: true, opacity: context.opacity, depthWrite: false, side: THREE.DoubleSide, roughness: 0.4,
+          });
+          mesh.renderOrder = name === "torso_shell" ? 3 : 2;
+          mesh.raycast = () => undefined;
+        } else {
+          mesh.material = makeMaterial();
+        }
         found[name] = mesh;
       }
     });
     return found;
-  }, [scene]);
+  }, [scene, map]);
+
+  useEffect(() => {
+    for (const name of CONTEXT_NODES) setVisible(meshes[name], showBody);
+    invalidate();
+  }, [meshes, showBody, invalidate]);
 
   const anchors = useMemo(() => {
     const out: [TargetId, THREE.Vector3][] = [];
@@ -131,6 +183,7 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
     const instant = prefersReducedMotion();
     const vesselSelected = selectedTarget !== null && selectedTarget !== "cad";
     for (const [name, mesh] of Object.entries(meshes)) {
+      if (map.context_nodes?.[name]) continue; // context nodes keep their own fixed glass material
       const material = mesh.material as THREE.MeshStandardMaterial;
       const target = nodeTarget[name];
       const prediction = target ? analysis?.targets[target] : undefined;
@@ -149,7 +202,7 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
       const glow = highlighted ? 0.06 : 0;
       material.emissive.setRGB(glow, glow, glow);
       let opacity = 1;
-      if (isolation && vesselSelected) {
+      if (isolation && vesselSelected && analysis) { // nothing to inspect without an analysis: show the whole heart
         if (name === "heart_myocardium") opacity = 0.35;
         else if (target !== selectedTarget) opacity = ISOLATED_OPACITY;
       }
@@ -160,8 +213,47 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
     invalidate();
   }, [meshes, analysis, selectedTarget, isolation, hoverNode, nodeTarget, map, invalidate]);
 
+  // Register the off-screen snapshot renderer (plan §12A.6): fixed preset camera, final colours, own render target.
+  const gl = useThree((s) => s.gl);
+  const sceneRoot = useThree((s) => s.scene);
+  useEffect(() => {
+    const render = (presetName: string) => {
+      const preset = map.camera_presets[presetName] ?? map.camera_presets.overview!;
+      const { width, height } = SNAPSHOT_SIZE;
+      const camera = new THREE.PerspectiveCamera(preset.fov, width / height, 0.01, 50);
+      const [px, py, pz] = preset.position as [number, number, number];
+      const [tx, ty, tz] = preset.target as [number, number, number];
+      camera.position.set(px, py, pz);
+      camera.up.set(...(preset.up as [number, number, number]));
+      camera.lookAt(tx, ty, tz);
+      settleColours(meshes, targetColours.current);
+      const target = new THREE.WebGLRenderTarget(width, height, { samples: 4 });
+      target.texture.colorSpace = THREE.SRGBColorSpace;
+      gl.setRenderTarget(target);
+      gl.render(sceneRoot, camera);
+      const pixels = new Uint8Array(width * height * 4);
+      gl.readRenderTargetPixels(target, 0, 0, width, height, pixels);
+      gl.setRenderTarget(null);
+      target.dispose();
+      return {
+        png_data_url: pixelsToPng(pixels, width, height),
+        camera: { preset: presetName, position: preset.position, target: preset.target, up: preset.up, fov: preset.fov,
+                  near: 0.01, far: 50, projection: "perspective" },
+      };
+    };
+    useStore.getState().setSnapshotRenderer(render);
+    return () => useStore.getState().setSnapshotRenderer(null);
+  }, [gl, sceneRoot, map, meshes]);
+
   // Project label anchors to screen space on every rendered frame (frameloop="demand": only when something moved).
   useFrame(({ camera, size, invalidate: requestFrame }, delta) => {
+    const distance = camera.position.length();
+    const t = Math.min(1, Math.max(0, (distance - CONTEXT_FADE.near) / (CONTEXT_FADE.far - CONTEXT_FADE.near)));
+    const factor = CONTEXT_FADE.minFactor + (1 - CONTEXT_FADE.minFactor) * t * t * (3 - 2 * t); // smoothstep
+    for (const name of CONTEXT_NODES) {
+      const base = map.context_nodes?.[name]?.opacity;
+      if (base != null) setOpacity(meshes[name], base * factor);
+    }
     const alpha = 1 - Math.exp(-Math.min(delta, 0.1) / RECOLOUR_TAU_S);
     let moving = false;
     for (const [name, goal] of targetColours.current) {
@@ -219,10 +311,12 @@ function CameraRig({ map }: { map: AnatomyMap }) {
     void controls.current.setLookAt(position.x, position.y, position.z, target.x, target.y, target.z, !prefersReducedMotion());
   }, [presetName, map, aspect]);
 
-  return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={6} smoothTime={0.45} />;
+  return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={12} smoothTime={0.45} />;
 }
 
-export function HeartScene({ meta, analysis, placeLabel }: { meta: Meta; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel }) {
+export function HeartScene({ meta, analysis, placeLabel, onContextLost }: {
+  meta: Meta; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; onContextLost?: () => void;
+}) {
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const overview = map.camera_presets.overview!;
   return (
@@ -230,8 +324,16 @@ export function HeartScene({ meta, analysis, placeLabel }: { meta: Meta; analysi
       frameloop="demand"
       dpr={[1, 1.5]}
       camera={{ position: overview.position as [number, number, number], fov: overview.fov, near: 0.01, far: 50 }}
-      gl={{ antialias: true, preserveDrawingBuffer: true }}
+      gl={{ antialias: true }} // no global preserveDrawingBuffer: snapshots use their own render target
       onPointerMissed={() => useStore.getState().selectTarget(null)}
+      onCreated={({ gl }) => {
+        // GPU reset / driver crash / memory pressure: tell the user instead of leaving a frozen or blank canvas
+        gl.domElement.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          onContextLost?.();
+        });
+      }}
+      role="img" // pointer-only 3D; keyboard and screen-reader users select through the buttons above
       aria-label="Interactive 3D heart. Use the target buttons above for keyboard selection."
     >
       <color attach="background" args={["#f4f5f7"]} />

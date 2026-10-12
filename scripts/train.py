@@ -32,6 +32,7 @@ sys.path.insert(0, str(ROOT / "ml"))
 
 from novarion_ml.data.load import build_targets, build_X, load_source
 from novarion_ml.data.registry import CONFIG_DIR, load_targets
+from novarion_ml.evaluate.figures import reliability, roc_pr, threshold_sweep
 from novarion_ml.evaluate.metrics import (
     baseline_metrics,
     confidence_table,
@@ -140,6 +141,14 @@ def final() -> None:
         print(f"  {t}: {selected} ({secs:.0f}s)", flush=True)
 
 
+def _deployed_thresholds(target: str) -> dict | None:
+    path = FINAL / f"{target}.json"
+    if not path.exists():
+        return None
+    thr = json.loads(path.read_text(encoding="utf-8"))["thresholds"]
+    return {k: thr[k] for k in ("t_op", "t_neg", "t_pos")}
+
+
 def evaluate() -> None:
     train = default_train_config()
     X, Y = load_data()
@@ -182,6 +191,13 @@ def evaluate() -> None:
             "calibration_guard_events": sum(len(r["guard_log"]) for r in records),
             "folds_without_high_positive_region": sum(r["thresholds"]["t_pos"] is None for r in records),
             "folds_without_high_negative_region": sum(r["thresholds"]["t_neg"] is None for r in records),
+            "figures": {
+                "scope": "pooled OOF (prespecified repeat); bands = patient-level bootstrap 95%",
+                **roc_pr(y_ev, cat["prob"], 1000, train.seeds["BOOTSTRAP_SEED"]),
+                "reliability": reliability(y_ev, cat["prob"], 5, 1000, train.seeds["BOOTSTRAP_SEED"]),
+                "threshold_sweep": threshold_sweep(y_ev, cat["prob"]),
+                "deployed_thresholds": _deployed_thresholds(t),
+            },
         }
         for name, summary in [("selected (nested CV)", report["targets"][t]["model"])] + [
             (f"benchmark: {fam}", s) for fam, s in report["targets"][t]["benchmarks"].items()

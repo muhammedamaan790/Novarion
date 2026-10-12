@@ -36,6 +36,7 @@ class TargetArtifact:
     reference: ReferenceContext
     strength: dict[str, float]  # {"q1", "q2"}: tertiles of |contribution| over the target's OOF population
     evaluation: dict[str, Any]  # cohort-level Table 2 row (pooled OOF, prespecified repeat)
+    stability: dict[int, dict[str, Any]] | None = None  # OOF fold artifacts only: record id → {p10, p90, n_valid}
 
 
 def display_value(feature: Feature, value: Any) -> str:
@@ -78,7 +79,8 @@ class Engine:
         }
         return quality, per_target
 
-    def _prediction(self, art: TargetArtifact, cal_logit: float, quality: dict[str, Any]) -> dict[str, Any]:
+    def _prediction(self, art: TargetArtifact, cal_logit: float, quality: dict[str, Any],
+                    record: int | None = None) -> dict[str, Any]:
         thr = art.thresholds
         p = float(sigmoid(np.array([cal_logit]))[0])
         region = thr.region(p)
@@ -87,6 +89,14 @@ class Engine:
             reasons.append("unknown_input")
         if quality["atypical_profile"]["flag"]:
             reasons.append("atypical_profile")
+        # Dataset (OOF) patients only: the precomputed refit-bootstrap interval (plan §6.10a); crossing t_op → LOW
+        stability = None
+        interval = (art.stability or {}).get(record) if self.mode == "oof" and record is not None else None
+        if interval and "p10" in interval:
+            stability = {"p10": interval["p10"], "p90": interval["p90"], "n_valid": interval["n_valid"],
+                         "label": "model stability interval"}
+            if interval["p10"] < thr.t_op <= interval["p90"]:
+                reasons.append("unstable")
         if region == "low_confidence":
             side_missing = thr.t_pos is None if p >= thr.t_op else thr.t_neg is None
             reasons.append("no_qualified_region" if side_missing else "gray_zone")
@@ -111,7 +121,7 @@ class Engine:
             "model_confidence": "high" if not reasons else "low",
             "model_confidence_thresholds": {"negative_below": thr.t_neg, "positive_at_or_above": thr.t_pos},
             "model_confidence_region": region, "model_confidence_reasons": reasons,
-            "confidence_qualification": qualification, "evaluation_context": evaluation, "stability_interval": None,
+            "confidence_qualification": qualification, "evaluation_context": evaluation, "stability_interval": stability,
         }
 
     def _explanation(self, art: TargetArtifact, canonical: dict[str, Any], frame: pd.DataFrame,
@@ -155,7 +165,8 @@ class Engine:
         }
 
     def _evidence(self, art: TargetArtifact, canonical: dict[str, Any], p: float, atypical_flag: bool,
-                  atypical_t: dict[str, Any], exclude_id: int | None) -> dict[str, Any]:
+                  atypical_t: dict[str, Any], exclude_id: int | None,
+                  stability: dict[str, Any] | None = None) -> dict[str, Any]:
         ref = art.reference
         size = len(ref.ids)
         similar = ref.similar(canonical, patient_id, exclude_id) if size >= 3 else []
@@ -173,7 +184,7 @@ class Engine:
                 "message": ("This patient's feature profile is farther from the training cohort than most observed "
                             "profiles." if atypical_flag else None),
             },
-            "stability_interval": None,
+            "stability_interval": stability,
         }
 
     # -------------------------------------------------------------------------------------------- public API
@@ -195,12 +206,13 @@ class Engine:
         for t, art in self.targets.items():
             frame = self._frame(art.reference.impute(canonical))
             cal_logit = float(art.platt.logit(art.model.margin(frame))[0])
-            targets[t] = self._prediction(art, cal_logit, quality)
+            targets[t] = self._prediction(art, cal_logit, quality, exclude_id)
             if only and t != only:
                 continue
             explanations[t] = self._explanation(art, canonical, frame, cal_logit)
             evidence[t] = self._evidence(art, canonical, targets[t]["probability"],
-                                         quality["atypical_profile"]["flag"], per_target[t], exclude_id)
+                                         quality["atypical_profile"]["flag"], per_target[t], exclude_id,
+                                         targets[t]["stability_interval"])
         return {"targets": targets, "explanations": explanations, "evidence": evidence, "quality": quality}
 
     def raw_feature_contributions(self, canonical: dict[str, Any]) -> dict[str, list[float]]:

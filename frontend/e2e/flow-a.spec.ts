@@ -4,10 +4,14 @@ import { expect, test, type Page } from "@playwright/test";
 const REAL = process.env.E2E_BACKEND === "real";
 const SHOTS = REAL ? "../results/ui/real" : "../results/ui";
 
+// The first navigation also compiles every WebGL shader; under headless software rendering (SwiftShader) that can
+// stall the page for several seconds, so first-load checks get a longer allowance than in-app interactions.
+const FIRST_LOAD = { timeout: 30_000 };
+
 async function openPatient(page: Page, id: string) {
   await page.goto("/");
   await page.getByTestId(`patient-${id}`).click();
-  await expect(page.getByTestId("card-cad")).toBeVisible();
+  await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD);
 }
 
 test("disclaimer is always visible; the mock is labelled as a mock, the real model is not", async ({ page }) => {
@@ -71,7 +75,7 @@ test("clicking a vessel in the 3D canvas selects the same target (reverse link)"
 
 test("deep link restores patient and target; ground truth appears only on reveal", async ({ page }) => {
   await page.goto("/?dataset=ZAS-0006&target=rca");
-  await expect(page.getByTestId("card-rca")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByTestId("card-rca")).toHaveAttribute("aria-pressed", "true", FIRST_LOAD);
   await expect(page.getByText("Dataset angiography labels")).toHaveCount(0);
   await page.getByText("Reveal angiography labels").click();
   await expect(page.getByText("Dataset angiography labels")).toBeVisible();
@@ -108,4 +112,59 @@ test("camera view presets change the view without changing the selected target",
   await expect(page.getByTestId("card-lcx")).toHaveAttribute("aria-pressed", "true");
   await page.waitForTimeout(1600);
   await page.screenshot({ path: `${SHOTS}/5-posterior.png` });
+});
+
+test("Model Evidence page shows scoped tables and figures for each target", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("page-evidence").click();
+  await expect(page.getByTestId("evidence-page")).toBeVisible();
+  await expect(page).toHaveURL(/page=evidence/);
+  await expect(page.getByText("Table 1 · official metrics · CAD")).toBeVisible();
+  await expect(page.getByText(/outer-fold mean ± SD/).first()).toBeVisible();
+  await expect(page.getByText(/pooled OOF \(prespecified repeat\)/).first()).toBeVisible();
+  await page.getByTestId("evidence-lcx").click();
+  await expect(page.getByText("Table 1 · official metrics · LCX")).toBeVisible();
+  if (REAL) await expect(page.getByText("Threshold sweep · LCX")).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/6-evidence.png` });
+  if (REAL) {
+    await page.getByTestId("evidence-figures").scrollIntoViewIfNeeded();
+    await page.getByTestId("evidence-figures").screenshot({ path: `${SHOTS}/7-evidence-figures.png` });
+  }
+  await page.getByTestId("page-command").click();
+  await expect(page.locator("canvas")).toBeVisible();
+});
+
+test("body context: whole-body view keeps the selection; context can be hidden and never blocks vessel clicks", async ({ page }) => {
+  await openPatient(page, "ZAS-0003");
+  await page.getByTestId("view-body").click();
+  await page.waitForTimeout(1800);
+  await page.screenshot({ path: `${SHOTS}/10-whole-body.png` });
+  await page.getByTestId("toggle-body").uncheck();
+  await expect(page.getByTestId("toggle-body")).not.toBeChecked();
+  await page.getByTestId("toggle-body").check();
+  await page.getByTestId("select-lad").click(); // a target selection returns to that vessel's preset
+  await expect(page.getByTestId("card-lad")).toHaveAttribute("aria-pressed", "true");
+});
+
+test("compare all vessels: callouts on the heart + contribution heatmap for every target", async ({ page }) => {
+  await openPatient(page, "ZAS-0003");
+  await page.getByTestId("compare-all").click();
+  const panel = page.getByTestId("compare-panel");
+  await expect(panel).toContainText("Compare all targets", { timeout: 15_000 });
+  for (const t of ["CAD", "LAD", "LCX", "RCA"]) await expect(panel.locator("th", { hasText: t })).toBeVisible();
+  await expect(page).toHaveURL(/view=compare/);
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: `${SHOTS}/11-compare.png` });
+  await page.keyboard.press("1"); // selecting a vessel leaves compare mode
+  await expect(page.getByTestId("why-panel")).toBeVisible();
+  await expect(page.getByTestId("compare-panel")).toHaveCount(0);
+});
+
+test("compare works for a transient new case (explanations fetched pinned)", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("tab-new").click();
+  await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
+  await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 15_000 });
+  await page.keyboard.press("c");
+  await expect(page.getByTestId("compare-panel")).toContainText("Compare all targets", { timeout: 15_000 });
 });

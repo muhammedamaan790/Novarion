@@ -210,6 +210,8 @@ class FeatureSpec(Strict):
     immutable_in_whatif: bool
     input_mode: Literal["entered", "computed", "constant"]
     constant_value: StrictInt | StrictFloat | StrictStr | None = None
+    aliases: list[str] = Field(default_factory=list)  # accepted import column names (exact match only)
+    import_tokens: dict[str, StrictInt | StrictStr] = Field(default_factory=dict)  # source token → canonical value
 
 
 class TargetSpec(Strict):
@@ -248,6 +250,7 @@ class MetaResponse(Strict):
     anatomy_asset_sha256: Sha256
     anatomy_map: dict[str, Any]
     evidence_bands: list[list[Probability]]
+    leakage_denylist: list[str] = Field(default_factory=list)  # label columns an import must drop (plan §5.4)
     disclaimer: str = DISCLAIMER
 
     @model_validator(mode="after")
@@ -825,12 +828,24 @@ class ModelEntry(Strict):
     artifact_manifest_sha256: Sha256
 
 
+class LifecycleEvent(Strict):
+    """One lifecycle-log entry as shown in the Model Center (the actor's name stays in the local log only)."""
+    seq: StrictInt = Field(ge=0)
+    timestamp: str
+    event: Literal["verify_outcomes", "candidate", "promote", "reject", "rollback"]
+    summary: str
+    entry_hash: Sha256
+
+
 class ModelsResponse(Strict):
-    production_version: SemVer
+    production_version: SemVer  # the registry pointer
+    deployed_version: SemVer    # the bundle this service actually loaded (differs until a restart after promote)
     models: list[ModelEntry]
     verified_new_cases: StrictInt = Field(ge=0)
     eligible_cases: StrictInt = Field(ge=0)
-    pending_cases: StrictInt = Field(ge=0)
+    pending_cases: StrictInt = Field(ge=0)  # server-side view only; pending outcomes live in each browser
+    lifecycle_log_status: Literal["intact", "broken", "empty"]
+    lifecycle_events: list[LifecycleEvent]  # newest first, at most 20
 
     @model_validator(mode="after")
     def _one_production(self) -> ModelsResponse:
@@ -867,4 +882,43 @@ class ModelReportResponse(Strict):
             raise ValueError("INSUFFICIENT_EVIDENCE requires a non-evaluable target")
         if self.gate_status != "INSUFFICIENT_EVIDENCE" and not all(t.evaluable for t in self.targets.values()):
             raise ValueError("any non-evaluable target means INSUFFICIENT_EVIDENCE")
+        return self
+
+
+class ReplayPoint(Strict):
+    training_size: StrictInt = Field(ge=1)
+    n_seeds: StrictInt = Field(ge=1)
+    auc_mean: Probability
+    auc_sd: Finite
+    auc_min: Probability
+    auc_max: Probability
+    brier_mean: Probability
+    brier_sd: Finite
+
+
+class ReplayGate(Strict):
+    seed: StrictInt = Field(ge=0)
+    gate: StrictInt = Field(ge=1)
+    status: GateStatus
+    promoted: bool
+    failed_rules: dict[TargetId, list[str]]
+
+
+class ReplayResponse(Strict):
+    """Historical replay study (research demonstration; never production; NOT temporal validation)."""
+    title: Literal["Historical replay · random eligibility order · NOT temporal validation"]
+    seeds: StrictInt = Field(ge=1)
+    families: list[str]
+    training_sizes: list[StrictInt]
+    holdout_batch_size: StrictInt = Field(ge=1)
+    learning_curve: dict[TargetId, list[ReplayPoint]]
+    gate_frequencies: dict[str, dict[GateStatus, StrictInt]]
+    gate_log: list[ReplayGate]
+    replay_config_sha256: Sha256
+
+    @model_validator(mode="after")
+    def _complete(self) -> ReplayResponse:
+        _check_targets_complete(self.learning_curve, "learning_curve")
+        if any(len(points) != len(self.training_sizes) for points in self.learning_curve.values()):
+            raise ValueError("one learning-curve point per training size")
         return self

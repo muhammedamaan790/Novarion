@@ -43,7 +43,25 @@ NODES = {
     "vessel_rca": ("rca", ["FMA3802", "FMA66327"], 8000),
     "vessel_lm": (None, ["FMA3855"], 2000),
     "heart_myocardium": ("cad", ["FMA13256"], 80000),
+    # Context (non-target, non-pickable): "where in the body" (plan §9.1 torso_shell; brief "torso/heart model")
+    "rib_cage": (None, ["FMA7574", "FMA7591", "FMA9139", "FMA7486", "FMA7487", "FMA7488"], 30000),
+    "torso_shell": (None, ["FMA7163"], 20000),
 }
+CONTEXT_NODES = {"rib_cage", "torso_shell"}
+
+# Skin covers the whole body: keep the trunk only (source mm, BodyParts3D axes: +Z superior, X left-right).
+TORSO_CROP = {"z_min": 880.0, "z_max": 1480.0, "abs_x_max": 185.0}
+
+
+def crop_torso(mesh: trimesh.Trimesh) -> trimesh.Trimesh:
+    """Keep triangles whose three vertices lie inside the trunk box (no new dependency; edge is triangle-jagged)."""
+    c = TORSO_CROP
+    v = mesh.vertices[mesh.faces]  # (n_faces, 3, 3)
+    inside = ((v[..., 2] >= c["z_min"]) & (v[..., 2] <= c["z_max"]) & (np.abs(v[..., 0]) <= c["abs_x_max"])).all(axis=1)
+    cropped = mesh.copy()
+    cropped.update_faces(inside)
+    cropped.remove_unreferenced_vertices()
+    return cropped
 
 
 def read_table(name: str) -> list[list[str]]:
@@ -123,6 +141,8 @@ def main() -> int:
         for node, files in resolved.items():
             parts = [load_mesh(archive, fid) for fid in files]
             merged = trimesh.util.concatenate(parts)
+            if node == "torso_shell":
+                merged = crop_torso(merged)
             raw_counts[node] = len(merged.faces)
             meshes[node] = decimate(merged, NODES[node][2])
 
@@ -145,6 +165,7 @@ def main() -> int:
             "node": node,
             "target_id": target_id,
             "prediction_target": target_id in {"lad", "lcx", "rca", "cad"},
+            "role": "context" if node in CONTEXT_NODES else "anatomy",
             "fma_concepts": [{"id": c, "name": concept_names.get(c, "")} for c in concepts],
             "element_files": resolved[node],
             "triangles_source": raw_counts[node],
@@ -168,7 +189,8 @@ def main() -> int:
         "license": LICENSE,
         "license_url": LICENSE_URL,
         "attribution": ATTRIBUTION,
-        "derivative_status": "modified: element meshes merged per node, decimated, re-centred, rescaled, axis-converted",
+        "derivative_status": ("modified: element meshes merged per node, decimated, re-centred, rescaled, axis-converted; "
+                              f"skin cropped to the trunk {TORSO_CROP} (mm, source axes)"),
         "kind": "mesh",
         "units": "normalized (heart largest extent = 1.0); source units mm",
         "orientation": "+Y superior, +Z anterior (three.js convention); converted from BodyParts3D +Z superior, -Y anterior",

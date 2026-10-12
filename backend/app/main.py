@@ -7,10 +7,12 @@ origins (comma-separated, never "*"). Without a verified model bundle the servic
 from __future__ import annotations
 
 import logging
+import time
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, FastAPI, Path, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from .errors import install_error_handlers
 from .schemas import (
@@ -33,6 +35,7 @@ from .schemas import (
     PatientListResponse,
     PredictionResponse,
     PredictRequest,
+    ReplayResponse,
     TargetId,
     ValidateRequest,
     ValidateResponse,
@@ -54,6 +57,34 @@ SECURITY_HEADERS = {
     "Cache-Control": "no-store",
     "Cross-Origin-Resource-Policy": "same-origin",
 }
+
+
+class RateLimiter:
+    """Per-client token bucket. In-memory (single process); a bounded table so it cannot grow without limit."""
+
+    MAX_CLIENTS = 10_000
+
+    def __init__(self, per_minute: int, burst: int):
+        self.rate = per_minute / 60.0
+        self.burst = float(burst)
+        self.buckets: dict[str, tuple[float, float]] = {}  # client → (tokens, last timestamp)
+
+    def allow(self, client: str, now: float) -> tuple[bool, float]:
+        tokens, last = self.buckets.get(client, (self.burst, now))
+        tokens = min(self.burst, tokens + (now - last) * self.rate)
+        if len(self.buckets) >= self.MAX_CLIENTS and client not in self.buckets:
+            self.buckets.clear()  # crude but safe eviction: everyone gets a fresh bucket
+        if tokens < 1.0:
+            self.buckets[client] = (tokens, now)
+            return False, (1.0 - tokens) / self.rate
+        self.buckets[client] = (tokens - 1.0, now)
+        return True, 0.0
+
+
+def _client_key(request: Request, trust_proxy: bool) -> str:
+    if trust_proxy and request.headers.get("x-real-ip"):
+        return request.headers["x-real-ip"]
+    return request.client.host if request.client else "unknown"
 
 
 def _service(request: Request) -> InferenceService:
@@ -123,6 +154,10 @@ def build_router() -> APIRouter:
     def models(service: InferenceService = svc) -> ModelsResponse:
         return service.models()
 
+    @router.get("/models/replay", response_model=ReplayResponse, tags=["models"])
+    def replay(service: InferenceService = svc) -> ReplayResponse:
+        return service.replay()
+
     @router.get("/models/{version}/report", response_model=ModelReportResponse, tags=["models"])
     def model_report(version: VersionPath, service: InferenceService = svc) -> ModelReportResponse:
         return service.model_report(version)
@@ -160,8 +195,20 @@ def create_app(settings: Settings | None = None, service: InferenceService | Non
     install_error_handlers(app)
     app.include_router(build_router())
 
+    limiter = RateLimiter(settings.rate_limit_per_minute, settings.rate_limit_burst)
+
     @app.middleware("http")
     async def _headers(request: Request, call_next):
+        if not request.url.path.startswith(f"{API_PREFIX}/health"):  # health checks are never throttled
+            allowed, retry_after = limiter.allow(_client_key(request, settings.trust_proxy), time.monotonic())
+            if not allowed:
+                body = ErrorResponse(error_code="RATE_LIMITED", message="Too many requests; retry shortly.",
+                                     details={"retry_after_s": round(retry_after, 2)})
+                response = JSONResponse(status_code=429, content=body.model_dump(mode="json"),
+                                        headers={"Retry-After": str(max(1, round(retry_after)))})
+                for key, value in SECURITY_HEADERS.items():
+                    response.headers.setdefault(key, value)
+                return response
         response = await call_next(request)
         for key, value in SECURITY_HEADERS.items():
             response.headers.setdefault(key, value)

@@ -1,0 +1,25 @@
+# NOVARION promotion gate — pre-registered (plan §12B, §11A "Promotion gate as executable logic").
+# Engineering rules for a governed model update, not clinical standards. Any change = a new promotion_gate_sha256.
+schema_version: "1.0.0"
+
+# Forward holdout: the highest-eligibility_sequence verified cases, sized (smallest suffix) so that every target has at
+# least min_positive / min_negative cases. A target below either minimum is "insufficient evidence", never "failed".
+min_positive: {cad: 10, lad: 10, lcx: 10, rca: 10}
+min_negative: {cad: 10, lad: 10, lcx: 10, rca: 10}
+min_new_cases: 30          # overall minimum of new eligible cases before any candidate is built
+
+noninferiority:
+  delta_auc: 0.05          # paired-bootstrap 95% CI lower bound of (AUC_ch - AUC_pr) must be > -0.05 (project margin)
+  brier_point_max: 0.01    # (Brier_ch - Brier_pr) point estimate <= +0.01
+  brier_ci_high_max: 0.03  # paired-bootstrap 95% CI upper bound of (Brier_ch - Brier_pr) <= +0.03
+  cal_slope_overlap: [0.8, 1.2]   # challenger slope bootstrap 95% CI must OVERLAP this interval (intentional; see plan)
+  mean_calibration_diff_max: 0.10 # |observed positive rate - mean predicted probability| (probability scale)
+
+improvement:               # required for at least one target
+  delta_auc_min: 0.01      # AUC_ch - AUC_pr >= +0.01, or
+  delta_brier_max: -0.005  # Brier_ch - Brier_pr <= -0.005
+
+bootstrap:
+  replicates: 2000         # paired: patients resampled once per replicate, applied to both models
+  seed: 20261007
+  min_valid_fraction: 0.8  # replicates lacking both classes are skipped; fewer valid than this -> rule fails

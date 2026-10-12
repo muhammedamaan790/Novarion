@@ -5,7 +5,7 @@
   "model_version": "0.0.0",
   "preprocessing_version": "0.0.0",
   "anatomy_version": "1.0.0",
-  "anatomy_asset_sha256": "b3e459d7a8d3066f6c4cd7608132cf8ac3bee8306a3f8a1275052177bca1ba8e",
+  "anatomy_asset_sha256": "481b09fb81eb34783f9bf827f3ad9881a2805fd2473131c90009c5ceb412afca",
   "input_sha256": "fda86cbb2f23b68eac1d983f891553e469b6c781a9b86f20c57d929eaa9e765b",
   "training_data_sha256": "4c39a3bba3564d27e1078adfabafaf9fa30f38cfe55ab9cd8ebc4c1eea68d5d6",
   "artifact_manifest_sha256": "af6d1136ab0c2aa932f95eed34f45c8f3b7ab4232dbea836695c778ebaba9f16",

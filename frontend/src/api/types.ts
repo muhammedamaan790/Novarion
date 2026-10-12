@@ -242,6 +242,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/models/replay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Replay */
+        get: operations["replay_api_v1_models_replay_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/models/{version}/report": {
         parameters: {
             query?: never;
@@ -817,6 +834,12 @@ export interface components {
             input_mode: "entered" | "computed" | "constant";
             /** Constant Value */
             constant_value?: number | string | null;
+            /** Aliases */
+            aliases?: string[];
+            /** Import Tokens */
+            import_tokens?: {
+                [key: string]: number | string;
+            };
         };
         /** GateTargetResult */
         GateTargetResult: {
@@ -939,6 +962,25 @@ export interface components {
              */
             fit_scope: "fold_outer_training" | "full_cohort";
         };
+        /**
+         * LifecycleEvent
+         * @description One lifecycle-log entry as shown in the Model Center (the actor's name stays in the local log only).
+         */
+        LifecycleEvent: {
+            /** Seq */
+            seq: number;
+            /** Timestamp */
+            timestamp: string;
+            /**
+             * Event
+             * @enum {string}
+             */
+            event: "verify_outcomes" | "candidate" | "promote" | "reject" | "rollback";
+            /** Summary */
+            summary: string;
+            /** Entry Hash */
+            entry_hash: string;
+        };
         /** MetaResponse */
         MetaResponse: {
             /** App Version */
@@ -979,6 +1021,8 @@ export interface components {
             };
             /** Evidence Bands */
             evidence_bands: number[][];
+            /** Leakage Denylist */
+            leakage_denylist?: string[];
             /**
              * Disclaimer
              * @default Decision support / educational purposes only. Not a substitute for formal diagnostic imaging.
@@ -1042,6 +1086,8 @@ export interface components {
         ModelsResponse: {
             /** Production Version */
             production_version: string;
+            /** Deployed Version */
+            deployed_version: string;
             /** Models */
             models: components["schemas"]["ModelEntry"][];
             /** Verified New Cases */
@@ -1050,6 +1096,13 @@ export interface components {
             eligible_cases: number;
             /** Pending Cases */
             pending_cases: number;
+            /**
+             * Lifecycle Log Status
+             * @enum {string}
+             */
+            lifecycle_log_status: "intact" | "broken" | "empty";
+            /** Lifecycle Events */
+            lifecycle_events: components["schemas"]["LifecycleEvent"][];
         };
         /**
          * PatientBundle
@@ -1328,6 +1381,76 @@ export interface components {
             code: "exact_training_match" | "derived_from_training_record";
             /** Message */
             message: string;
+        };
+        /** ReplayGate */
+        ReplayGate: {
+            /** Seed */
+            seed: number;
+            /** Gate */
+            gate: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "PASS" | "FAIL" | "INSUFFICIENT_EVIDENCE";
+            /** Promoted */
+            promoted: boolean;
+            /** Failed Rules */
+            failed_rules: {
+                [key: string]: string[];
+            };
+        };
+        /** ReplayPoint */
+        ReplayPoint: {
+            /** Training Size */
+            training_size: number;
+            /** N Seeds */
+            n_seeds: number;
+            /** Auc Mean */
+            auc_mean: number;
+            /** Auc Sd */
+            auc_sd: number;
+            /** Auc Min */
+            auc_min: number;
+            /** Auc Max */
+            auc_max: number;
+            /** Brier Mean */
+            brier_mean: number;
+            /** Brier Sd */
+            brier_sd: number;
+        };
+        /**
+         * ReplayResponse
+         * @description Historical replay study (research demonstration; never production; NOT temporal validation).
+         */
+        ReplayResponse: {
+            /**
+             * Title
+             * @constant
+             */
+            title: "Historical replay · random eligibility order · NOT temporal validation";
+            /** Seeds */
+            seeds: number;
+            /** Families */
+            families: string[];
+            /** Training Sizes */
+            training_sizes: number[];
+            /** Holdout Batch Size */
+            holdout_batch_size: number;
+            /** Learning Curve */
+            learning_curve: {
+                [key: string]: components["schemas"]["ReplayPoint"][];
+            };
+            /** Gate Frequencies */
+            gate_frequencies: {
+                [key: string]: {
+                    [key: string]: number;
+                };
+            };
+            /** Gate Log */
+            gate_log: components["schemas"]["ReplayGate"][];
+            /** Replay Config Sha256 */
+            replay_config_sha256: string;
         };
         /** SimilarPatient */
         SimilarPatient: {
@@ -2681,6 +2804,89 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ModelsResponse"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Too Many Requests */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Internal Server Error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    replay_api_v1_models_replay_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReplayResponse"];
                 };
             };
             /** @description Not Found */

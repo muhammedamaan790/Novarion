@@ -166,3 +166,22 @@ def test_reference_context_gower_unknown_ledger_and_comparisons(data):
     cmp = ref.comparison("lad", "typical_chest_pain", 1)
     assert cmp["type"] == "binary_prevalence" and cmp["negative"]["status"] == "ok"
     assert Platt(0.0, 0.0).valid is False
+
+
+# --------------------------------------------------------------------------------------------- stability (§6.10a)
+def test_stability_bootstrap_is_oof_safe_and_needs_enough_valid_replicates(data):
+    from novarion_ml.uncertainty.stability import stability_fold
+
+    X, Y = data
+    config = next(c for c in TRAIN.configs if c.config_id.startswith("lr[penalty=l2,C=1]"))
+    ids = np.array(sorted(int(i) for i in X.index))
+    train_ids, test_ids = ids[:240], ids[240:]
+    out = stability_fold("cad", 0, train_ids, test_ids, config, X, Y["cad"], TRAIN, replicates=4, min_valid=3)
+    assert set(out["intervals"]) == {int(i) for i in test_ids}  # every held-out patient, nothing else
+    assert out["n_valid"] >= 3
+    for interval in out["intervals"].values():
+        assert 0 <= interval["p10"] <= interval["p90"] <= 1 and interval["n_valid"] == out["n_valid"]
+    strict = stability_fold("cad", 0, train_ids, test_ids[:3], config, X, Y["cad"], TRAIN, replicates=2, min_valid=80)
+    assert all("p10" not in v for v in strict["intervals"].values())  # < min_valid → no interval is shown
+    with pytest.raises(AssertionError, match="held-out"):
+        stability_fold("cad", 0, ids[:250], ids[240:], config, X, Y["cad"], TRAIN, replicates=1)

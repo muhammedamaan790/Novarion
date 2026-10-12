@@ -1,5 +1,6 @@
 {
   "production_version": "0.0.0",
+  "deployed_version": "0.0.0",
   "models": [
     {
       "version": "0.0.0",
@@ -20,5 +21,15 @@
   ],
   "verified_new_cases": 50,
   "eligible_cases": 50,
-  "pending_cases": 0
+  "pending_cases": 0,
+  "lifecycle_log_status": "intact",
+  "lifecycle_events": [
+    {
+      "seq": 0,
+      "timestamp": "2026-10-04T00:00:00Z",
+      "event": "reject",
+      "summary": "Candidate v0.1.0 rejected by a human reviewer (gate FAIL) [mock]",
+      "entry_hash": "b774a5f8adfe9c080ef33cff2592c1b376db7d0d2debe358d8e7af2b01957d25"
+    }
+  ]
 }

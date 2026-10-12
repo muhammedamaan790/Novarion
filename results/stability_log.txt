@@ -1,0 +1,23 @@
+stability bootstrap: 20 (target, fold) tasks x 100 replicates
+  cad k1: 100/100 valid, 7 intervals cross t_op (30s)
+  cad k2: 100/100 valid, 20 intervals cross t_op (40s)
+  cad k3: 100/100 valid, 8 intervals cross t_op (40s)
+  cad k4: 100/100 valid, 12 intervals cross t_op (39s)
+  cad k5: 100/100 valid, 16 intervals cross t_op (32s)
+  lad k1: 100/100 valid, 14 intervals cross t_op (29s)
+  lad k2: 100/100 valid, 21 intervals cross t_op (46s)
+  lad k3: 100/100 valid, 24 intervals cross t_op (46s)
+  lad k4: 100/100 valid, 19 intervals cross t_op (37s)
+  lad k5: 100/100 valid, 17 intervals cross t_op (38s)
+  lcx k1: 100/100 valid, 34 intervals cross t_op (37s)
+  lcx k2: 100/100 valid, 37 intervals cross t_op (38s)
+  lcx k3: 99/100 valid, 46 intervals cross t_op (44s)
+  lcx k4: 100/100 valid, 47 intervals cross t_op (1198s)
+  lcx k5: 100/100 valid, 37 intervals cross t_op (35s)
+  rca k1: 99/100 valid, 28 intervals cross t_op (35s)
+  rca k2: 98/100 valid, 31 intervals cross t_op (39s)
+  rca k3: 99/100 valid, 31 intervals cross t_op (35s)
+  rca k4: 100/100 valid, 35 intervals cross t_op (35s)
+  rca k5: 100/100 valid, 33 intervals cross t_op (36s)
+results/stability.json written
+exit 0

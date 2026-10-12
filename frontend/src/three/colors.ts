@@ -60,6 +60,8 @@ export function vesselColor(transfer: ColorTransfer, p: number, tOp: number, low
 }
 
 /** Neutral anatomy grey, shown until a complete analysis exists (never partial colours, plan §12). */
-export const NEUTRAL_LINEAR: [number, number, number] = oklchToLinearSrgb([0.78, 0.005, 250]);
+export const NEUTRAL_LINEAR: [number, number, number] = oklchToLinearSrgb([0.86, 0.004, 250]);
 // Light, low-chroma tissue tone so the warm (stenosis) family on the vessels stays distinct from the muscle.
-export const MYOCARDIUM_LINEAR: [number, number, number] = oklchToLinearSrgb([0.8, 0.018, 45]);
+// Muted rose tissue: reads as heart muscle, but lighter and cooler in hue than the warm (stenosis) vessel family
+// (h 35–70) so even desaturated LOW-confidence vessels stay distinguishable from the muscle.
+export const MYOCARDIUM_LINEAR: [number, number, number] = oklchToLinearSrgb([0.7, 0.055, 12]);

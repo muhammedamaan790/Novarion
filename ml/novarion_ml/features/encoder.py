@@ -22,6 +22,9 @@ def feature_set_ids(feature_set: str, registry: Registry | None = None) -> list[
         return [f.id for f in registry.features]
     if feature_set == "redundancy_reduced":
         return [f.id for f in registry.features if f.in_reduced_feature_set]
+    if feature_set.startswith("full_without:"):  # ablation variants only (scripts/ablation.py), never deployed
+        group = feature_set.split(":", 1)[1]
+        return [f.id for f in registry.features if f.group != group]
     raise ValueError(f"unknown feature set {feature_set!r}")
 
 
