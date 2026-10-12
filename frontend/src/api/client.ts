@@ -50,10 +50,13 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<ApiResult<
   });
   const body = await response.json().catch(() => null);
   if (!response.ok) throw new ApiError(response.status, body as ErrorResponse | null);
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new ApiError(response.status, null); // a proxy's HTML/null response is not a successful analysis
+  }
   return { data: body as T, mock: response.headers.get("X-Novarion-Mock") === "1" };
 }
 
-const get = <T>(path: string) => send<T>(path);
+const get = <T>(path: string, signal?: AbortSignal) => send<T>(path, { signal });
 const post = <T>(path: string, body: unknown, signal?: AbortSignal) =>
   send<T>(path, { method: "POST", body: JSON.stringify(body), signal });
 
@@ -204,8 +207,8 @@ export const api = {
     : get<Schemas["ReplayResponse"]>("/models/replay")),
   modelReport: offlineOnly((version: string) =>
     get<Schemas["ModelReportResponse"]>(`/models/${encodeURIComponent(version)}/report`)),
-  patient: async (id: string): Promise<ApiResult<PatientBundle>> => {
-    if (!(await offline())) return get<PatientBundle>(`/patients/${encodeURIComponent(id)}`);
+  patient: async (id: string, signal?: AbortSignal): Promise<ApiResult<PatientBundle>> => {
+    if (!(await offline())) return get<PatientBundle>(`/patients/${encodeURIComponent(id)}`, signal);
     const [file, meta] = await Promise.all([offlinePatient(id), staticJson<Meta>("meta.json")]);
     return { data: { ...file.bundle, app_version: meta.data.app_version }, mock: false }; // ground truth stays out
   },

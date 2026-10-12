@@ -3,7 +3,7 @@
 // revision may update the 3D view and panels; stale responses are discarded (AbortController + revision check).
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
+import { ApiError, TARGET_IDS, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
 import { clearDraft, loadDraft, saveDraft } from "../cases/caseStore";
 import type { DraftRecord } from "../cases/db";
 import { readCaseFile, type ImportedRow, type ImportReport, type UnitStatus } from "../cases/importCase";
@@ -51,6 +51,8 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
             <button
               type="button"
               title="Mark as UNKNOWN (imputed, forces LOW model confidence)"
+              aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
+              aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}
               className={`rounded px-1 text-[10px] ${isUnknown ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-600"}`}
             >
@@ -135,6 +137,10 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   };
   const revision = useRef(0);
   const inflight = useRef<AbortController | null>(null);
+  const [prefillId, setPrefillId] = useState("");
+  const [prefillStatus, setPrefillStatus] = useState<"idle" | "loading" | "error">("idle");
+  const prefillRequest = useRef<AbortController | null>(null);
+  const analysis = useStore((s) => s.analysis);
   const setAnalysis = useStore((s) => s.setAnalysis);
   const patients = useQuery({ queryKey: ["patients"], queryFn: api.patients });
 
@@ -143,21 +149,24 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   useEffect(() => {
     const revisionRef = revision;
     const inflightRef = inflight;
+    const prefillRef = prefillRequest;
     return () => {
       revisionRef.current += 1;
       inflightRef.current?.abort();
+      prefillRef.current?.abort();
     };
   }, []);
 
   // Debounced validate → predict. Each edit bumps the revision; only the latest revision may commit.
   useEffect(() => {
-    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
-    if (filled === 0) return;
     const rev = ++revision.current;
+    inflight.current?.abort();
+    const controller = new AbortController();
+    inflight.current = controller;
+    if (useStore.getState().mode === "new") setAnalysis(null); // an edited input never keeps the old prediction
+    const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
+    if (filled === 0) return () => controller.abort();
     const timer = window.setTimeout(async () => {
-      inflight.current?.abort();
-      const controller = new AbortController();
-      inflight.current = controller;
       setStatus("updating");
       try {
         const v = await api.validate(
@@ -173,6 +182,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
         const p = await api.predict({ inputs, unit_status: unitStatus, input_revision: rev }, controller.signal);
         if (rev !== revision.current || p.data.input_revision !== rev) return; // stale response: discard
         if (useStore.getState().mode !== "new") return; // the user has left the new-case workflow
+        if (!TARGET_IDS.every((t) => p.data.targets?.[t])) throw new Error("Incomplete prediction response");
         setAnalysis({ ...p.data, explanations: {}, evidence: {}, requestInputs: inputs });
         const st = useStore.getState();
         st.setCaseRef(null); // a new transient analysis is not saved yet ("Save as new scenario")
@@ -187,22 +197,46 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
         }
       }
     }, DEBOUNCE_MS);
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
   }, [inputs, unitStatus, sourceRecord, features, setAnalysis]);
 
+  const cancelPrefill = () => {
+    prefillRequest.current?.abort();
+    prefillRequest.current = null;
+    setPrefillStatus("idle");
+  };
+
   const prefill = async (patientId: string) => {
+    prefillRequest.current?.abort();
+    const controller = new AbortController();
+    prefillRequest.current = controller;
+    setPrefillId(patientId);
+    setValidation(null);
+    setInputs({});
+    setSourceRecord(null);
+    setPrefillStatus(patientId ? "loading" : "idle");
     if (!patientId) return;
-    const bundle = await api.patient(patientId);
-    const values: Record<string, InputValue> = {};
-    for (const f of features) values[f.id] = bundle.data.canonical_inputs[f.id] as InputValue;
-    setSourceRecord(Number(patientId.slice(4)) - 1);
-    sourceKind.current = "manual";
-    setUnitStatus({});
-    setReport(null);
-    setInputs(values);
+    try {
+      const bundle = await api.patient(patientId, controller.signal);
+      if (controller.signal.aborted || prefillRequest.current !== controller) return;
+      const values: Record<string, InputValue> = {};
+      for (const f of features) values[f.id] = bundle.data.canonical_inputs[f.id] as InputValue;
+      setSourceRecord(Number(patientId.slice(4)) - 1);
+      sourceKind.current = "manual";
+      setUnitStatus({});
+      setReport(null);
+      setInputs(values);
+      setPrefillStatus("idle");
+    } catch {
+      if (!controller.signal.aborted && prefillRequest.current === controller) setPrefillStatus("error");
+    }
   };
 
   const loadRow = (row: ImportedRow) => {
+    cancelPrefill();
     const values: Record<string, InputValue> = {};
     for (const f of features) values[f.id] = row.inputs[f.id] ?? null;
     setSourceRecord(row.datasetRecordId);
@@ -222,6 +256,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
 
   const assumed = features.filter((f) => unitStatus[f.id] === "canonical_assumed");
   const editField = (id: string, v: InputValue) => {
+    cancelPrefill(); // a late prefill must never overwrite the user's manual edit
     setUnitStatus((prev) => {
       if (!(id in prev)) return prev;
       const next = { ...prev };
@@ -266,7 +301,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       <select
         aria-label="Prefill from a dataset patient"
         className="rounded border border-slate-200 px-1.5 py-1 text-xs"
-        defaultValue=""
+        value={prefillId}
         onChange={(e) => void prefill(e.target.value)}
       >
         <option value="">Prefill from a dataset patient…</option>
@@ -342,7 +377,9 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       )}
 
       <div role="status" className="rounded bg-slate-50 px-2 py-1 text-[11px] text-slate-700" data-testid="case-status">
-        {missing > 0
+        {prefillStatus === "loading" ? "Loading selected patient…"
+          : prefillStatus === "error" ? "Could not load the selected patient. No results shown; retry or enter values."
+          : missing > 0
           ? `${missing} field${missing === 1 ? "" : "s"} still required`
           : status === "updating"
             ? "Updating prediction…"
@@ -350,7 +387,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
               ? "Analysis unavailable: no results shown."
               : blocks.length
                 ? `Blocked: ${blocks.length} issue${blocks.length === 1 ? "" : "s"} to fix`
-                : "Prediction up to date · edited case · production model"}
+                : analysis ? "Prediction up to date · edited case · production model" : "Waiting for analysis…"}
         {validation?.provenance.message && <span className="block text-slate-500">{validation.provenance.message}</span>}
         {validation?.provenance.prediction_mode === "oof" && sourceRecord != null && (
           <button type="button" className="mt-1 underline" data-testid="open-oof"

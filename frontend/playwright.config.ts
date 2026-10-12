@@ -10,21 +10,26 @@ const real = process.env.E2E_BACKEND === "real";
 // E2E_BASE_URL=http://127.0.0.1:8080 tests an already-running deployment (e.g. docker compose) instead of dev servers.
 const external = process.env.E2E_BASE_URL;
 
+// E2E_API_PORT / E2E_WEB_PORT move the test servers when 8000/5173 are taken by something else.
+const apiPort = process.env.E2E_API_PORT ?? "8000";
+const webPort = process.env.E2E_WEB_PORT ?? "5173";
+
 export default defineConfig({
   testDir: "e2e",
   timeout: 60_000,
   expect: { timeout: 10_000 }, // the real backend computes explanations on demand; give it headroom under load
   workers: real ? 1 : undefined, // headless software WebGL: parallel browsers starve each other on one CPU
-  use: { baseURL: external ?? "http://127.0.0.1:5173", browserName, channel, viewport: { width: 1440, height: 900 } },
+  use: { baseURL: external ?? `http://127.0.0.1:${webPort}`, browserName, channel, viewport: { width: 1440, height: 900 } },
   webServer: external ? undefined : [
     {
-      command: "uv run --group inference uvicorn app.main:app --app-dir backend --port 8000",
+      command: `uv run --group inference uvicorn app.main:app --app-dir backend --port ${apiPort}`,
       cwd: "..",
       env: real ? { PYTHONPATH: "ml" } : { NOVARION_MOCK: "1", PYTHONPATH: "ml" },
-      url: "http://127.0.0.1:8000/api/v1/health/ready",
+      url: `http://127.0.0.1:${apiPort}/api/v1/health/ready`,
       reuseExistingServer: !process.env.CI, // a wrong reused backend fails the mock-identity test loudly
       timeout: 120_000,
     },
-    { command: "npm run dev -- --host 127.0.0.1", url: "http://127.0.0.1:5173", reuseExistingServer: true },
+    { command: `npm run dev -- --host 127.0.0.1 --port ${webPort} --strictPort`, url: `http://127.0.0.1:${webPort}`,
+      env: { NOVARION_API: `http://127.0.0.1:${apiPort}` }, reuseExistingServer: webPort === "5173" },
   ],
 });
