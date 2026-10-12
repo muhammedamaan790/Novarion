@@ -51,7 +51,9 @@ def main() -> None:
                  "defined folds. Benchmarks = the same selection rule restricted to one model family (descriptive "
                  "only)."), ""]
 
-    out += ["## Table 2 — confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI", ""]
+    out += ["## Table 2 — threshold-only confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI", "",
+            ("Threshold regions are measured before the app's additional input-quality gates; these percentages do not "
+             "measure displayed HIGH-confidence coverage."), ""]
     out.append("| Target | AUC [CI] | % high-positive | PPV [CI] | % high-negative | NPV [CI] | % low confidence | "
                "Acc. on high-confidence | FN among high-neg | FP among high-pos |")
     out.append("|" + "---|" * 10)
@@ -65,6 +67,23 @@ def main() -> None:
                    f"{t2['fn_high_negative']} | {t2['fp_high_positive']} |")
     out += ["", ("Pre-registered confidence targets (config/targets.yaml, fixed before results; never moved, D-008): "
                  "PPV ≥ 0.90 / NPV ≥ 0.95 Wilson lower bound with n ≥ 15, on training-side OOF scores."), ""]
+    shown_path = ROOT / "results" / "displayed_tiers.json"
+    if shown_path.exists():  # scripts/displayed_tiers.py (D-019)
+        shown = json.loads(shown_path.read_text(encoding="utf-8"))
+        out += [f"## Table 2b — confidence tiers **as displayed** · served OOF analyses, model v{shown['model_version']}, "
+                "patient-level bootstrap 95% CI", "",
+                ("The HIGH badge additionally requires known inputs, a typical profile and (dataset patients) a "
+                 "stability interval that does not straddle the threshold, so it covers a subset of each Table 2 region."), ""]
+        out.append("| Target | % HIGH-positive shown | PPV [CI] | % HIGH-negative shown | NPV [CI] | % LOW shown | "
+                   "LOW reasons (count) |")
+        out.append("|" + "---|" * 7)
+        for t in TARGETS:
+            r = shown["targets"][t]
+            reasons = ", ".join(f"{k} {v}" for k, v in sorted(r["low_reasons"].items(), key=lambda x: -x[1]))
+            out.append(f"| {t.upper()} | {pct(r['pct_high_positive'])} | {pct(r['ppv'])}{ci(r['ppv_ci'])} | "
+                       f"{pct(r['pct_high_negative'])} | {pct(r['npv'])}{ci(r['npv_ci'])} | "
+                       f"{pct(r['pct_low_confidence'])} | {reasons} |")
+        out.append("")
     out += ["## Model selection across outer folds", ""]
     for t in TARGETS:
         r = m["targets"][t]

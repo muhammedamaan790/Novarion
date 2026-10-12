@@ -49,7 +49,10 @@ function useUrlSync() {
 function useKeyboard() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey
+        || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
+        || e.target instanceof HTMLSelectElement
+        || (e.target instanceof HTMLElement && e.target.isContentEditable)) return;
       const target = KEY_TO_TARGET[e.key];
       if (target) useStore.getState().selectTarget(target);
       else if (e.key === "Escape") useStore.getState().selectTarget(null);
@@ -95,14 +98,14 @@ export default function App() {
   useEffect(() => {
     if (useStore.getState().mode !== "dataset") return; // new cases commit their own transient analyses
     const bundle = patient.data?.data;
-    const complete = bundle && TARGET_IDS.every((t) => bundle.targets[t] && bundle.explanations[t]);
+    const complete = bundle && TARGET_IDS.every((t) => bundle.targets?.[t] && bundle.explanations?.[t]);
     setAnalysis(complete && bundle.patient_id === datasetPatientId ? bundle : null);
   }, [patient.data, datasetPatientId, setAnalysis]);
 
   const mock = !!(meta.data?.mock || patient.data?.mock);
 
   return (
-    <div className="flex h-screen flex-col bg-slate-50 text-slate-900">
+    <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 lg:h-screen">
       <DisclaimerBanner />
       <Header meta={meta.data?.data} ready={ready.data?.data.ready} mock={mock} runMode={runMode.data} />
       {meta.isError && (
@@ -144,7 +147,7 @@ export default function App() {
                 </button>
               ))}
             </div>
-            <div className="h-[calc(100%-2.25rem)]">
+            <div className="h-[34rem] lg:h-[calc(100%-2.25rem)]">
               {mode === "dataset" ? (
                 <PatientPanel meta={meta.data.data} analysis={analysis} />
               ) : mode === "new" && runMode.data === "offline" ? (

@@ -39,7 +39,9 @@
 
 Undefined metrics (e.g. precision with no predicted positives) are NA, never 0; means are over defined folds. Benchmarks = the same selection rule restricted to one model family (descriptive only).
 
-## Table 2 — confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI
+## Table 2 — threshold-only confidence tiers · **pooled OOF (prespecified repeat)**, patient-level bootstrap 95% CI
+
+Threshold regions are measured before the app's additional input-quality gates; these percentages do not measure displayed HIGH-confidence coverage.
 
 | Target | AUC [CI] | % high-positive | PPV [CI] | % high-negative | NPV [CI] | % low confidence | Acc. on high-confidence | FN among high-neg | FP among high-pos |
 |---|---|---|---|---|---|---|---|---|---|
@@ -49,6 +51,17 @@ Undefined metrics (e.g. precision with no predicted positives) are NA, never 0; 
 | RCA | 0.732 [0.673–0.791] | 0.0% | — | 0.0% | — | 100.0% | — | 0 | 0 |
 
 Pre-registered confidence targets (config/targets.yaml, fixed before results; never moved, D-008): PPV ≥ 0.90 / NPV ≥ 0.95 Wilson lower bound with n ≥ 15, on training-side OOF scores.
+
+## Table 2b — confidence tiers **as displayed** · served OOF analyses, model v1.0.2, patient-level bootstrap 95% CI
+
+The HIGH badge additionally requires known inputs, a typical profile and (dataset patients) a stability interval that does not straddle the threshold, so it covers a subset of each Table 2 region.
+
+| Target | % HIGH-positive shown | PPV [CI] | % HIGH-negative shown | NPV [CI] | % LOW shown | LOW reasons (count) |
+|---|---|---|---|---|---|---|
+| CAD | 44.6% | 98.5% [96.2–100.0] | 0.0% | — | 55.4% | no_qualified_region 105, unstable 63, atypical_profile 52, gray_zone 11 |
+| LAD | 0.0% | — | 0.0% | — | 100.0% | no_qualified_region 303, unstable 95, atypical_profile 52 |
+| LCX | 0.0% | — | 0.0% | — | 100.0% | no_qualified_region 303, unstable 201, atypical_profile 52 |
+| RCA | 0.0% | — | 0.0% | — | 100.0% | no_qualified_region 303, unstable 158, atypical_profile 52 |
 
 ## Model selection across outer folds
 
