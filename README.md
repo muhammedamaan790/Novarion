@@ -92,7 +92,7 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 61 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+- Browser E2E: 64 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
   accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -109,6 +109,9 @@ UCI #411 (SHA-256 pinned) → feature registry + leakage guard (Cath/CAD/LAD/LCX
 
 ### Exploring a case
 
+- **3D heart page** (D-025): the reference heart on its own, with no patient and no prediction, so the anatomy can be
+  explored first. Click an artery (or use the buttons and camera views) to read its course, what it supplies and how
+  NOVARION uses it. Its selection is private, so it never changes an open case.
 - **One workspace per open patient** (D-023): every dataset patient, new case or reopened saved case opens in its
   own workspace and keeps its own tab, selected vessel and, for a new case, its typed values and live prediction. A
   bar under the header lists the open workspaces, with a close button on each and a search box that finds an open
@@ -174,14 +177,14 @@ make docker-e2e                                  # the same E2E flows against th
 **Release v1.0.4 (frozen; `release_manifest.json`, git tag `v1.0.4`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (61/61 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (64/64 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 **New since release v1.0.2 (the model is unchanged):** a sign-in page with
 real accounts, a home screen with one NEW CASE button, a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence: Summary ·
 Performance · Confidence tiers · Curves · vs guideline score) (D-022), and one workspace per open patient with a
 search bar (D-023) in v1.0.3; in v1.0.4, confidence shown as "validated high" or "standard" with the model's tested
-accuracy beside each prediction (D-024). Verified: 198 Python tests, 24 unit tests and 61 browser flows, against the mock and against the
+accuracy beside each prediction (D-024), and a 3D heart page with the anatomy alone (D-025). Verified: 198 Python tests, 24 unit tests and 64 browser flows, against the mock and against the
 rebuilt Docker stack with the real model.
 
 Still open, for the team:

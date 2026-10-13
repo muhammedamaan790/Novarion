@@ -13,7 +13,7 @@ export function DisclaimerFooter() {
 }
 
 const NAV: readonly (readonly [string, string])[] = [
-  ["home", "Home"], ["new", "New case"], ["library", "Dataset library"], ["cases", "My cases"],
+  ["home", "Home"], ["new", "New case"], ["library", "Dataset library"], ["cases", "My cases"], ["anatomy", "3D heart"],
   ["evidence", "Model evidence"], ["models", "Model center"],
 ];
 

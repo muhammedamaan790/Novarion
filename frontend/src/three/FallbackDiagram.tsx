@@ -2,7 +2,7 @@
 // TargetIds and the same colour transfer function as the 3D view — never the advertised visualization.
 import type { DisplayAnalysis, TargetId } from "../api/client";
 import { SHORT, probPct } from "../components/wording";
-import { useStore } from "../store/useStore";
+import type { SceneState } from "./sceneState";
 import { NEUTRAL_LINEAR, linearToHex, vesselColor, type ColorTransfer } from "./colors";
 
 const PATHS: Record<"lad" | "lcx" | "rca", string> = {
@@ -12,16 +12,19 @@ const PATHS: Record<"lad" | "lcx" | "rca", string> = {
 };
 const LABEL_AT: Record<"lad" | "lcx" | "rca", [number, number]> = { lad: [214, 200], lcx: [298, 170], rca: [60, 175] };
 
-export function FallbackDiagram({ analysis, transfer }: { analysis: DisplayAnalysis | null; transfer: ColorTransfer }) {
-  const selected = useStore((s) => s.selectedTarget);
-  const selectTarget = useStore((s) => s.selectTarget);
+export function FallbackDiagram({ analysis, transfer, sceneState }: {
+  analysis: DisplayAnalysis | null; transfer: ColorTransfer; sceneState: SceneState;
+}) {
+  const selected = sceneState.selected;
+  const selectTarget = sceneState.select;
+  const tid = (id: string) => (sceneState.kind === "anatomy" ? `anatomy-${id}` : id);
   const colour = (t: TargetId) => {
     const p = analysis?.targets[t];
     return p ? vesselColor(transfer, p.probability, p.operating_threshold, p.model_confidence === "low").hex
       : linearToHex(NEUTRAL_LINEAR);
   };
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2 p-4" data-testid="fallback-2d">
+    <div className="flex h-full flex-col items-center justify-center gap-2 p-4" data-testid={tid("fallback-2d")}>
       <p role="status" className="max-w-md rounded bg-amber-50 px-3 py-1.5 text-center text-xs text-amber-900">
         3D graphics (WebGL) are not available in this browser, so a simplified 2D schematic is shown. Predictions,
         explanations and all other features work normally.
@@ -32,7 +35,7 @@ export function FallbackDiagram({ analysis, transfer }: { analysis: DisplayAnaly
               fill="#d8b4b4" stroke="#94a3b8" onClick={() => selectTarget("cad")} className="cursor-pointer" />
         {(Object.keys(PATHS) as ("lad" | "lcx" | "rca")[]).map((t) => (
           <g key={t} onClick={() => selectTarget(selected === t ? null : t)} className="cursor-pointer"
-             role="button" aria-label={`Select ${SHORT[t]}`} aria-pressed={selected === t} data-testid={`fallback-${t}`}>
+             role="button" aria-label={`Select ${SHORT[t]}`} aria-pressed={selected === t} data-testid={tid(`fallback-${t}`)}>
             <path d={PATHS[t]} fill="none" stroke="transparent" strokeWidth={18} />
             <path d={PATHS[t]} fill="none" stroke={colour(t)} strokeWidth={selected === t ? 9 : 6} strokeLinecap="round"
                   strokeDasharray={analysis?.targets[t]?.model_confidence === "low" ? "10 5" : undefined} />

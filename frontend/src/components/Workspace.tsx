@@ -190,6 +190,10 @@ export function HomePage({ user }: { user: string | null }) {
                 className="rounded-lg bg-white px-6 py-3 text-base font-bold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50">
           My cases
         </button>
+        <button type="button" onClick={() => st.setPage("anatomy")} data-testid="home-anatomy"
+                className="rounded-lg bg-white px-6 py-3 text-base font-bold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50">
+          Explore the 3D heart
+        </button>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from 
 import * as THREE from "three";
 import type { DisplayAnalysis, Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
+import type { SceneState } from "./sceneState";
 import { MYOCARDIUM_LINEAR, NEUTRAL_LINEAR, oklchToLinearSrgb, vesselColor, type ColorTransfer } from "./colors";
 
 export const MODEL_URL = "/models/heart.glb";
@@ -141,12 +142,15 @@ const RECOLOUR_TAU_S = 0.15; // exponential ease: ~600 ms to settle (plan §9.2 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel }) {
+function HeartModel({ map, analysis, placeLabel, sceneState }: {
+  map: AnatomyMap; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; sceneState: SceneState;
+}) {
   const { scene } = useGLTF(MODEL_URL);
   const invalidate = useThree((s) => s.invalidate);
-  const selectedTarget = useStore((s) => s.selectedTarget);
+  const selectedTarget = sceneState.selected;
+  const anatomy = sceneState.kind === "anatomy";
   const isolation = useStore((s) => s.isolation);
-  const hoverNode = useStore((s) => s.hover?.node ?? null);
+  const hoverNode = sceneState.hover?.node ?? null;
   const showBody = useStore((s) => s.showBody);
   const nodeTarget = useMemo(() => nodeToTarget(map), [map]);
 
@@ -219,7 +223,8 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
       const glow = highlighted ? 0.06 : 0;
       material.emissive.setRGB(glow, glow, glow);
       let opacity = 1;
-      if (isolation && vesselSelected && analysis) { // nothing to inspect without an analysis: show the whole heart
+      // Isolation needs something to inspect: a case analysis, or the anatomy page, where the vessel itself is the point.
+      if (isolation && vesselSelected && (analysis || anatomy)) {
         if (name === "heart_myocardium") opacity = 0.35;
         else if (target !== selectedTarget) opacity = ISOLATED_OPACITY;
       }
@@ -228,12 +233,13 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
       mesh.renderOrder = name === "heart_myocardium" ? 0 : 1;
     }
     invalidate();
-  }, [meshes, analysis, selectedTarget, isolation, hoverNode, nodeTarget, map, invalidate]);
+  }, [meshes, analysis, selectedTarget, anatomy, isolation, hoverNode, nodeTarget, map, invalidate]);
 
   // Register the off-screen snapshot renderer (plan §12A.6): fixed preset camera, final colours, own render target.
   const gl = useThree((s) => s.gl);
   const sceneRoot = useThree((s) => s.scene);
   useEffect(() => {
+    if (anatomy) return; // only the open case's heart renders Review Snapshots
     const render = (presetName: string) => {
       const preset = map.camera_presets[presetName] ?? map.camera_presets.overview!;
       const { width, height } = SNAPSHOT_SIZE;
@@ -260,7 +266,7 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
     };
     useStore.getState().setSnapshotRenderer(render);
     return () => useStore.getState().setSnapshotRenderer(null);
-  }, [gl, sceneRoot, map, meshes]);
+  }, [gl, sceneRoot, map, meshes, anatomy]);
 
   // Project label anchors to screen space on every rendered frame (frameloop="demand": only when something moved).
   useFrame(({ camera, size, invalidate: requestFrame }, delta) => {
@@ -292,27 +298,26 @@ function HeartModel({ map, analysis, placeLabel }: { map: AnatomyMap; analysis: 
     const name = nodeName(e.object);
     const action = (name && map.click_behavior[name]) || "select:null";
     const [kind, arg] = action.split(":");
-    const { selectTarget, showNotice } = useStore.getState();
-    if (kind === "select") selectTarget(arg === "null" ? null : (arg as TargetId));
-    else if (kind === "info" && arg) showNotice(map.non_target_nodes[arg]?.message ?? null);
+    if (kind === "select") sceneState.select(arg === "null" ? null : (arg as TargetId));
+    else if (kind === "info" && arg) sceneState.showNotice(map.non_target_nodes[arg]?.message ?? null);
   };
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
     const name = nodeName(e.object);
     const host = (e.nativeEvent.target as HTMLElement).getBoundingClientRect();
-    if (name) useStore.getState().setHover({ node: name, x: e.nativeEvent.clientX - host.left, y: e.nativeEvent.clientY - host.top });
+    if (name) sceneState.setHover({ node: name, x: e.nativeEvent.clientX - host.left, y: e.nativeEvent.clientY - host.top });
   };
 
   return (
-    <primitive object={scene} onClick={onClick} onPointerMove={onMove} onPointerOut={() => useStore.getState().setHover(null)} />
+    <primitive object={scene} onClick={onClick} onPointerMove={onMove} onPointerOut={() => sceneState.setHover(null)} />
   );
 }
 
-function CameraRig({ map }: { map: AnatomyMap }) {
+function CameraRig({ map, sceneState }: { map: AnatomyMap; sceneState: SceneState }) {
   const controls = useRef<CameraControls>(null);
-  const selectedTarget = useStore((s) => s.selectedTarget);
-  const viewPreset = useStore((s) => s.viewPreset);
+  const selectedTarget = sceneState.selected;
+  const viewPreset = sceneState.viewPreset;
   const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height));
   // Deterministic: (target, view) → exactly one preset; camera position is never free state (plan §11A).
   const presetName = viewPreset ?? (selectedTarget ? map.targets[selectedTarget].camera_preset : "overview");
@@ -331,8 +336,8 @@ function CameraRig({ map }: { map: AnatomyMap }) {
   return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={12} smoothTime={0.45} />;
 }
 
-export function HeartScene({ meta, analysis, placeLabel, onContextLost }: {
-  meta: Meta; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; onContextLost?: () => void;
+export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneState }: {
+  meta: Meta; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; onContextLost?: () => void; sceneState: SceneState;
 }) {
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const overview = map.camera_presets.overview!;
@@ -344,7 +349,7 @@ export function HeartScene({ meta, analysis, placeLabel, onContextLost }: {
       dpr={[1, 1.5]}
       camera={{ position: overview.position as [number, number, number], fov: overview.fov, near: 0.01, far: 50 }}
       gl={{ antialias: true }} // no global preserveDrawingBuffer: snapshots use their own render target
-      onPointerMissed={() => useStore.getState().selectTarget(null)}
+      onPointerMissed={() => sceneState.select(null)}
       onCreated={({ gl }) => {
         // GPU reset / driver crash / memory pressure: tell the user instead of leaving a frozen or blank canvas
         gl.domElement.addEventListener("webglcontextlost", (event) => {
@@ -360,9 +365,9 @@ export function HeartScene({ meta, analysis, placeLabel, onContextLost }: {
       <directionalLight position={[2, 3, 4]} intensity={1.6} />
       <directionalLight position={[-3, -1, -2]} intensity={0.5} />
       <Suspense fallback={null}>
-        <HeartModel map={map} analysis={analysis} placeLabel={placeLabel} />
+        <HeartModel map={map} analysis={analysis} placeLabel={placeLabel} sceneState={sceneState} />
       </Suspense>
-      <CameraRig map={map} />
+      <CameraRig map={map} sceneState={sceneState} />
     </Canvas>
     </SceneBoundary>
   );

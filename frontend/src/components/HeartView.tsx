@@ -5,6 +5,7 @@ import { FallbackDiagram, webglAvailable } from "../three/FallbackDiagram";
 import { HeartScene, LABELLED_TARGETS, nodeToTarget, type AnatomyMap } from "../three/HeartScene";
 import { rampColor } from "../three/colors";
 import { useStore } from "../store/useStore";
+import { type SceneState, useCaseScene } from "../three/sceneState";
 import { CONFIDENCE_LABEL, CONFIDENCE_SHORT, SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
 
 function Legend({ map }: { map: AnatomyMap }) {
@@ -30,12 +31,20 @@ function Legend({ map }: { map: AnatomyMap }) {
   );
 }
 
-function Tooltip({ analysis, map }: { analysis: DisplayAnalysis | null; map: AnatomyMap }) {
-  const hover = useStore((s) => s.hover);
+/** Plain anatomical names for the "3D heart" page (no predictions there). */
+export const ANATOMY_NAME: Record<TargetId, string> = {
+  cad: "Heart (myocardium)", lad: "LAD · left anterior descending artery", lcx: "LCX · left circumflex artery",
+  rca: "RCA · right coronary artery",
+};
+
+function Tooltip({ analysis, map, sceneState }: { analysis: DisplayAnalysis | null; map: AnatomyMap; sceneState: SceneState }) {
+  const hover = sceneState.hover;
   if (!hover) return null;
   const target = nodeToTarget(map)[hover.node];
-  let text = map.non_target_nodes[hover.node]?.message ?? "";
-  if (target) {
+  let text = sceneState.kind === "anatomy" ? map.non_target_nodes[hover.node]?.label ?? ""
+    : map.non_target_nodes[hover.node]?.message ?? "";
+  if (target && sceneState.kind === "anatomy") text = ANATOMY_NAME[target];
+  else if (target) {
     const p = analysis?.targets[target];
     text = p
       ? `${target === "cad" ? "Heart · overall CAD" : SHORT[target]} · ${predictionText(target, p)} · ${probPct(p.probability)} · ${
@@ -54,14 +63,21 @@ function Tooltip({ analysis, map }: { analysis: DisplayAnalysis | null; map: Ana
   );
 }
 
-export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAnalysis | null }) {
+/** The 3D heart with its controls. Without `sceneState` it is the open case's heart (store-driven); the "3D heart"
+ *  page passes its own private scene, shows anatomy names instead of predictions and gets its own test ids (D-025). */
+export function HeartView({ meta, analysis, sceneState }: { meta: Meta; analysis: DisplayAnalysis | null; sceneState?: SceneState }) {
   const map = meta.anatomy_map as unknown as AnatomyMap;
-  const selectedTarget = useStore((s) => s.selectedTarget);
+  const caseScene = useCaseScene();
+  const sc = sceneState ?? caseScene;
+  const anatomy = sc.kind === "anatomy";
+  const tid = (id: string) => (anatomy ? `anatomy-${id}` : id);
+  const selectedTarget = sc.selected;
   const isolation = useStore((s) => s.isolation);
   const showBody = useStore((s) => s.showBody);
-  const notice = useStore((s) => s.notice);
-  const view = useStore((s) => s.view);
-  const { selectTarget, toggleIsolation } = useStore.getState();
+  const notice = sc.notice;
+  const view = useStore((s) => (anatomy ? "overview" : s.view));
+  const selectTarget = sc.select;
+  const { toggleIsolation } = useStore.getState();
   const labels = useRef<Partial<Record<TargetId, HTMLElement | null>>>({});
   const [glAvailable] = useState(webglAvailable);
   const [contextLost, setContextLost] = useState(false);
@@ -76,17 +92,17 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
   return (
     <div className="relative h-full min-h-[420px] overflow-hidden rounded-lg border border-slate-200 bg-[#f4f5f7]">
       {glAvailable ? (
-        <HeartScene key={canvasKey} meta={meta} analysis={analysis} placeLabel={placeLabel}
+        <HeartScene key={canvasKey} meta={meta} analysis={analysis} placeLabel={placeLabel} sceneState={sc}
                     onContextLost={() => setContextLost(true)} />
       ) : (
-        <FallbackDiagram analysis={analysis} transfer={map.color_transfer} />
+        <FallbackDiagram analysis={analysis} transfer={map.color_transfer} sceneState={sc} />
       )}
       {contextLost && (
-        <div role="alert" data-testid="context-lost"
+        <div role="alert" data-testid={tid("context-lost")}
              className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-white/85 text-sm text-slate-700">
           <p>The 3D view was paused because the graphics context was lost (e.g. a GPU reset).</p>
           <p className="text-xs text-slate-500">Predictions and panels are unaffected.</p>
-          <button type="button" data-testid="restore-3d" className="rounded bg-slate-900 px-3 py-1 text-xs font-semibold text-white"
+          <button type="button" data-testid={tid("restore-3d")} className="rounded bg-slate-900 px-3 py-1 text-xs font-semibold text-white"
                   onClick={() => { setContextLost(false); setCanvasKey((k) => k + 1); }}>
             Restore 3D
           </button>
@@ -116,29 +132,32 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
           </span>
         ))}
       </div>
-      <Tooltip analysis={analysis} map={map} />
+      <Tooltip analysis={analysis} map={map} sceneState={sc} />
 
       <div className="pointer-events-none absolute inset-x-2 top-2 flex flex-wrap items-start justify-between gap-2">
-        <div className="pointer-events-auto flex flex-wrap gap-1" role="group" aria-label="Select prediction target">
+        <div className="pointer-events-auto flex flex-wrap gap-1" role="group"
+             aria-label={anatomy ? "Select a structure" : "Select prediction target"}>
           {TARGET_IDS.map((t) => (
             <button
               key={t}
               type="button"
               aria-pressed={selectedTarget === t}
-              aria-label={`Select ${t === "cad" ? "overall CAD" : SHORT[t]}`}
-              data-testid={`select-${t}`}
+              aria-label={`Select ${t === "cad" ? (anatomy ? "the heart" : "overall CAD") : SHORT[t]}`}
+              data-testid={tid(`select-${t}`)}
               onClick={() => selectTarget(selectedTarget === t ? null : t)}
               className={`rounded px-2 py-1 text-xs font-semibold shadow-sm ${
                 selectedTarget === t ? "bg-slate-900 text-white" : "bg-white text-slate-700 hover:bg-slate-50"
               }`}
             >
-              {t === "cad" ? "Heart · CAD" : SHORT[t]}
-              <span className={`ml-1 font-normal ${selectedTarget === t ? "text-slate-300" : "text-slate-500"}`}>
-                {t === "cad" ? 0 : VESSELS.indexOf(t) + 1}
-              </span>
+              {t === "cad" ? (anatomy ? "Heart" : "Heart · CAD") : SHORT[t]}
+              {!anatomy && ( // keyboard shortcuts belong to the case workspace
+                <span className={`ml-1 font-normal ${selectedTarget === t ? "text-slate-300" : "text-slate-500"}`}>
+                  {t === "cad" ? 0 : VESSELS.indexOf(t) + 1}
+                </span>
+              )}
             </button>
           ))}
-          <button
+          {!anatomy && <button
             type="button"
             onClick={() => useStore.getState().showCompare()}
             aria-pressed={view === "compare"}
@@ -148,19 +167,20 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
             }`}
           >
             Compare all <span className={`font-normal ${view === "compare" ? "text-slate-300" : "text-slate-500"}`}>C</span>
-          </button>
+          </button>}
           <button
             type="button"
             onClick={() => selectTarget(null)}
+            data-testid={tid("reset")}
             className="rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm hover:bg-slate-50"
           >
-            Reset <span className="text-slate-500">Esc</span>
+            Reset {!anatomy && <span className="text-slate-500">Esc</span>}
           </button>
         </div>
         <div className="pointer-events-auto flex gap-1">
           <label className="flex items-center gap-1 rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm">
             <input type="checkbox" checked={showBody} onChange={() => useStore.getState().toggleBody()}
-                   data-testid="toggle-body" /> Body context
+                   data-testid={tid("toggle-body")} /> Body context
           </label>
           <label className="flex items-center gap-1 rounded bg-white px-2 py-1 text-xs text-slate-600 shadow-sm">
             <input type="checkbox" checked={isolation} onChange={toggleIsolation} /> Isolate selected vessel
@@ -168,7 +188,7 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
         </div>
       </div>
 
-      {!analysis && (
+      {!analysis && !anatomy && (
         <p className="pointer-events-none absolute inset-x-0 top-14 text-center text-xs text-slate-500">
           Anatomy shown in neutral grey until a complete analysis is loaded.
         </p>
@@ -184,8 +204,8 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
           <button
             key={v.id}
             type="button"
-            onClick={() => useStore.getState().setViewPreset(v.id)}
-            data-testid={`view-${v.id}`}
+            onClick={() => sc.setViewPreset(v.id)}
+            data-testid={tid(`view-${v.id}`)}
             className="rounded bg-white/90 px-2 py-0.5 text-[11px] text-slate-600 shadow-sm hover:bg-white"
           >
             {v.label}
@@ -193,12 +213,14 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
         ))}
       </div>
 
-      <div className="pointer-events-none absolute bottom-14 left-2 sm:bottom-2">
-        <Legend map={map} />
-      </div>
+      {!anatomy && ( // no predictions on the anatomy page, so no colour legend
+        <div className="pointer-events-none absolute bottom-14 left-2 sm:bottom-2">
+          <Legend map={map} />
+        </div>
+      )}
       <p className="absolute inset-x-2 bottom-2 text-left text-[10px] leading-tight text-slate-600 sm:left-auto sm:text-right"
          title="Reference anatomy (BodyParts3D, CC BY 4.0), not a patient-specific reconstruction. Each vessel is tinted as a whole; location within the vessel is not known.">
-        Reference anatomy, not this patient's · whole-vessel tint ⓘ
+        {anatomy ? "Reference anatomy (BodyParts3D, CC BY 4.0) · not a patient ⓘ" : "Reference anatomy, not this patient's · whole-vessel tint ⓘ"}
       </p>
     </div>
   );

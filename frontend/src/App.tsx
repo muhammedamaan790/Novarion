@@ -5,6 +5,7 @@ import { DisclaimerFooter, Header } from "./components/Chrome";
 import { EvidencePage } from "./components/evidence/EvidencePage";
 import { ModelCenterPage } from "./components/modelcenter/ModelCenterPage";
 import { MyCasesPanel } from "./components/MyCasesPanel";
+import { AnatomyPage } from "./components/AnatomyPage";
 import { DatasetLibrary } from "./components/PatientPanel";
 import { SignInPage } from "./components/SignInPage";
 import { HomePage, Workspace } from "./components/Workspace";
@@ -14,7 +15,7 @@ import { type CaseTab, type Page, useStore } from "./store/useStore";
 
 const KEY_TO_TARGET: Record<string, TargetId> = { "0": "cad", "1": "lad", "2": "lcx", "3": "rca" };
 
-const URL_PAGES: readonly Page[] = ["library", "cases", "evidence", "models"];
+const URL_PAGES: readonly Page[] = ["library", "cases", "anatomy", "evidence", "models"];
 const CASE_TABS: readonly CaseTab[] = ["result", "why", "data", "whatif"];
 
 /** Deep links (plan §9.2): ?dataset=ZAS-0003&tab=why&target=lad, ?page=library. Camera state is never in the URL. */
@@ -53,6 +54,7 @@ function useUrlSync() {
 function useKeyboard() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (useStore.getState().page !== "workspace") return; // shortcuts drive the open case only (D-025)
       if (e.defaultPrevented || e.ctrlKey || e.altKey || e.metaKey
         || e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement
         || e.target instanceof HTMLSelectElement
@@ -157,6 +159,7 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
               <Workspace meta={meta.data.data} analysis={analysis} runMode={runMode.data} />
             </div>
           )}
+          {page === "anatomy" && <AnatomyPage meta={meta.data.data} />}
           {page === "evidence" && <EvidencePage />}
           {page === "models" && <ModelCenterPage />}
         </main>

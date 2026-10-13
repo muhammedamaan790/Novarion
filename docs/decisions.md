@@ -609,3 +609,27 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     shown in dark green.
   - The report and model card keep HIGH/LOW as the technical names, with the mapping stated once.
 - **Release:** a UI change after v1.0.3, so it ships as release v1.0.4, still serving model v1.0.2.
+
+## D-025 — A "3D heart" page: the anatomy without any case
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **Context:** The user asked for a tab that shows the 3D heart without a test case or data, so viewers can explore
+  the anatomy before seeing it coloured by predictions.
+- **Decision (interface only; the model, anatomy configuration and API are unchanged):**
+  - A "3D heart" nav tab (also on the home screen, `?page=anatomy`) shows the reference heart (BodyParts3D) with
+    orbit, zoom, the camera presets, body context and isolation.
+  - Clicking an artery (or its button) shows its course, what it supplies and how NOVARION uses it. The text is
+    general anatomy worded for a reference heart, with dominance stated as "in most people". The left main is shown
+    but is not a prediction target. There is no colour legend and no Compare, because there are no predictions.
+  - **Isolation:** the scene's selection, camera preset, hover and notice come from a `SceneState`. The case heart
+    gets a thin store-backed view (unchanged behaviour); the 3D heart page gets private state. Selecting there never
+    changes an open case.
+  - **Snapshots:** only the case heart registers the Review Snapshot renderer.
+  - **Keyboard:** the 0–3/C/Esc shortcuts act only on the case workspace page.
+  - Its controls carry `anatomy-` test ids, so they never collide with the hidden case heart's.
+- **Verification:** `e2e/anatomy.spec.ts` covers the page with no case (no predictions, arteries explained, presets,
+  reset); a case's selection unchanged after exploring, with shortcuts ignored on the page; a case snapshot still
+  rendered by the case heart; and axe. 64/64 E2E.
+- **Release:** part of v1.0.4 (with D-024), still serving model v1.0.2.
+
