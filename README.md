@@ -171,16 +171,17 @@ make docker-e2e                                  # the same E2E flows against th
 
 ## Status
 
-**Release v1.0.3 (frozen; `release_manifest.json`, git tag `v1.0.3`), serving model v1.0.2.** Built:
+**Release v1.0.4 (frozen; `release_manifest.json`, git tag `v1.0.4`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
 - the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (61/61 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
-**New in v1.0.3 (the model is unchanged; v1.0.2 is the earlier release of the same model):** a sign-in page with
+**New since release v1.0.2 (the model is unchanged):** a sign-in page with
 real accounts, a home screen with one NEW CASE button, a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence: Summary ·
 Performance · Confidence tiers · Curves · vs guideline score) (D-022), and one workspace per open patient with a
-search bar (D-023). Verified: 198 Python tests, 24 unit tests and 61 browser flows, against the mock and against the
+search bar (D-023) in v1.0.3; in v1.0.4, confidence shown as "validated high" or "standard" with the model's tested
+accuracy beside each prediction (D-024). Verified: 198 Python tests, 24 unit tests and 61 browser flows, against the mock and against the
 rebuilt Docker stack with the real model.
 
 Still open, for the team:
@@ -190,7 +191,7 @@ Still open, for the team:
 - a public hosted URL, if the submission requires one.
 
 Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
-(v1.0.4 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
+(v1.0.5 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
 
 ## Data and credits
 
