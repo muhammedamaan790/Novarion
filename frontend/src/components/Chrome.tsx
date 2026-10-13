@@ -5,7 +5,7 @@ import { DISCLAIMER } from "./wording";
 
 export function DisclaimerFooter() {
   return (
-    <footer role="note" className="border-t border-slate-200 bg-white px-4 py-1 text-center text-xs font-medium text-slate-700"
+    <footer role="note" className="border-t border-slate-200 bg-white px-4 py-1 text-center text-xs font-bold text-slate-900"
             data-testid="disclaimer">
       {DISCLAIMER} Predictions estimate dataset labels; they are not diagnoses.
     </footer>
