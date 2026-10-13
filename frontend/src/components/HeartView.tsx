@@ -5,7 +5,7 @@ import { FallbackDiagram, webglAvailable } from "../three/FallbackDiagram";
 import { HeartScene, LABELLED_TARGETS, nodeToTarget, type AnatomyMap } from "../three/HeartScene";
 import { rampColor } from "../three/colors";
 import { useStore } from "../store/useStore";
-import { SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
+import { CONFIDENCE_LABEL, CONFIDENCE_SHORT, SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
 
 function Legend({ map }: { map: AnatomyMap }) {
   const ramp = (family: "warm" | "cool") =>
@@ -24,7 +24,7 @@ function Legend({ map }: { map: AnatomyMap }) {
       ))}
       <div className="mt-0.5 flex items-center gap-1.5">
         <span className="h-2.5 w-20 border border-dashed border-slate-500 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_3px,#ffffff_3px_6px)]" />
-        low model confidence (desaturated, hatched)
+        standard confidence (lighter, faint stripes)
       </div>
     </div>
   );
@@ -39,8 +39,8 @@ function Tooltip({ analysis, map }: { analysis: DisplayAnalysis | null; map: Ana
     const p = analysis?.targets[target];
     text = p
       ? `${target === "cad" ? "Heart · overall CAD" : SHORT[target]} · ${predictionText(target, p)} · ${probPct(p.probability)} · ${
-          p.model_confidence === "high" ? "HIGH" : "LOW"
-        } MODEL CONFIDENCE`
+          CONFIDENCE_LABEL[p.model_confidence]
+        }`
       : `${map.targets[target].label} · no analysis loaded`;
   }
   return (
@@ -111,7 +111,7 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
             {view === "compare" && analysis?.targets[t]
               ? `${map.targets[t].label} · ${probPct(analysis.targets[t]!.probability)} · ${
                   analysis.targets[t]!.predicted_class === "positive" ? "stenosis" : "no stenosis"} · ${
-                  analysis.targets[t]!.model_confidence === "high" ? "HIGH" : "LOW"}`
+                  CONFIDENCE_SHORT[analysis.targets[t]!.model_confidence]}`
               : map.targets[t].label}
           </span>
         ))}

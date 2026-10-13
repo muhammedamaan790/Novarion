@@ -43,12 +43,19 @@ export const TOOLTIPS = {
     "probability of the dataset's CAD label. It isn't a clinically validated cardiovascular risk score.",
   vessel:
     "Predicted probability of the dataset-defined stenosis label for this vessel. Location within the vessel is not known.",
-  confidence: "Confidence reflects validation performance in this dataset/cohort; it isn't clinical certainty.",
+  confidence:
+    "VALIDATED HIGH CONFIDENCE: the score lies in a range that met the pre-registered PPV ≥ 90% / NPV ≥ 95% target in " +
+    "testing. STANDARD CONFIDENCE: a normal model prediction outside those ranges, so no extra reliability figure is " +
+    "quoted. Both reflect validation in this dataset/cohort, not clinical certainty.",
   legend:
     "Colour family = predicted class; colour depth = how far the probability is from the decision threshold. " +
     "The probability is shown as a number.",
   how: "Which measured input groups were associated with the model output for this target.",
 };
+
+// D-024: the two confidence tiers, named by what they mean. The API values stay "high" / "low".
+export const CONFIDENCE_LABEL = { high: "VALIDATED HIGH CONFIDENCE", low: "STANDARD CONFIDENCE" } as const;
+export const CONFIDENCE_SHORT = { high: "VALIDATED", low: "STANDARD" } as const;
 
 export const MODE_BADGE: Record<string, string> = {
   oof: "OOF VALIDATION",

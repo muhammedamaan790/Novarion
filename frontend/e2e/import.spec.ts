@@ -33,7 +33,7 @@ test("synthetic JSON: ambiguous units must be confirmed; UNKNOWN forces LOW conf
   await page.getByText("I confirm these values are in the units shown").click();
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 15_000 });
   for (const t of ["cad", "lad", "lcx", "rca"]) {
-    await expect(page.getByTestId(`card-${t}`)).toContainText("LOW MODEL CONFIDENCE");
+    await expect(page.getByTestId(`card-${t}`)).toContainText("STANDARD CONFIDENCE");
   }
   await expect(page.getByTestId("card-cad")).toContainText("an input was marked UNKNOWN");
   await page.screenshot({ path: `${SHOTS}/9-import-synthetic.png` });

@@ -9,7 +9,7 @@ import { DatasetLibrary } from "./components/PatientPanel";
 import { SignInPage } from "./components/SignInPage";
 import { HomePage, Workspace } from "./components/Workspace";
 import { WorkspaceBar } from "./components/WorkspaceBar";
-import { SHORT, predictionText, probPct } from "./components/wording";
+import { CONFIDENCE_LABEL, SHORT, predictionText, probPct } from "./components/wording";
 import { type CaseTab, type Page, useStore } from "./store/useStore";
 
 const KEY_TO_TARGET: Record<string, TargetId> = { "0": "cad", "1": "lad", "2": "lcx", "3": "rca" };
@@ -166,7 +166,7 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
         <p className="sr-only" aria-live="polite" data-testid="live-announcer">
           {TARGET_IDS.map((t) => {
             const p = analysis.targets[t];
-            return p ? `${SHORT[t]}: ${predictionText(t, p)}, ${probPct(p.probability)}, ${p.model_confidence} model confidence. ` : "";
+            return p ? `${SHORT[t]}: ${predictionText(t, p)}, ${probPct(p.probability)}, ${CONFIDENCE_LABEL[p.model_confidence].toLowerCase()}. ` : "";
           })}
         </p>
       )}

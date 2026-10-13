@@ -50,7 +50,7 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
           {f.allow_unknown && (
             <button
               type="button"
-              title="Mark as UNKNOWN (imputed, forces LOW model confidence)"
+              title="Mark as UNKNOWN (imputed, forces standard confidence)"
               aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
               aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}

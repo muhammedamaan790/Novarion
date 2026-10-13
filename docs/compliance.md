@@ -23,7 +23,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | Brief item | Evidence | Status |
 |---|---|---|
 | 2a Interactive 3D torso/heart (React Three Fiber) | A BodyParts3D heart with named LAD/LCX/RCA/left-main nodes, plus a translucent torso and rib cage (`frontend/public/models/heart.glb`, `config/anatomy_manifest.json`). | Met |
-| 2b Vessel colour driven by predicted probability | OKLCH transfer: the colour family is the predicted class, and the depth is a monotone function of the calibrated probability with t_op as zero. LOW confidence adds hatching. The exact probability is always shown (`frontend/src/three/colors.ts`; `config/anatomy_map.json`). | Met |
+| 2b Vessel colour driven by predicted probability | OKLCH transfer: the colour family is the predicted class, and the depth is a monotone function of the calibrated probability with t_op as zero. Standard (LOW-tier) confidence lowers chroma and adds faint stripes (D-024). The exact probability is always shown (`frontend/src/three/colors.ts`; `config/anatomy_map.json`). | Met |
 | 2c Rotate, zoom, select anatomical regions | Orbit and zoom, five camera presets and a whole-body view. Vessels and the heart can be clicked in 3D or selected from cards (one store action). The torso and ribs are deliberately not pickable, so a click can't land on context instead of a vessel (D-011). | Met |
 | Show **where** and **how** | **Where:** the predicted vessel on the heart, tinted as a whole; we never imply a lesion location. **How:** per-vessel feature contributions and group sums. The data has one visit per patient, so we show contributing factors, not progression. | Met (interpreted) |
 | Output ↔ vessel correspondence | `config/anatomy_map.json` binds each target to its node, camera and label anchor (`tests/test_anatomy.py`). | Met |
@@ -73,6 +73,6 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 - No diagnosis, lesion localization, or test or treatment recommendation.
 - No external validation: everything is internal nested CV on one public, 303-patient, high-prevalence cohort.
-- The vessel models never reach HIGH confidence, because no region met the pre-registered PPV/NPV targets. They still give a binary call.
+- The vessel models never reach the HIGH tier (shown as "validated high confidence"), because no region met the pre-registered PPV/NPV targets. They still give a binary call, labelled "standard confidence" with the model's tested ROC-AUC beside it (D-024).
 - The replay study is a "historical replay · NOT temporal validation". It shows a flat learning curve for CAD, LAD and RCA and a rising one for LCX, and the gate passed in only 1 of 20 replays.
 - The learning loop is "designed for continual supervised updating". It never learns from its own predictions and never promotes a model without a person.

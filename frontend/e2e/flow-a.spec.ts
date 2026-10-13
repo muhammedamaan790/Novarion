@@ -27,6 +27,9 @@ test("panel selection drives the 3D view, the cards and the Why panel", async ({
   await openPatient(page, "ZAS-0003");
   await expect(page.getByText("OOF VALIDATION")).toBeVisible();
   for (const t of ["cad", "lad", "lcx", "rca"]) await expect(page.getByTestId(`card-${t}`)).toBeVisible();
+  // each line shows its tier and how the model did in testing (D-024)
+  await expect(page.getByTestId("card-lad")).toContainText(/VALIDATED HIGH CONFIDENCE|STANDARD CONFIDENCE/);
+  if (REAL) await expect(page.getByTestId("card-lad")).toContainText(/in testing/); // the mock has no validated model row
   await page.waitForTimeout(800);
   await page.screenshot({ path: `${SHOTS}/1-overview.png` });
 

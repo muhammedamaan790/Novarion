@@ -584,3 +584,28 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   updated `flow-b-safety` test holds a New case prediction in flight, switches to another patient, then checks that
   the response leaves the visible case untouched and arrives in its own workspace.
 
+
+## D-024 — Confidence tiers renamed for what they mean; the tested accuracy shown beside them
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **Context:** On screen nearly every prediction read "LOW MODEL CONFIDENCE": every vessel prediction (no vessel
+  region qualified, D-008) and every negative CAD call. The user found that "LOW" reads as "this model is bad". It
+  actually means "outside the score ranges that met the pre-registered PPV ≥ 90% / NPV ≥ 95% target". The
+  predictions themselves are ordinary model predictions with the model's measured out-of-sample performance.
+- **Rejected:** lowering the pre-registered targets so that more predictions qualify. Moving a target after seeing
+  results would undo D-008, and it is the first thing a methods reviewer checks.
+- **Decision (wording and display only; the model, thresholds, confidence regions, API values `high`/`low`,
+  anatomy configuration and pinned hashes are unchanged):**
+  - The tiers are labelled **VALIDATED HIGH CONFIDENCE** and **STANDARD CONFIDENCE** everywhere in the app: cards,
+    summary, 3D tooltip and callouts, legend, 2D fallback, Review Snapshot PDF, review limitations and the Model
+    evidence Table 2 headers.
+  - Each prediction line shows how the model did in testing. A validated range shows its own measured PPV or NPV
+    ("PPV 95% in this range in testing"); a standard prediction shows the target model's out-of-sample ROC-AUC ("LAD
+    model ROC-AUC 0.84 in testing"). Both come from validation, never from the patient. The figure is omitted when no
+    validated model row exists (the contract mock).
+  - The standard tier keeps its lower-chroma colour (config unchanged). The 3D stripe pattern drops from 30% to 12%
+    strength, and the dashed badge and ring are replaced by a plain neutral badge: a tier, not a warning. Validated is
+    shown in dark green.
+  - The report and model card keep HIGH/LOW as the technical names, with the mapping stated once.
+- **Release:** a UI change after v1.0.3, so it ships as release v1.0.4, still serving model v1.0.2.

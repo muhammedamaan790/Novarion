@@ -58,16 +58,16 @@ is nested CV with 5 × 5 outer folds; the full tables are in `results/tables.md`
 
 | Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | High-confidence share (pooled OOF) |
 |---|---|---|---|---|---|
-| CAD | 71.3% | 0.930 ± 0.035 | 0.860 ± 0.051 | 0.095 | 62% high-positive (PPV 95%), 38% LOW |
-| LAD | 58.4% | 0.838 ± 0.046 | 0.758 ± 0.044 | 0.161 | 100% LOW (no qualified region) |
-| LCX | 39.3% | 0.721 ± 0.067 | 0.666 ± 0.067 | 0.209 | 100% LOW (no qualified region) |
-| RCA | 37.6% | 0.736 ± 0.037 | 0.666 ± 0.042 | 0.200 | 100% LOW (no qualified region) |
+| CAD | 71.3% | 0.930 ± 0.035 | 0.860 ± 0.051 | 0.095 | 62% validated high-positive (PPV 95%), 38% standard |
+| LAD | 58.4% | 0.838 ± 0.046 | 0.758 ± 0.044 | 0.161 | 100% standard (no qualified region) |
+| LCX | 39.3% | 0.721 ± 0.067 | 0.666 ± 0.067 | 0.209 | 100% standard (no qualified region) |
+| RCA | 37.6% | 0.736 ± 0.037 | 0.666 ± 0.042 | 0.200 | 100% standard (no qualified region) |
 
 Every prediction is a binary STENOSIS / NO STENOSIS call. **Model confidence** is HIGH only inside a probability
 region whose Wilson-95% lower bound met the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95. These targets were fixed before
 results and never lowered (D-008).
 
-Confidence is also forced LOW in two cases:
+Confidence is also forced to standard (the LOW tier) in two cases:
 
 - **Unknown inputs or an atypical profile.**
 - **An unstable dataset patient.** A patient is unstable when their refit-bootstrap stability interval straddles the

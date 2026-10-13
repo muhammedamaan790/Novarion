@@ -5,7 +5,7 @@
 import { jsPDF } from "jspdf";
 import { REVISION as THREE_REVISION } from "three";
 import { TARGET_IDS } from "../api/client";
-import { DISCLAIMER, REASON_TEXT, SHORT, predictionText, probPct } from "../components/wording";
+import { CONFIDENCE_LABEL, DISCLAIMER, REASON_TEXT, SHORT, predictionText, probPct } from "../components/wording";
 import type { CaseRecord, PersistedAnalysis, Review, StoredSnapshot } from "./db";
 import { jcsSha256, sha256Hex } from "./jcs";
 
@@ -145,7 +145,7 @@ export async function snapshotPdf(stored: StoredSnapshot): Promise<jsPDF> {
       model_confidence_reasons: string[] }>)[t]!;
     const reasons = p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ");
     line(`${SHORT[t]}: ${predictionText(t, p as never)} · probability ${probPct(p.probability)} · `
-      + `${p.model_confidence === "high" ? "HIGH" : "LOW"} MODEL CONFIDENCE${reasons ? ` (${reasons})` : ""}`);
+      + `${CONFIDENCE_LABEL[p.model_confidence === "high" ? "high" : "low"]}${reasons ? ` (${reasons})` : ""}`);
   }
   line("Top model contributions (calibrated log-odds; associations, not causes)", 11, true);
   for (const t of TARGET_IDS) {

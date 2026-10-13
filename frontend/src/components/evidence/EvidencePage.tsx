@@ -282,7 +282,7 @@ export function EvidencePage() {
           <p className="mt-0.5 text-sm text-slate-600">pooled OOF (prespecified repeat) · share of patients in each tier</p>
           <table className="mt-3 w-full tabular-nums">
             <thead className="text-left text-xs font-bold uppercase tracking-wide text-slate-600">
-              <tr><th className="py-2">Target</th><th>High-positive</th><th>PPV [95% CI]</th><th>High-negative</th><th>NPV [95% CI]</th><th>LOW</th></tr>
+              <tr><th className="py-2">Target</th><th>Validated positive</th><th>PPV [95% CI]</th><th>Validated negative</th><th>NPV [95% CI]</th><th>Standard</th></tr>
             </thead>
             <tbody className="text-sm">
               {ev.table2.map((r) => (
@@ -298,8 +298,8 @@ export function EvidencePage() {
             </tbody>
           </table>
           <p className="mt-3 text-sm text-slate-700">
-            Every patient still gets a prediction. LOW means no PPV/NPV is quoted: that score range did not meet the
-            pre-registered target.
+            Every patient gets a prediction. A validated range met the pre-registered PPV ≥ 90% / NPV ≥ 95% target;
+            a standard prediction lies outside those ranges, so no extra PPV/NPV is quoted for it.
           </p>
         </section>
       )}

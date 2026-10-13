@@ -3,19 +3,24 @@
 Written **before** any real model results exist (D-008), so the wording cannot be tuned to the outcome.
 Replace every `[ACTUAL …]` with the measured value from `results/`; never round in our favour.
 
-## 1. If many predictions are LOW MODEL CONFIDENCE
+## 1. If many predictions show STANDARD CONFIDENCE
+
+(The app labels the two tiers **VALIDATED HIGH CONFIDENCE** and **STANDARD CONFIDENCE** (D-024); the report and
+model card call them HIGH and LOW.)
 
 **What we will not do:** lower the PPV/NPV targets, widen the regions, or pick demo patients by their confidence
 tier (demo patients are fixed in `config/demo_config.yaml` before final predictions, plan §17).
 
 **What we say (demo voice-over):**
-> "Every vessel always gets a prediction: stenosis predicted or not. Separately, Novarion tells you whether that
-> score falls in a region where, in validation, the model met a pre-registered accuracy target. For [LCX] it often
-> doesn't, and the system says so instead of sounding sure. With 303 patients, refusing to overstate is the
-> feature, not a failure."
+> "Every artery always gets a prediction: stenosis predicted or not. Separately, Novarion marks a prediction
+> 'validated high confidence' only where, in testing, that score range met a target we fixed before training: right
+> at least 90% of the time when positive, 95% when negative. For CAD that holds for about 6 in 10 patients. Everything
+> else is 'standard confidence': a normal model prediction, shown next to how the model did in testing. With 303
+> patients, refusing to overstate is the feature, not a failure."
 
-**On screen:** the dashed, desaturated vessel + the reason ("near the decision threshold" / "no qualified
-high-confidence region for this target"). Then show a HIGH vessel next to it so the contrast is visible.
+**On screen:** a standard-confidence vessel (slightly lighter, faint stripes), its line "LAD model ROC-AUC 0.84 in
+testing", and the reason when the card is opened. Then a validated one (e.g. CAD on a clear positive) so the
+contrast is visible.
 
 **In the report (Table 2):** the share of HIGH-positive / HIGH-negative / LOW per target, with the measured PPV/NPV
 of the HIGH regions `[ACTUAL]`. If a target has no qualified region at all, say it plainly: "the available features
@@ -41,7 +46,7 @@ next to the 71 % always-CAD baseline. Inflated numbers usually come from tuning 
 ## 3. Wording rules (always)
 
 - "CAD probability", "LAD stenosis-label probability"; never "risk of disease", "diagnosis", "you have".
-- "HIGH / LOW MODEL CONFIDENCE"; never bare HIGH/LOW; never "certainty".
+- "VALIDATED HIGH CONFIDENCE" / "STANDARD CONFIDENCE"; never bare HIGH/LOW on screen; never "certainty".
 - SHAP = "model contribution"; never "risk factor" or "cause".
 - The disclaimer is visible in every frame of the video (bold footer line on every screen, the sign-in page
   included) and spoken at the start and end.

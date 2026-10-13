@@ -74,7 +74,7 @@ function surfaceAnchor(mesh: THREE.Mesh): THREE.Vector3 {
   return best;
 }
 
-/** MeshStandardMaterial + an optional hatch pattern (LOW model confidence, plan §9.3) driven by `uHatch`. */
+/** MeshStandardMaterial + an optional faint stripe pattern (standard confidence, plan §9.3, D-024) driven by `uHatch`. */
 function makeMaterial(): THREE.MeshStandardMaterial {
   const material = new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.0, transparent: true });
   const uniforms = { uHatch: { value: 0 } };
@@ -92,7 +92,7 @@ function makeMaterial(): THREE.MeshStandardMaterial {
         "#include <color_fragment>",
         "if (uHatch > 0.5) {",
         "  float stripe = step(0.55, fract((vNovWorld.x + vNovWorld.y - vNovWorld.z) * 45.0));",
-        "  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), stripe * 0.3);",
+        "  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), stripe * 0.12);", // faint: a tier, not a warning (D-024)
         "}",
       ));
   };

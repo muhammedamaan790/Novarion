@@ -42,7 +42,7 @@ export function FallbackDiagram({ analysis, transfer }: { analysis: DisplayAnaly
           </g>
         ))}
       </svg>
-      <p className="text-[11px] text-slate-600">Schematic only; dashed = LOW model confidence. Each vessel is tinted as a whole.</p>
+      <p className="text-[11px] text-slate-600">Schematic only; dashed = standard confidence. Each vessel is tinted as a whole.</p>
     </div>
   );
 }

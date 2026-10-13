@@ -145,7 +145,7 @@ contract → OpenAPI → generated TypeScript types) → React 19 + React Three 
 store). Registries (features, targets, anatomy map) make new features, models or structures a configuration change.</p>
 {img("2-lad.png", "Figure 1 — A case's Result tab on a held-out dataset patient (out-of-fold prediction): LAD "
      "selected; the camera flies to the vessel and the others fade. Colour family = predicted class, depth = distance "
-     "from the decision threshold, hatching = LOW model confidence. Beside it, a two-line summary and one line per "
+     "from the decision threshold, lighter with faint stripes = standard confidence. Beside it, a two-line summary and one line per "
      "target (binary call, probability, confidence) that expands to its stability interval and reasons.")}
 
 <h2>2. Data and preprocessing</h2>
@@ -168,7 +168,8 @@ with a 1-SE rule toward the simplest configuration; outer folds only estimate pe
 scaling on cross-fitted logits (guard a &gt; 0; never triggered). <b>Layer A</b> (official binary prediction): Youden
 threshold on calibrated training-side OOF probabilities. <b>Layer B</b> (model confidence): HIGH only inside a region
 whose Wilson-95% lower bound meets the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 (n ≥ 15); otherwise LOW with a stated
-reason; UNKNOWN inputs and atypical profiles (Gower distance to the training cohort) force LOW. The deployed model per
+reason; UNKNOWN inputs and atypical profiles (Gower distance to the training cohort) force LOW. The app labels the
+tiers "validated high confidence" and "standard confidence". The deployed model per
 target repeats the selection on all 303 patients and refits. Logistic regression was chosen in most outer folds
 (Table 3), and in the deployed models for CAD, LAD and RCA (LCX: shallow XGBoost).
 <b>Explanations</b> are exact: linear SHAP (LR), TreeSHAP (XGBoost/CatBoost) or native EBM terms in the raw margin,
@@ -193,7 +194,8 @@ Italic rows: always-positive baseline (and the prior-probability Brier).</p>
 of patients fall in a qualified HIGH-positive region with measured PPV {pct(t['cad']['table2']['ppv'])}. Vessel-level
 separation from routine features is weaker (LAD {m(t['lad']['model'], 'roc_auc')}, LCX
 {m(t['lcx']['model'], 'roc_auc')}, RCA {m(t['rca']['model'], 'roc_auc')}): <b>no vessel model qualified a
-high-confidence region</b>, so every vessel prediction is shown as LOW confidence while still giving a binary call.
+high-confidence region</b>, so every vessel prediction is shown with standard confidence (the LOW tier) while still
+giving a binary call, next to the model's tested ROC-AUC.
 The targets were fixed before results and were not lowered (D-008). Accuracy should always be read against the
 always-positive baseline ({m(t['cad']['baselines']['always_positive'], 'accuracy')} for CAD).</p>
 <p class="cap"><b>Table 3 — family benchmarks (same selection rule within one family; ROC-AUC, outer-fold mean ± SD)
