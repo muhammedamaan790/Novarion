@@ -298,8 +298,8 @@ export function EvidencePage() {
             </tbody>
           </table>
           <p className="mt-3 text-sm text-slate-700">
-            Every patient still gets a prediction. LOW means no PPV/NPV is quoted, because that score range did not meet
-            the pre-registered target.
+            Every patient still gets a prediction. LOW means no PPV/NPV is quoted: that score range did not meet the
+            pre-registered target.
           </p>
         </section>
       )}
