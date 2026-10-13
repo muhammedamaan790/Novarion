@@ -1,7 +1,7 @@
 {
- "release_version": "1.0.3",
+ "release_version": "1.0.4",
  "model_version": "1.0.2",
- "git_sha": "f5724d739094f3d69d141cab37445b341153a2ee",
+ "git_sha": "c2443e04669691931f5c3a1e4df3801595dd2af1",
  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
  "feature_registry_sha256": "70e4d6f187b480ffe663114de169f5bed958bf01d1a4b192af2074c7f832213e",
  "target_schema_sha256": "6d49e80938ae2fd250129ec2d185611dc3478c193279b242949d855062cf938d",
@@ -24,6 +24,6 @@
   "@react-three/drei": "10.7.9",
   "three": "0.186.1"
  },
- "created_at": "2026-10-13T03:23:02Z",
+ "created_at": "2026-10-13T14:49:36Z",
  "freeze_status": "FINAL"
 }
