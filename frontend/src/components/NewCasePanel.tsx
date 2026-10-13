@@ -273,16 +273,13 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
 
   return (
     <div className="flex h-full flex-col gap-2 overflow-hidden">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-slate-500">New case</h2>
+      <div className="flex items-center justify-between"
+           title="De-identified or synthetic values only. Every field needs a value or an explicit UNKNOWN (where allowed). BMI and obesity are computed.">
+        <h2 className="text-sm font-bold text-slate-900">Patient data <span className="font-normal text-slate-500">ⓘ</span></h2>
         <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-emerald-800">
           {MODE_BADGE.final_model}
         </span>
       </div>
-      <p className="text-[11px] text-slate-500">
-        De-identified or synthetic values only. Every field needs a value
-        {" "}or an explicit UNKNOWN (where allowed). BMI and obesity are computed.
-      </p>
       {recoverable && (
         <div className="rounded border border-sky-300 bg-sky-50 p-2 text-[11px] text-sky-900" data-testid="draft-recovery">
           <p>Recover unsaved draft from {recoverable.saved_at.replace("T", " ").replace("Z", " UTC")}?</p>
@@ -404,13 +401,15 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
 
       <form className="min-h-0 flex-1 space-y-3 overflow-auto pr-1" onSubmit={(e) => e.preventDefault()}>
         {groups.map(([group, fs]) => (
-          <fieldset key={group} className="space-y-1">
-            <legend className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          <fieldset key={group}>
+            <legend className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-600">
               {GROUP_LABEL[group] ?? group}
             </legend>
-            {fs.map((f) => (
-              <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
-            ))}
+            <div className="grid grid-cols-1 gap-x-10 gap-y-1 xl:grid-cols-2">
+              {fs.map((f) => (
+                <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
+              ))}
+            </div>
           </fieldset>
         ))}
       </form>

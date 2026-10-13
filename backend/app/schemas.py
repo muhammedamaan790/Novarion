@@ -65,7 +65,8 @@ def _check_targets_complete(mapping: dict[str, Any], what: str) -> None:
 ErrorCode = Literal[
     "VALIDATION_FAILED", "INPUT_OUT_OF_RANGE", "UNSEEN_CATEGORY", "UNIT_MISMATCH", "INPUT_HASH_MISMATCH",
     "ARTIFACT_MISMATCH", "NOT_READY", "TARGET_FAILED", "PAYLOAD_TOO_LARGE", "RATE_LIMITED", "NOT_FOUND",
-    "QUALITY_GATE_BLOCKED", "INTERNAL_ERROR", "FORBIDDEN", "PROMOTION_REFUSED",
+    "QUALITY_GATE_BLOCKED", "INTERNAL_ERROR", "FORBIDDEN", "PROMOTION_REFUSED", "UNAUTHENTICATED",
+    "INVALID_CREDENTIALS",
 ]
 TargetStatusValue = Literal["complete", "computed_not_committed", "error"]
 
@@ -186,6 +187,20 @@ class SensitivityRequest(PinnedTargetRequest):
 # ---------------------------------------------------------------------------------------------------- health / meta
 class HealthLive(Strict):
     status: Literal["ok"] = "ok"
+
+
+# ---------------------------------------------------------------------------------------------------- sign-in (D-022)
+class LoginRequest(Strict):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=256)
+
+
+class AuthSession(Strict):
+    """auth_required=false: no accounts file, so the API is open (dev, tests). user=null: not signed in."""
+
+    auth_required: bool
+    accounts_configured: bool
+    user: str | None = None
 
 
 class HealthReady(Strict):

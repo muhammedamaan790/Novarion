@@ -34,7 +34,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Brief item | Evidence | Status |
 |---|---|---|
-| 3a CAD status and vessel probabilities beside the canvas | Four cards in the right panel, each with the binary call, probability and model confidence (screenshot `docs/img/command-center-lad.png`). | Met |
+| 3a CAD status and vessel probabilities beside the canvas | On a case's Result tab: a two-line summary, then one line per target (binary call, probability, model confidence) beside the 3D view; a line expands to its stability interval and confidence reasons (D-022). | Met |
 | 3b SHAP/LIME explanation | Exact additive SHAP in calibrated log-odds: linear SHAP, TreeSHAP or EBM terms. The sum rule is tested for every served explanation (`tests/test_ml_core.py`, `tests/test_bundle.py`). | Met |
 | 3c Measurements and their relative contribution | The Why panel's measurement table shows each value, its contribution, a relative-share column and cohort percentiles; a compare-all-vessels heatmap sits alongside. | Met |
 | What-if and robustness (plan Tier 3) | `POST /sensitivity` ICE curves for new/edited cases (age and sex locked; "model sensitivity, not treatment simulation"), Unknown inputs that could flip the class, model-family agreement (Table 3b), a 1,000-shuffle label-permutation test (Table 1b, p = 0.001 for every target) and stability bars on the cards. | Met |
@@ -45,7 +45,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | Brief item | Evidence | Status |
 |---|---|---|
 | 4 Open-source meshes | BodyParts3D 4.0 (CC BY 4.0), attributed in `CREDITS.md` and in the UI footer. | Met |
-| 5 Clinical-safety disclaimer | A persistent banner on every screen ("Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."), also on Review Snapshot PDFs. E2E checks it is always visible. | Met |
+| 5 Clinical-safety disclaimer | A persistent one-line footer on every screen, the sign-in page included ("Decision support / educational purposes only. Not a substitute for formal diagnostic imaging."), also on Review Snapshot PDFs. E2E checks it is visible (D-022). | Met |
 | Extensibility | Features, targets and anatomy are driven by registries. An adjacent example is the learning loop, which adds models without code changes (D-018). | Met |
 
 ## Deliverables

@@ -27,7 +27,8 @@ export default defineConfig({
     {
       command: `uv run --group inference uvicorn app.main:app --app-dir backend --port ${apiPort}`,
       cwd: "..",
-      env: real ? { PYTHONPATH: "ml" } : { NOVARION_MOCK: "1", PYTHONPATH: "ml" },
+      // Sign-in stays off for the flows (an accounts file may exist locally); e2e/auth.spec.ts covers the sign-in page.
+      env: real ? { PYTHONPATH: "ml", NOVARION_AUTH: "off" } : { NOVARION_MOCK: "1", PYTHONPATH: "ml", NOVARION_AUTH: "off" },
       url: `http://127.0.0.1:${apiPort}/api/v1/health/ready`,
       reuseExistingServer: !process.env.CI, // a wrong reused backend fails the mock-identity test loudly
       timeout: 120_000,

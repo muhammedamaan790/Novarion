@@ -8,7 +8,7 @@ import { canonicalize } from "../src/cases/jcs";
 const FIRST_LOAD = { timeout: 30_000 };
 
 async function openPatient(page: Page, id: string) {
-  await page.goto("/");
+  await page.goto("/?page=library");
   await page.getByTestId(`patient-${id}`).click();
   await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD);
 }
@@ -45,7 +45,7 @@ test("dataset case: save → review → snapshot → history → reopen offline"
   await expect(page.getByTestId("case-bar")).toContainText("1 snapshot");
 
   // reopen from history with every API call blocked: the stored analysis renders without the backend
-  await page.getByTestId("tab-cases").click();
+  await page.getByTestId("page-cases").click();
   await page.route("**/api/v1/**", (route) => route.abort());
   await page.getByTestId(/^case-CASE-/).first().click();
   await expect(page.getByTestId("card-lad")).toBeVisible();
@@ -57,7 +57,7 @@ test("dataset case: save → review → snapshot → history → reopen offline"
 
 test("new case: save persists via /analyze/full; an edit becomes a new scenario, never an overwrite", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.getByTestId("save-case").click();
@@ -69,13 +69,13 @@ test("new case: save persists via /analyze/full; an edit becomes a new scenario,
   await expect(page.getByTestId("save-case")).toHaveText("Save as new scenario", { timeout: 15_000 });
   await page.getByTestId("save-case").click();
   await expect(page.getByTestId("case-bar")).toContainText("scenario 2 (edited)");
-  await page.getByTestId("tab-cases").click();
+  await page.getByTestId("page-cases").click();
   await expect(page.getByTestId("my-cases")).toContainText("2 scenarios");
 });
 
 test("unsaved draft survives a reload, is offered (never applied silently), and is cleared once saved", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.getByTestId("field-pulse_rate").fill("97");
@@ -91,7 +91,7 @@ test("unsaved draft survives a reload, is offered (never applied silently), and 
   })), { timeout: 15_000 }).toBe(97);
 
   await page.reload();
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await expect(page.getByTestId("draft-recovery")).toContainText("Recover unsaved draft");
   await expect(page.getByTestId("field-pulse_rate")).toHaveValue(""); // nothing applied until the user chooses
   await page.getByTestId("draft-recover").click();
@@ -101,21 +101,21 @@ test("unsaved draft survives a reload, is offered (never applied silently), and 
   await page.getByTestId("save-case").click();
   await expect(page.getByTestId("case-id")).toHaveText(/^CASE-\d{4}-\d{4}$/);
   await page.reload();
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await expect(page.getByTestId("draft-recovery")).toHaveCount(0); // saved → no longer a draft
 });
 
 test("a discarded draft is gone", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0006");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.waitForTimeout(1500);
   await page.reload();
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByTestId("draft-discard").click();
   await page.reload();
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await expect(page.getByTestId("draft-recovery")).toHaveCount(0);
 });
 
@@ -147,7 +147,7 @@ test("re-analysis with a newer model: new analysis on the same scenario, old one
   await page.getByTestId("review-save").click();
   await expect(page.getByTestId("case-review-status")).toHaveText("Review recorded");
   await setStoredModelVersion(page, "0.9.0");
-  await page.getByTestId("tab-cases").click();
+  await page.getByTestId("page-cases").click();
   await page.getByTestId(/^case-CASE-/).first().click();
   await expect(page.getByTestId("case-bar")).toContainText("Stored with model v0.9.0");
   await page.getByTestId("reanalyze").click();
@@ -161,19 +161,20 @@ test("cases export → import into a fresh browser; a tampered export is rejecte
   await page.getByTestId("save-case").click();
   await page.getByTestId("snapshot").click();
   await expect(page.getByTestId("case-bar")).toContainText("1 snapshot");
-  await page.getByTestId("tab-cases").click();
+  await page.getByTestId("page-cases").click();
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByTestId("cases-export").click()]);
   const exported = readFileSync((await download.path())!, "utf8");
 
   const fresh = await browser.newContext(); // empty IndexedDB, like another machine
   const other = await fresh.newPage();
   await other.goto("/");
-  await other.getByTestId("tab-cases").click();
+  await other.getByTestId("page-cases").click();
   await other.getByTestId("cases-import-file").setInputFiles({ name: "cases.json", mimeType: "application/json",
     buffer: Buffer.from(exported) });
   await expect(other.getByTestId("cases-import-report")).toContainText(/Imported: CASE-\d{4}-0001/);
   await other.getByTestId(/^case-CASE-/).first().click();
   await expect(other.getByTestId("card-cad")).toBeVisible();
+  await other.getByTestId("page-cases").click(); // opening a case left the My cases page
 
   const doc = JSON.parse(exported);
   doc.cases[0].case_id = "11111111-2222-4333-8444-555555555555";

@@ -48,8 +48,10 @@ function CategoryValues({ curve }: { curve: Curve }) {
   );
 }
 
-export function WhatIfPanel({ analysis, target }: { analysis: DisplayAnalysis; target: TargetId }) {
-  const [open, setOpen] = useState(false);
+export function WhatIfPanel({ analysis, target, initiallyOpen = false }: {
+  analysis: DisplayAnalysis; target: TargetId; initiallyOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(initiallyOpen);
   const [showAll, setShowAll] = useState(false);
   const finalModel = analysis.patient.prediction_mode === "final_model";
   const query = useQuery({

@@ -2,10 +2,19 @@
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  /* Darker secondary greys app-wide: light grey text was hard to read (each step moved ~one shade darker). */
+  --color-slate-400: oklch(0.554 0.046 257.417);
+  --color-slate-500: oklch(0.446 0.043 257.281);
+  --color-slate-600: oklch(0.372 0.044 257.287);
+  --color-slate-700: oklch(0.31 0.044 265.755);
 }
 
 html,
 body,
 #root {
   height: 100%;
+}
+
+body {
+  font-weight: 500; /* medium by default; headings and labels stay bold */
 }

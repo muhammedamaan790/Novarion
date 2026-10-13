@@ -43,6 +43,11 @@ export interface ApiResult<T> {
   mock: boolean; // X-Novarion-Mock: 1 → contract mock, not a model (D-006)
 }
 
+/** Fired when the backend answers 401 UNAUTHENTICATED; the app then shows the sign-in page. */
+export const SIGNED_OUT_EVENT = "novarion:signed-out";
+export type AuthSession = Schemas["AuthSession"];
+const NO_SIGN_IN: AuthSession = { auth_required: false, accounts_configured: false, user: null };
+
 async function send<T>(path: string, init: RequestInit = {}): Promise<ApiResult<T>> {
   const response = await fetch(`/api/v1${path}`, {
     ...init,
@@ -50,6 +55,9 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<ApiResult<
                ...(init.headers as Record<string, string> | undefined) },
   });
   const body = await response.json().catch(() => null);
+  if (response.status === 401 && (body as ErrorResponse | null)?.error_code === "UNAUTHENTICATED") {
+    window.dispatchEvent(new Event(SIGNED_OUT_EVENT)); // session expired or revoked: back to the sign-in page
+  }
   if (!response.ok) throw new ApiError(response.status, body as ErrorResponse | null);
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new ApiError(response.status, null); // a proxy's HTML/null response is not a successful analysis
@@ -190,6 +198,10 @@ async function offlinePatient(id: string): Promise<{ bundle: PatientBundle; grou
 }
 
 export const api = {
+  // Sign-in (D-022). Offline demo mode has no backend to check a password against, so it needs none.
+  session: async (): Promise<AuthSession> => ((await offline()) ? NO_SIGN_IN : (await get<AuthSession>("/auth/session")).data),
+  login: async (username: string, password: string) => (await post<AuthSession>("/auth/login", { username, password })).data,
+  logout: async () => (await post<AuthSession>("/auth/logout", {})).data,
   ready: async (): Promise<ApiResult<Schemas["HealthReady"]>> =>
     (await offline())
       ? { data: { ready: true, reason: "offline demo bundle", model_version: demoIndex!.model_version }, mock: false }

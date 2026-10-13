@@ -35,8 +35,13 @@ make serve                          # real API on :8000 (fails closed without a 
 cd frontend && npm ci && npm run dev   # http://localhost:5173
 ```
 
+**Sign-in (optional):** create an account with `uv run python scripts/users.py add NAME` (it asks for the password
+twice and stores only a salted scrypt hash in the gitignored `artifacts/users.json`), then restart the backend.
+While that file exists, the app opens on a sign-in page and the API refuses requests without a session; delete it
+to turn sign-in off (D-022).
+
 When the backend is unreachable, the frontend switches to **offline demo mode**. It loads a hash-verified static
-bundle and shows the "DEMO MODE · STATIC BUNDLE" badge. All dataset-patient flows keep working; live inference is
+bundle and shows the "OFFLINE DEMO" badge. All dataset-patient flows keep working; live inference is
 disabled and says why.
 
 **Reproduce everything:** `make reproduce` runs data download (checksum-pinned) → nested CV → stability bootstrap →

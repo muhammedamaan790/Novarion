@@ -23,7 +23,9 @@ export interface PendingCase {
   datasetRecordId: number | null;
   source: "manual" | "import";
 }
-export type Page = "command" | "evidence" | "models";
+/** Top-level screens. "workspace" is one open case, split into CaseTab tabs. */
+export type Page = "home" | "library" | "cases" | "workspace" | "evidence" | "models";
+export type CaseTab = "result" | "why" | "data" | "whatif";
 
 export interface Hover {
   node: string;
@@ -34,6 +36,9 @@ export interface Hover {
 interface State {
   page: Page;
   setPage: (page: Page) => void;
+  caseTab: CaseTab;
+  setCaseTab: (tab: CaseTab) => void;
+  openStoredCase: () => void;
   mode: CaseMode;
   datasetPatientId: string | null;
   analysis: DisplayAnalysis | null;
@@ -67,8 +72,11 @@ interface State {
 }
 
 export const useStore = create<State>((set) => ({
-  page: "command",
+  page: "home",
   setPage: (page) => set({ page }),
+  caseTab: "result",
+  setCaseTab: (caseTab) => set({ caseTab }),
+  openStoredCase: () => set({ page: "workspace", caseTab: "result" }),
   mode: "dataset",
   datasetPatientId: null,
   analysis: null,
@@ -82,15 +90,15 @@ export const useStore = create<State>((set) => ({
   openDatasetPatient: (id) =>
     set((s) => (s.mode === "dataset" && s.datasetPatientId === id && id !== null
       // re-selecting the open patient only resets the view: the loaded analysis is still the right one
-      ? { selectedTarget: null, view: "overview", notice: null }
+      ? { selectedTarget: null, view: "overview", notice: null, page: "workspace", caseTab: "result" }
       : { mode: "dataset", datasetPatientId: id, analysis: null, selectedTarget: null, view: "overview", notice: null,
-          caseRef: null, pendingCase: null, editingCaseId: null })),
+          caseRef: null, pendingCase: null, editingCaseId: null, page: id ? "workspace" : "library", caseTab: "result" })),
   startNewCase: () =>
     set({ mode: "new", datasetPatientId: null, analysis: null, selectedTarget: null, view: "overview", notice: null,
-          caseRef: null, pendingCase: null, editingCaseId: null }),
+          caseRef: null, pendingCase: null, editingCaseId: null, page: "workspace", caseTab: "data" }),
   openMyCases: () =>
     set({ mode: "cases", datasetPatientId: null, analysis: null, selectedTarget: null, view: "overview", notice: null,
-          caseRef: null, pendingCase: null, editingCaseId: null }),
+          caseRef: null, pendingCase: null, editingCaseId: null, page: "cases" }),
   caseRef: null,
   editingCaseId: null,
   pendingCase: null,

@@ -18,10 +18,12 @@ from fastapi import APIRouter, Depends, FastAPI, Path, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from .auth import SESSION_COOKIE, SESSION_TTL_S, USERNAME_RE, Authenticator
 from .errors import ApiError, install_error_handlers
 from .schemas import (
     AnalyzeFullRequest,
     AnalyzeFullResponse,
+    AuthSession,
     ErrorResponse,
     EvaluationResponse,
     EvidenceRequest,
@@ -32,6 +34,7 @@ from .schemas import (
     GroundTruthResponse,
     HealthLive,
     HealthReady,
+    LoginRequest,
     MetaResponse,
     ModelReportResponse,
     ModelsResponse,
@@ -58,6 +61,9 @@ VersionPath = Annotated[str, Path(pattern=r"^\d+\.\d+\.\d+$")]
 ERROR_RESPONSES = {
     code: {"model": ErrorResponse} for code in (404, 409, 413, 422, 429, 500, 503)
 }
+# Reachable without a session when sign-in is on: health probes, the sign-in endpoints, the API description.
+OPEN_PATHS = frozenset(f"{API_PREFIX}{p}" for p in (
+    "/health/live", "/health/ready", "/auth/session", "/auth/login", "/auth/logout", "/openapi.json", "/docs"))
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
@@ -113,6 +119,38 @@ def build_router() -> APIRouter:
         if not ready.ready:
             response.status_code = 503
         return ready
+
+    def _session(request: Request, user: str | None) -> AuthSession:
+        auth: Authenticator = request.app.state.auth
+        return AuthSession(auth_required=auth.enabled, accounts_configured=bool(auth.users), user=user)
+
+    @router.get("/auth/session", response_model=AuthSession, tags=["auth"])
+    def auth_session(request: Request) -> AuthSession:
+        auth: Authenticator = request.app.state.auth
+        return _session(request, auth.user_for(request.cookies.get(SESSION_COOKIE), time.monotonic()))
+
+    @router.post("/auth/login", response_model=AuthSession, tags=["auth"])
+    def auth_login(body: LoginRequest, request: Request, response: Response) -> AuthSession:
+        auth: Authenticator = request.app.state.auth
+        if not auth.enabled:
+            return _session(request, None)
+        username = body.username.strip().lower()
+        now = time.monotonic()
+        wait = auth.retry_after(username, now)
+        if wait > 0:
+            raise ApiError("RATE_LIMITED", "Too many failed sign-ins; wait and retry.", {"retry_after_s": round(wait)})
+        token = auth.login(username, body.password, now) if USERNAME_RE.match(username) else None
+        if token is None:
+            raise ApiError("INVALID_CREDENTIALS", "Wrong username or password.")
+        response.set_cookie(SESSION_COOKIE, token, max_age=SESSION_TTL_S, httponly=True, samesite="strict",
+                            secure=request.app.state.settings.cookie_secure, path=API_PREFIX)
+        return _session(request, username)
+
+    @router.post("/auth/logout", response_model=AuthSession, tags=["auth"])
+    def auth_logout(request: Request, response: Response) -> AuthSession:
+        request.app.state.auth.logout(request.cookies.get(SESSION_COOKIE))
+        response.delete_cookie(SESSION_COOKIE, path=API_PREFIX)
+        return _session(request, None)
 
     @router.get("/meta", response_model=MetaResponse, tags=["meta"])
     def meta(service: InferenceService = svc) -> MetaResponse:
@@ -237,6 +275,9 @@ def create_app(settings: Settings | None = None, service: InferenceService | Non
     )
     app.state.settings = settings
     app.state.service = service or default_service(settings)
+    app.state.auth = Authenticator(settings.users_file)
+    if settings.users_file and not app.state.auth.enabled:
+        logging.getLogger("novarion").warning("sign-in is OFF: no accounts file (create one with scripts/users.py)")
     install_error_handlers(app)
     app.include_router(build_router())
     app.state.promote_runner = run_lifecycle_promote
@@ -257,7 +298,13 @@ def create_app(settings: Settings | None = None, service: InferenceService | Non
                 for key, value in SECURITY_HEADERS.items():
                     response.headers.setdefault(key, value)
                 return response
-        response = await call_next(request)
+        path = request.url.path
+        if (app.state.auth.enabled and path.startswith(f"{API_PREFIX}/") and path not in OPEN_PATHS
+                and not app.state.auth.user_for(request.cookies.get(SESSION_COOKIE), time.monotonic())):
+            body = ErrorResponse(error_code="UNAUTHENTICATED", message="Sign in first.")
+            response = JSONResponse(status_code=401, content=body.model_dump(mode="json"))
+        else:
+            response = await call_next(request)
         for key, value in SECURITY_HEADERS.items():
             response.headers.setdefault(key, value)
         if app.state.service.is_mock:

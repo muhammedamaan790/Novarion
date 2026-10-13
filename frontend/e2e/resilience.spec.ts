@@ -15,10 +15,10 @@ test("backend unreachable and no offline bundle: a clear message, no predictions
 
 test("a failing prediction fails closed: no stale colours or cards, a visible error", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
-  await expect(page.getByTestId("card-cad")).toBeVisible();
+  await expect(page.getByTestId("live-summary")).toBeVisible();
   await page.route("**/api/v1/predict", (route) =>
     route.fulfill({ status: 500, contentType: "application/json",
                     body: JSON.stringify({ error_code: "TARGET_FAILED", message: "rca failed" }) }));
@@ -26,12 +26,14 @@ test("a failing prediction fails closed: no stale colours or cards, a visible er
   await pulse.fill(String(Number(await pulse.inputValue()) + 5));
   await expect(page.getByTestId("case-status")).toContainText("Analysis unavailable: no results shown.");
   await expect(page.getByTestId("card-cad")).toHaveCount(0); // the previous prediction is not kept for new inputs
+  await expect(page.getByTestId("live-summary")).toHaveCount(0);
+  await page.getByTestId("case-tab-result").click();
   await expect(page.getByText("Anatomy shown in neutral grey until a complete analysis is loaded.")).toBeVisible();
 });
 
 test("rapid edits: debounced, and only the final value is predicted", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   const sent: number[] = [];
@@ -101,7 +103,9 @@ test("accessibility: the 2D fallback (no WebGL, e.g. a GPU-less CI runner) has n
     expect(bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`)).toEqual([]);
   });
 
-for (const [name, url] of [["command center", "/?dataset=ZAS-0003&target=lad"], ["model evidence", "/?page=evidence"]]) {
+for (const [name, url] of [["home page", "/"], ["dataset library", "/?page=library"],
+  ["case result", "/?dataset=ZAS-0003&target=lad"], ["case why tab", "/?dataset=ZAS-0003&tab=why&target=lad"],
+  ["case patient data tab", "/?dataset=ZAS-0003&tab=data"], ["model evidence", "/?page=evidence"]]) {
   test(`accessibility: no serious or critical axe violations on the ${name}`, async ({ page }) => {
     await page.goto(url);
     await page.waitForTimeout(2500);
@@ -121,7 +125,7 @@ test("privacy: every request stays same-origin (no third-party calls, no service
   });
   await page.goto("/?dataset=ZAS-0003&target=lad");
   await expect(page.getByTestId("why-panel")).toContainText("· LAD", FIRST_LOAD);
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.getByTestId("page-evidence").click();

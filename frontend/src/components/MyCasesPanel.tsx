@@ -20,6 +20,7 @@ function open(c: CaseRecord) {
   st.setCaseRef({ caseId: c.case_id, displayId: c.display_id });
   st.setEditingCaseId(c.source === "dataset" ? null : c.case_id);
   st.selectTarget(null);
+  st.openStoredCase();
 }
 
 export function MyCasesPanel() {

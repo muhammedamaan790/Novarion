@@ -8,7 +8,7 @@ const REAL = process.env.E2E_BACKEND === "real";
 
 test("outcome: recorded as pending on the saved scenario, corrected append-only, exported allowlisted", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
   await page.getByTestId("save-case").click();
@@ -34,7 +34,7 @@ test("outcome: recorded as pending on the saved scenario, corrected append-only,
   await page.getByTestId("outcome-save").click();
   await expect(page.getByTestId("outcome-summary")).toContainText("2 records incl. corrections");
 
-  await page.getByTestId("tab-cases").click();
+  await page.getByTestId("page-cases").click();
   const download = page.waitForEvent("download");
   await page.getByTestId("learning-package-export").click();
   const pkg = JSON.parse(readFileSync((await (await download).path())!, "utf8"));
@@ -48,7 +48,7 @@ test("outcome: recorded as pending on the saved scenario, corrected append-only,
 });
 
 test("dataset patients cannot receive outcomes (already training data)", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?page=library");
   await page.getByTestId("patient-ZAS-0003").click();
   await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD);
   await page.getByTestId("save-case").click();

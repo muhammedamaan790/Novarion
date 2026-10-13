@@ -26,7 +26,6 @@ function Legend({ map }: { map: AnatomyMap }) {
         <span className="h-2.5 w-20 border border-dashed border-slate-500 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_3px,#ffffff_3px_6px)]" />
         low model confidence (desaturated, hatched)
       </div>
-      <p className="mt-1 max-w-56 leading-tight">{TOOLTIPS.legend}</p>
     </div>
   );
 }
@@ -197,9 +196,9 @@ export function HeartView({ meta, analysis }: { meta: Meta; analysis: DisplayAna
       <div className="pointer-events-none absolute bottom-14 left-2 sm:bottom-2">
         <Legend map={map} />
       </div>
-      <p className="pointer-events-none absolute inset-x-2 bottom-2 text-left text-[10px] leading-tight text-slate-600 sm:left-auto sm:max-w-60 sm:text-right">
-        Reference anatomy (BodyParts3D, CC BY 4.0), not a patient-specific reconstruction. Each vessel is tinted as a
-        whole; location within the vessel is not known.
+      <p className="absolute inset-x-2 bottom-2 text-left text-[10px] leading-tight text-slate-600 sm:left-auto sm:text-right"
+         title="Reference anatomy (BodyParts3D, CC BY 4.0), not a patient-specific reconstruction. Each vessel is tinted as a whole; location within the vessel is not known.">
+        Reference anatomy, not this patient's · whole-vessel tint ⓘ
       </p>
     </div>
   );

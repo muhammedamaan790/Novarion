@@ -13,24 +13,26 @@ test("leaving a new case discards its delayed prediction", async ({ page }) => {
   });
 
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0003");
   await prepared;
-  await page.getByTestId("tab-dataset").click();
-  const neutral = page.getByText("Anatomy shown in neutral grey until a complete analysis is loaded.");
-  await expect(neutral).toBeVisible();
+  await page.getByTestId("page-library").click();
+  const committed = page.getByTestId("live-announcer"); // exists only while an analysis is committed
+  await expect(committed).toHaveCount(0);
   release();
   await page.waitForTimeout(700); // allow the held response to try to commit after the tab switch
-  await expect(neutral).toBeVisible();
-  await expect(page.getByTestId("predictions")).toHaveCount(0);
+  await expect(committed).toHaveCount(0);
+  await page.getByTestId("patient-ZAS-0004").click(); // and it never leaks into the next case opened
+  await expect(page.getByTestId("card-cad")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: /ZAS-0004/ })).toBeVisible();
 });
 
 test("editing an input clears old predictions while validation is pending", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0003");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 30_000 });
-  await expect(page.getByTestId("predictions")).toBeVisible();
+  await expect(page.getByTestId("live-summary")).toBeVisible();
 
   let release!: () => void;
   let requestSeen!: () => void;
@@ -45,7 +47,7 @@ test("editing an input clears old predictions while validation is pending", asyn
   await started;
   try {
     await expect(page.getByTestId("predictions")).toHaveCount(0);
-    await expect(page.getByText("Anatomy shown in neutral grey until a complete analysis is loaded.")).toBeVisible();
+    await expect(page.getByTestId("live-summary")).toHaveCount(0);
     await expect(page.getByTestId("case-status")).toContainText("1 field still required");
   } finally {
     release();

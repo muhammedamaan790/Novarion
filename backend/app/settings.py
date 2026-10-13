@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 
 APP_VERSION = "0.1.0"
 MAX_BODY_BYTES = 64 * 1024
@@ -22,6 +23,9 @@ class Settings:
     rate_limit_burst: int = 200
     trust_proxy: bool = False  # only behind our own nginx: take the client address from X-Real-IP
     admin_token: str | None = None  # local mode: enables the in-app Promote wrapper (NOVARION_ADMIN_TOKEN)
+    # Sign-in (D-022): on when this accounts file exists (scripts/users.py writes it); None = always off.
+    users_file: Path | None = None
+    cookie_secure: bool = False  # set NOVARION_COOKIE_SECURE=1 when served over HTTPS
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -35,4 +39,7 @@ class Settings:
                    rate_limit_per_minute=int(os.environ.get("NOVARION_RATE_LIMIT_PER_MIN", "600")),
                    rate_limit_burst=int(os.environ.get("NOVARION_RATE_LIMIT_BURST", "200")),
                    trust_proxy=os.environ.get("NOVARION_TRUST_PROXY") == "1",
-                   admin_token=os.environ.get("NOVARION_ADMIN_TOKEN") or None)
+                   admin_token=os.environ.get("NOVARION_ADMIN_TOKEN") or None,
+                   users_file=None if os.environ.get("NOVARION_AUTH") == "off" else Path(
+                       os.environ.get("NOVARION_USERS_FILE") or Path(__file__).resolve().parents[2] / "artifacts" / "users.json"),
+                   cookie_secure=os.environ.get("NOVARION_COOKIE_SECURE") == "1")

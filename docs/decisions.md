@@ -503,3 +503,46 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     `docs/tripod_ai.md`, which maps every TRIPOD+AI item with its status and the gaps stated plainly.
 - **Release:** the model, bundle and API are unchanged, so the model stays v1.0.2. These are evidence and
   documentation additions on top of the v1.0.2 release commit.
+
+## D-022 — Sign-in and a simpler, tabbed interface
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **Context:** In review, one screen showed the patient list, all 54 inputs, the 3D view, four full prediction cards,
+  the explanation and what-if together, and the team found it too dense to read. The user also asked for a sign-in
+  page with real username + password accounts.
+- **Decision (interface; no model, threshold or prediction change):**
+  - Sign-in page → home with one large NEW CASE button → top navigation (Home, New case, Dataset library, My cases,
+    Model evidence, Model center).
+  - An open case has four tabs: **Result** (3D heart, a two-line summary, one line per target that expands on
+    click), **Why** (explanation, or all targets compared), **Patient data** (positive findings and measurements
+    first, all inputs on request; the New case form with a live summary beside it) and **What-if**.
+  - Tabs are hidden, not unmounted, so the New case form keeps its values and its live prediction.
+  - Reasons from the patient's own inputs (an UNKNOWN input, an atypical profile) stay visible on the collapsed card.
+    Model-level reasons are shown when the card is opened.
+  - The header status chips (live backend, model version, dataset) are removed. The mock and offline chips remain,
+    because they change what the numbers mean. The disclaimer moves from a banner to a one-line footer on every
+    screen, including the sign-in page (brief item 5).
+  - Secondary greys are one shade darker and body text is medium weight, for legibility.
+- **Decision (sign-in):**
+  - Accounts live in `artifacts/users.json` (gitignored; `NOVARION_USERS_FILE` overrides) and are managed with
+    `scripts/users.py add|remove|list`. They are stored as salted scrypt hashes (N = 2^14, r = 8, p = 1), never as
+    passwords.
+  - The file existing turns sign-in on; with no file, or with `NOVARION_AUTH=off`, the API stays open, so dev and
+    test setups need nothing.
+  - With sign-in on, every `/api/v1` route except health, the three `/auth/*` routes and the API description
+    returns 401 `UNAUTHENTICATED` without a valid session.
+  - The session cookie is HttpOnly and SameSite=Strict, scoped to `/api/v1`, lasts 8 h and is held in memory, so a
+    restart signs everyone out. Set `NOVARION_COOKIE_SECURE=1` behind HTTPS.
+  - Wrong passwords, unknown users and malformed names get the same answer. Unknown users still cost one scrypt, so
+    timing does not reveal valid names. Five failures lock that username for 60 s, on top of the per-client rate
+    limit.
+  - Offline demo mode has no backend to check a password against, so it needs no sign-in. It shows only the
+    precomputed public-dataset results.
+- **Verification:** `tests/test_auth.py` covers the open/closed switch, a 401 on every route, the cookie flags,
+  revocation, identical failure answers, lockout and expiry, and hashes never being passwords. `e2e/auth.spec.ts`
+  covers the sign-in page, sign-out, expired sessions and axe. The E2E flows were updated for the tabbed layout,
+  and axe now also checks the home page, the library and every case tab.
+- **Release:** a frontend and API change (new `/auth/*` endpoints, new error codes), so it ships as v1.0.3. The
+  model and bundle are unchanged.
+

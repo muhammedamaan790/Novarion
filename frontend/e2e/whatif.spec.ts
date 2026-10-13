@@ -5,12 +5,13 @@ const FIRST_LOAD = { timeout: 30_000 };
 
 test("what-if curves for a new case, labelled as model sensitivity", async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0004");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", FIRST_LOAD);
-  await page.getByTestId("select-lad").click();
-  await page.getByTestId("whatif-toggle").click();
+  await page.getByTestId("case-tab-whatif").click(); // its own tab, open on arrival
+  await page.getByTestId("whatif-pick-lad").click();
   const panel = page.getByTestId("whatif");
+  await expect(panel).toContainText("What-if sensitivity · LAD");
   await expect(panel).toContainText("Model sensitivity, not treatment simulation");
   await expect(panel.locator("li").first()).toBeVisible(FIRST_LOAD);
   await expect(panel).toContainText("pt range");
@@ -18,8 +19,7 @@ test("what-if curves for a new case, labelled as model sensitivity", async ({ pa
 });
 
 test("dataset patients explain why what-if needs a new case", async ({ page }) => {
-  await page.goto("/?dataset=ZAS-0003&target=lad");
-  await expect(page.getByTestId("why-panel")).toBeVisible(FIRST_LOAD);
-  await page.getByTestId("whatif-toggle").click();
+  await page.goto("/?dataset=ZAS-0003&tab=whatif&target=lad");
+  await expect(page.getByTestId("whatif")).toBeVisible(FIRST_LOAD);
   await expect(page.getByTestId("whatif")).toContainText("out-of-fold model that never saw them");
 });

@@ -7,7 +7,7 @@ const SHOTS = REAL ? "../results/ui/real" : "../results/ui";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
-  await page.getByTestId("tab-new").click();
+  await page.getByTestId("page-new").click();
 });
 
 test("dataset-record CSV: labels stripped, provenance recognised, OOF result one click away", async ({ page }) => {
@@ -18,7 +18,7 @@ test("dataset-record CSV: labels stripped, provenance recognised, OOF result one
   await expect(page.getByTestId("unit-confirm")).toHaveCount(0); // every continuous column carries its unit
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 15_000 });
   await expect(page.getByTestId("case-status")).toContainText("Matches the dataset record");
-  await expect(page.getByTestId("card-lad")).toBeVisible();
+  await expect(page.getByTestId("live-summary")).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/8-import-dataset.png` });
   await page.getByTestId("open-oof").click();
   await expect(page.getByText("OOF VALIDATION")).toBeVisible();

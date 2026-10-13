@@ -59,38 +59,86 @@ function StabilityBar({ p }: { p: TargetPrediction }) {
   );
 }
 
+const reasonsText = (p: TargetPrediction) => p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ");
+// Reasons that come from this patient's inputs stay visible when collapsed: the user can act on them.
+const INPUT_REASONS = new Set(["unknown_input", "atypical_profile"]);
+
+/** One line per target; the selected card expands to its stability and confidence detail (progressive disclosure). */
 function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; transfer: ColorTransfer }) {
   const selected = useStore((s) => s.selectedTarget === target);
   const selectTarget = useStore((s) => s.selectTarget);
   const color = vesselColor(transfer, p.probability, p.operating_threshold, p.model_confidence === "low");
+  const low = p.model_confidence === "low";
+  const actionable = low ? p.model_confidence_reasons.filter((r) => INPUT_REASONS.has(r)) : [];
   return (
     <button
       type="button"
       onClick={() => selectTarget(selected ? null : target)}
       aria-pressed={selected}
       data-testid={`card-${target}`}
-      className={`w-full rounded-lg border bg-white p-3 text-left transition-shadow ${
+      className={`w-full rounded-lg border bg-white px-3 py-2 text-left transition-shadow ${
         selected ? "border-slate-900 shadow-md" : "border-slate-200 hover:shadow-sm"
       }`}
     >
       <div className="flex items-center gap-2">
         <span
-          className={`h-3 w-3 shrink-0 rounded-full ${p.model_confidence === "low" ? "ring-1 ring-dashed ring-slate-500" : ""}`}
+          className={`h-3 w-3 shrink-0 rounded-full ${low ? "ring-1 ring-dashed ring-slate-500" : ""}`}
           style={{ background: target === "cad" ? "transparent" : color.hex, border: target === "cad" ? "2px solid #475569" : undefined }}
           aria-hidden
         />
-        <span className="text-sm font-bold tracking-wide text-slate-900">
+        <span className="min-w-0 flex-1 truncate text-[13px] font-bold tracking-wide text-slate-900">
           {target === "cad" ? "" : `${SHORT[target]} · `}
           {predictionText(target, p)}
         </span>
+        <span className="text-sm font-semibold tabular-nums text-slate-800"
+              title={target === "cad" ? TOOLTIPS.overallCad : TOOLTIPS.vessel}>
+          {probPct(p.probability)}
+        </span>
+        <span className="text-xs text-slate-500" aria-hidden>{selected ? "▾" : "▸"}</span>
       </div>
-      <p className="mt-0.5 text-[11px] italic text-slate-500">{subtitle(target)}</p>
-      <p className="mt-2 text-sm text-slate-700" title={target === "cad" ? TOOLTIPS.overallCad : TOOLTIPS.vessel}>
-        {probabilityLabel(target)} <span className="font-semibold tabular-nums">{probPct(p.probability)}</span>
-      </p>
-      <StabilityBar p={p} />
-      <ConfidenceBlock p={p} />
+      {!selected && (
+        <p className="ml-5 mt-1 text-[10px]" title={low ? `Reason: ${reasonsText(p)}. ${TOOLTIPS.confidence}` : TOOLTIPS.confidence}>
+          <span className={`rounded px-1 py-px font-semibold tracking-wide ${
+            low ? "border border-dashed border-slate-400 text-slate-600" : "bg-slate-800 text-white"}`}>
+            {low ? "LOW" : "HIGH"} MODEL CONFIDENCE
+          </span>
+          {actionable.length > 0 && (
+            <span className="ml-1.5 text-slate-700">{actionable.map((r) => REASON_TEXT[r] ?? r).join("; ")}</span>
+          )}
+        </p>
+      )}
+      {selected && (
+        <div className="ml-5">
+          <p className="mt-0.5 text-[11px] italic text-slate-500">{subtitle(target)}</p>
+          <p className="mt-1 text-xs text-slate-700" title={target === "cad" ? TOOLTIPS.overallCad : TOOLTIPS.vessel}>
+            {probabilityLabel(target)} <span className="font-semibold tabular-nums">{probPct(p.probability)}</span>
+          </p>
+          <StabilityBar p={p} />
+          <ConfidenceBlock p={p} />
+        </div>
+      )}
     </button>
+  );
+}
+
+/** The whole picture in two lines, so the four cards don't have to be read and added up. */
+export function Summary({ analysis, testId = "verdict-summary" }: { analysis: DisplayAnalysis; testId?: string }) {
+  const preds = TARGET_IDS.flatMap((t) => (analysis.targets[t] ? [[t, analysis.targets[t]!] as const] : []));
+  const cad = analysis.targets.cad;
+  const stenosed = preds.filter(([t, p]) => t !== "cad" && p.predicted_class === "positive").map(([t]) => SHORT[t]);
+  const lowTargets = preds.filter(([, p]) => p.model_confidence === "low").map(([t]) => SHORT[t]);
+  const cadText = cad ? (cad.predicted_class === "positive" ? "CAD predicted" : "No CAD predicted") : "";
+  const vesselText = stenosed.length ? `stenosis predicted in ${stenosed.join(", ")}` : "no vessel stenosis predicted";
+  const confidenceText = lowTargets.length === 0 ? "All predictions: HIGH model confidence"
+    : lowTargets.length === preds.length ? `All ${preds.length} predictions: LOW model confidence`
+      : `LOW model confidence: ${lowTargets.join(", ")}`;
+  return (
+    <div className="rounded-lg bg-slate-50 p-3" data-testid={testId}>
+      <p className="text-base font-bold text-slate-900" title={TOOLTIPS.independence}>{cadText} · {vesselText}</p>
+      <p className={`mt-0.5 text-sm font-semibold ${lowTargets.length ? "text-amber-800" : "text-slate-700"}`} title={TOOLTIPS.confidence}>
+        {confidenceText}
+      </p>
+    </div>
   );
 }
 
@@ -107,9 +155,7 @@ export function TargetCards({ analysis, meta }: { analysis: DisplayAnalysis | nu
   }
   return (
     <section aria-label="Predictions" className="space-y-2" data-testid="predictions" data-input-sha256={analysis.input_sha256}>
-      <p className="text-[11px] text-slate-500" title={TOOLTIPS.independence}>
-        Four independent models · probabilities are not constrained to nest ⓘ
-      </p>
+      <Summary analysis={analysis} />
       {(analysis.quality.notices ?? []).map((notice) => (
         <p key={notice.code} role="note" className="rounded bg-amber-50 p-2 text-[11px] text-amber-900">
           {notice.message}
@@ -119,6 +165,7 @@ export function TargetCards({ analysis, meta }: { analysis: DisplayAnalysis | nu
         const p = analysis.targets[t];
         return p ? <Card key={t} target={t} p={p} transfer={transfer} /> : null; // App commits only complete analyses
       })}
+
     </section>
   );
 }

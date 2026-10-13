@@ -4,10 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import type { Contribution, DisplayAnalysis, TargetId } from "../api/client";
 import { explainQuery } from "../api/queries";
-import { WhatIfPanel } from "./WhatIfPanel";
 import { SHORT, TOOLTIPS, pct, probPct } from "./wording";
 
-const GROUP_LABEL: Record<string, string> = {
+export const GROUP_LABEL: Record<string, string> = {
   demographics: "Demographics", history: "History / risk factors", symptoms_exam: "Symptoms & exam",
   ecg: "ECG", labs: "Labs", echo: "Echo",
 };
@@ -63,9 +62,10 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
   return (
     <section aria-label={`Why: ${SHORT[target]}`} className="space-y-4" data-testid="why-panel">
       <header>
-        <h2 className="text-sm font-bold tracking-wide text-slate-900">Why did the model predict this? · {SHORT[target]}</h2>
-        <p className="text-xs text-slate-600">{TOOLTIPS.how}</p>
-        <p className="mt-1 text-[11px] italic text-slate-500">{explanation.caption}</p>
+        <h2 className="text-sm font-bold tracking-wide text-slate-900" title={TOOLTIPS.how}>
+          Why did the model predict this? · {SHORT[target]}
+        </h2>
+        <p className="mt-1 text-xs text-slate-600">{explanation.caption}</p>
       </header>
 
       <div>
@@ -129,7 +129,6 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
         )}
       </div>
 
-      <WhatIfPanel analysis={analysis} target={target} />
       {evidence && (
         <div>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">Evidence</h3>

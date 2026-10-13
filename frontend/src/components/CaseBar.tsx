@@ -164,7 +164,7 @@ export function CaseBar({ analysis, meta }: { analysis: DisplayAnalysis; meta: M
     return (
       <div className="rounded-lg border border-dashed border-slate-300 bg-slate-50 p-2 text-xs text-slate-700" data-testid="case-bar">
         <div className="flex items-center justify-between gap-2">
-          <span>Unsaved analysis · saving stores predictions, explanations and evidence exactly as shown.</span>
+          <span title="Saving stores predictions, explanations and evidence exactly as shown.">Unsaved analysis ⓘ</span>
           <button type="button" disabled={!!busy} onClick={() => void save()} data-testid="save-case"
                   className="shrink-0 rounded bg-slate-900 px-2 py-1 font-semibold text-white disabled:opacity-50">
             {busy ?? (editingCaseId ? "Save as new scenario" : "Save case")}
