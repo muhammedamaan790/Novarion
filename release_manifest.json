@@ -1,6 +1,7 @@
 {
- "release_version": "1.0.2",
- "git_sha": "b15eb398fd5797936aa7adccb692342c402d2859",
+ "release_version": "1.0.3",
+ "model_version": "1.0.2",
+ "git_sha": "f5724d739094f3d69d141cab37445b341153a2ee",
  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
  "feature_registry_sha256": "70e4d6f187b480ffe663114de169f5bed958bf01d1a4b192af2074c7f832213e",
  "target_schema_sha256": "6d49e80938ae2fd250129ec2d185611dc3478c193279b242949d855062cf938d",
@@ -10,6 +11,7 @@
  "anatomy_manifest_sha256": "3a18908ced806388305abf7404d136d106a2aa80d2aee42d1f0114a96886bb3d",
  "anatomy_map_sha256": "beebe2521351423bfe2f1f60cd26e26ee37a5cefc4257b26bec3113282e94072",
  "demo_config_sha256": "309ba450cd4acbce48233baa70e244ff90f44c96746c2c6de871d7ef0c733d7d",
+ "api_contract_sha256": "fb07180ca41d0c77434427f7ec8898870f9090cb785b9d46f9d3ff7cd112927b",
  "frontend_lock_sha256": "b24ed3e12bfafb7e3ddf9712a9df14ed31d475b0be086d35610c071b3e433bd1",
  "backend_lock_sha256": "58a91aabd0d3a2cd2461a2239fc9b4e997865cd050579f0136f6b073ece79cea",
  "demo_bundle_sha256": "5248258c396639ebd746bdf748f23c4763d58075df1fb718ce1d307d489f3b4b",
@@ -22,6 +24,6 @@
   "@react-three/drei": "10.7.9",
   "three": "0.186.1"
  },
- "created_at": "2026-10-12T22:32:02Z",
+ "created_at": "2026-10-13T03:23:02Z",
  "freeze_status": "FINAL"
 }
