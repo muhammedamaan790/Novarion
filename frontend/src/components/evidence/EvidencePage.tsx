@@ -23,26 +23,117 @@ interface Figures {
   table2_auc_ci?: number[] | null;
 }
 
-const METRICS: [string, string][] = [
-  ["roc_auc", "ROC-AUC"], ["pr_auc", "PR-AUC"], ["accuracy", "Accuracy"], ["balanced_accuracy", "Bal. acc."],
-  ["precision", "Precision"], ["recall", "Recall"], ["f1", "F1"], ["specificity", "Specificity"], ["npv", "NPV"],
-  ["brier", "Brier"], ["cal_slope", "Cal. slope"], ["cal_intercept", "Cal. intercept"],
+type Fmt = "pct" | "num2" | "num3";
+interface MetricDef { key: string; label: string; fmt: Fmt; core: boolean; help: string }
+// The first six are what a clinician reads first; the rest stay one click away ("Show all metrics").
+const METRICS: MetricDef[] = [
+  { key: "roc_auc", label: "ROC-AUC", fmt: "num2", core: true, help: "Ranking ability: 0.5 = chance, 1 = perfect." },
+  { key: "recall", label: "Sensitivity", fmt: "pct", core: true, help: "Share of label-positive patients predicted positive (recall)." },
+  { key: "specificity", label: "Specificity", fmt: "pct", core: true, help: "Share of label-negative patients predicted negative." },
+  { key: "precision", label: "PPV", fmt: "pct", core: true, help: "Of patients predicted positive, the share truly positive (precision)." },
+  { key: "npv", label: "NPV", fmt: "pct", core: true, help: "Of patients predicted negative, the share truly negative." },
+  { key: "brier", label: "Brier score", fmt: "num3", core: true, help: "Mean squared error of the probability; lower is better." },
+  { key: "pr_auc", label: "PR-AUC", fmt: "num2", core: false, help: "Area under the precision-recall curve." },
+  { key: "accuracy", label: "Accuracy", fmt: "pct", core: false, help: "Share of all patients classified correctly." },
+  { key: "balanced_accuracy", label: "Balanced accuracy", fmt: "pct", core: false, help: "Mean of sensitivity and specificity." },
+  { key: "f1", label: "F1", fmt: "num2", core: false, help: "Harmonic mean of PPV and sensitivity." },
+  { key: "cal_slope", label: "Calibration slope", fmt: "num2", core: false, help: "1 = ideal; below 1 = overconfident." },
+  { key: "cal_intercept", label: "Calibration intercept", fmt: "num2", core: false, help: "0 = ideal; average over- or under-prediction." },
 ];
 const MODEL_LABEL: Record<string, string> = {
-  nested_cv_selected: "Selected per fold (nested CV)", benchmark_lr: "Benchmark · logistic regression",
-  benchmark_ebm: "Benchmark · EBM", benchmark_xgboost: "Benchmark · XGBoost", benchmark_catboost: "Benchmark · CatBoost",
-  always_negative: "Baseline · always negative", always_positive: "Baseline · always positive", prior: "Baseline · prior probability",
+  nested_cv_selected: "NOVARION (selected per fold)", benchmark_lr: "Logistic regression",
+  benchmark_ebm: "EBM", benchmark_xgboost: "XGBoost", benchmark_catboost: "CatBoost",
+  always_negative: "Always negative", always_positive: "Always positive", prior: "Prior probability",
 };
+const BASELINES = new Set(["always_negative", "always_positive", "prior"]);
 const p100 = (v: number | null | undefined) => (v == null ? "—" : `${(v * 100).toFixed(1)}%`);
+const fmt = (v: number, f: Fmt) => (f === "pct" ? `${(v * 100).toFixed(1)}%` : v.toFixed(f === "num3" ? 3 : 2));
+const fmtSd = (v: number, f: Fmt) => (f === "pct" ? (v * 100).toFixed(1) : v.toFixed(f === "num3" ? 3 : 2));
 
-function cell(m: Schemas["MetricSummary"] | undefined) {
-  if (!m || m.mean == null) return <span className="text-slate-500">N/A</span>;
+/** Mean large, spread small underneath: the eye reads one number per cell. */
+function cell(m: Schemas["MetricSummary"] | undefined, f: Fmt) {
+  if (!m || m.mean == null) return <span className="text-slate-400">N/A</span>;
   return (
-    <span>
-      {m.mean.toFixed(3)}
-      {m.sd != null && <span className="text-slate-500"> ± {m.sd.toFixed(3)}</span>}
-      {m.n_na > 0 && <span className="text-amber-700" title={`undefined in ${m.n_na} folds`}> *</span>}
+    <span className="inline-block leading-tight">
+      <span className="block text-sm font-semibold text-slate-900">
+        {fmt(m.mean, f)}
+        {m.n_na > 0 && <span className="text-amber-700" title={`undefined in ${m.n_na} folds (reported as NA, never 0)`}> *</span>}
+      </span>
+      {m.sd != null && <span className="block text-xs text-slate-500">± {fmtSd(m.sd, f)}</span>}
     </span>
+  );
+}
+
+const FAMILY: Record<string, string> = { lr: "logistic regression", ebm: "EBM", xgboost: "XGBoost", catboost: "CatBoost" };
+
+/** The rows are close on purpose: say so, so the closeness reads as the finding rather than as noise. */
+function Takeaway({ rows, families }: { rows: Schemas["Table1Row"][]; families?: Record<string, number> }) {
+  const models = rows.filter((r) => !BASELINES.has(r.model) && r.metrics.roc_auc?.mean != null);
+  const aucs = models.map((r) => r.metrics.roc_auc!.mean!);
+  if (aucs.length < 2) return null;
+  const minSd = Math.min(...models.map((r) => r.metrics.roc_auc!.sd ?? 0));
+  const similar = Math.max(...aucs) - Math.min(...aucs) <= minSd; // the gap is smaller than any one model's fold-to-fold SD
+  const top = families ? Object.entries(families).sort((a, b) => b[1] - a[1])[0] : undefined;
+  const total = families ? Object.values(families).reduce((a, b) => a + b, 0) : 0;
+  return (
+    <p className="rounded-lg bg-sky-50 px-4 py-3 text-sm font-medium text-slate-800" data-testid="metrics-takeaway">
+      {similar
+        ? `All model types perform about the same here (ROC-AUC ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)}, a gap smaller than the fold-to-fold spread).`
+        : `ROC-AUC ranges ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)} across model types.`}
+      {top && ` The selection rule picked ${FAMILY[top[0]] ?? top[0]} in ${top[1]} of ${total} folds: the simplest model that does as well.`}
+    </p>
+  );
+}
+
+function MetricsTable({ rows, target }: { rows: Schemas["Table1Row"][]; target: TargetId }) {
+  const [allMetrics, setAllMetrics] = useState(false);
+  const [baselines, setBaselines] = useState(false);
+  const metrics = METRICS.filter((m) => allMetrics || m.core);
+  const shown = rows.filter((r) => baselines || !BASELINES.has(r.model));
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-4" aria-label="Official metrics">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-base font-bold text-slate-900"
+            title="Outer-fold mean ± SD over 25 outer folds (Layer A operating threshold). * = undefined in some folds (reported as NA, never 0). Benchmarks apply the same selection rule within one family.">
+          Table 1 · official metrics · {SHORT[target]} <span className="font-normal text-slate-500">ⓘ</span>
+        </h2>
+        <div className="flex gap-4 text-sm">
+          <label className="flex items-center gap-1.5 font-medium text-slate-700">
+            <input type="checkbox" checked={allMetrics} onChange={() => setAllMetrics(!allMetrics)} data-testid="metrics-all" />
+            Show all metrics
+          </label>
+          <label className="flex items-center gap-1.5 font-medium text-slate-700">
+            <input type="checkbox" checked={baselines} onChange={() => setBaselines(!baselines)} data-testid="metrics-baselines" />
+            Show trivial baselines
+          </label>
+        </div>
+      </div>
+      <p className="mt-0.5 text-sm text-slate-600">outer-fold mean ± SD, 25 outer folds · prevalence {p100(rows[0]?.prevalence)}</p>
+      <div className="mt-3 overflow-x-auto">
+        <table className="w-full tabular-nums" data-testid="metrics-table">
+          <thead className="text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+            <tr>
+              <th className="py-2 pr-4">Model</th>
+              {metrics.map((m) => <th key={m.key} className="px-3 py-2" title={m.help}>{m.label}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {shown.map((r) => {
+              const ours = r.model === "nested_cv_selected";
+              return (
+                <tr key={r.model} className={`border-t border-slate-200 ${ours ? "bg-sky-50" : ""}`}>
+                  <td className={`py-2.5 pr-4 text-sm ${ours ? "font-bold text-slate-900" : "font-medium text-slate-700"}`}>
+                    {MODEL_LABEL[r.model] ?? r.model}
+                    {BASELINES.has(r.model) && <span className="block text-xs font-normal text-slate-500">baseline</span>}
+                  </td>
+                  {metrics.map((m) => <td key={m.key} className="whitespace-nowrap px-3 py-2.5">{cell(r.metrics[m.key], m.fmt)}</td>)}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -83,7 +174,7 @@ function Forest({ rows, selected, onSelect }: {
                     stroke={C.primary} strokeWidth="2" strokeLinecap="round" />
               <circle cx={x(r.mean)} cy={cy} r="5" fill={C.primary} stroke="#fff" strokeWidth="2" />
               <text x={W - right + 8} y={cy + 4} className="fill-slate-700 text-[11px] tabular-nums">
-                {r.mean.toFixed(3)} ± {r.sd.toFixed(3)}
+                {r.mean.toFixed(2)} ± {r.sd.toFixed(2)}
               </text>
             </g>
           );
@@ -93,9 +184,16 @@ function Forest({ rows, selected, onSelect }: {
   );
 }
 
+type Section = "summary" | "performance" | "confidence" | "curves" | "clinical";
+const SECTIONS: readonly (readonly [Section, string])[] = [
+  ["summary", "Summary"], ["performance", "Performance"], ["confidence", "Confidence tiers"], ["curves", "Curves"],
+  ["clinical", "vs guideline score"],
+];
+
 export function EvidencePage() {
   const evaluation = useQuery({ queryKey: ["evaluation"], queryFn: api.evaluation, staleTime: Infinity });
   const [target, setTarget] = useState<TargetId>("cad");
+  const [section, setSection] = useState<Section>("summary");
   if (evaluation.isError) return <p className="p-6 text-sm text-red-700">Evaluation unavailable.</p>;
   if (!evaluation.data) return <p className="p-6 text-sm text-slate-500">Loading model evidence…</p>;
   const ev = evaluation.data.data;
@@ -110,89 +208,104 @@ export function EvidencePage() {
   const N_MIN = 15; // same minimum as a qualifying confidence region (targets.yaml n_min_region)
   const masked = (v: number | null, n: number | undefined) => (n != null && n < N_MIN ? null : v);
 
+  const core = ev.table1.find((r) => r.target === target && r.model === "nested_cv_selected");
+
   return (
     <div className="mx-auto max-w-7xl space-y-4 p-4" data-testid="evidence-page">
-      <header className="flex flex-wrap items-end justify-between gap-2">
+      <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-lg font-bold text-slate-900">Model evidence</h1>
-          <p className="text-xs text-slate-600">
-            Model v{ev.model_version} · Extension of Z-Alizadeh Sani (UCI #411), 303 patients, single public cohort ·
-            internal validation only (nested cross-validation); no external validation.
+          <h1 className="text-xl font-bold text-slate-900">Model evidence</h1>
+          <p className="text-sm text-slate-600">
+            Model v{ev.model_version} · 303 patients, one public cohort · internal validation only (nested cross-validation)
           </p>
         </div>
         <div className="flex gap-1" role="tablist" aria-label="Target">
           {TARGET_IDS.map((t) => (
             <button key={t} type="button" role="tab" aria-selected={t === target} onClick={() => setTarget(t)}
                     data-testid={`evidence-${t}`}
-                    className={`rounded px-3 py-1 text-xs font-semibold ${t === target ? "bg-slate-900 text-white" : "bg-white text-slate-700 shadow-sm"}`}>
+                    className={`rounded-md px-4 py-1.5 text-sm font-semibold ${t === target ? "bg-slate-900 text-white" : "bg-white text-slate-700 ring-1 ring-slate-300"}`}>
               {SHORT[t]}
             </button>
           ))}
         </div>
       </header>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
-        <Forest rows={forest} selected={target} onSelect={setTarget} />
-        <section className="rounded-lg border border-slate-200 bg-white p-3" aria-label="Confidence tiers">
-          <h2 className="text-sm font-semibold text-slate-900">Table 2 · confidence tiers</h2>
-          <p className="text-[11px] text-slate-500">
-            pooled OOF (prespecified repeat), patient-level bootstrap 95% CI · regions qualify only if the Wilson lower
-            bound meets the pre-registered PPV ≥ 90% / NPV ≥ 95% (targets never moved)
-          </p>
-          <table className="mt-2 w-full text-xs tabular-nums">
-            <thead className="text-left text-[11px] text-slate-500">
-              <tr><th className="py-1">Target</th><th>High-positive</th><th>PPV [CI]</th><th>High-negative</th><th>NPV [CI]</th><th>LOW</th></tr>
+      <div className="flex flex-wrap gap-1 border-b border-slate-200" role="tablist" aria-label="Evidence sections">
+        {SECTIONS.map(([id, label]) => (
+          <button key={id} type="button" role="tab" aria-selected={section === id} onClick={() => setSection(id)}
+                  data-testid={`evidence-section-${id}`}
+                  className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold ${
+                    section === id ? "border-slate-900 text-slate-900" : "border-transparent text-slate-600 hover:text-slate-900"}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {section === "summary" && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5" data-testid="evidence-key-numbers">
+            {METRICS.filter((m) => m.core && m.key !== "brier").map((m) => {
+              const v = core?.metrics[m.key];
+              return (
+                <div key={m.key} className="rounded-lg border border-slate-200 bg-white p-4" title={m.help}>
+                  <p className="text-sm font-semibold text-slate-600">{m.label} · {SHORT[target]}</p>
+                  <p className="mt-1 text-3xl font-bold tabular-nums text-slate-900">{v?.mean != null ? fmt(v.mean, m.fmt) : "N/A"}</p>
+                  {v?.sd != null && <p className="text-sm text-slate-500">± {fmtSd(v.sd, m.fmt)} across folds</p>}
+                </div>
+              );
+            })}
+          </div>
+          <div className="max-w-3xl"><Forest rows={forest} selected={target} onSelect={setTarget} /></div>
+        </div>
+      )}
+
+      {section === "performance" && (
+        <div className="space-y-3">
+          <Takeaway rows={t1} families={figures.selected_families} />
+          <MetricsTable key={target} rows={t1} target={target} />
+          {figures.selected_families && (
+            <p className="text-sm text-slate-600">
+              Model family chosen in the 25 outer folds:{" "}
+              {Object.entries(figures.selected_families).map(([f, n]) => `${FAMILY[f] ?? f} ${n}`).join(" · ")} ·
+              calibration-guard events: {figures.calibration_guard_events ?? 0}
+            </p>
+          )}
+        </div>
+      )}
+
+      {section === "confidence" && (
+        <section className="rounded-lg border border-slate-200 bg-white p-4" aria-label="Confidence tiers">
+          <h2 className="text-base font-bold text-slate-900"
+              title="Pooled OOF (prespecified repeat), patient-level bootstrap 95% CI. A region qualifies only if the Wilson lower bound meets the pre-registered PPV ≥ 90% / NPV ≥ 95% (targets never moved).">
+            Table 2 · confidence tiers <span className="font-normal text-slate-500">ⓘ</span>
+          </h2>
+          <p className="mt-0.5 text-sm text-slate-600">pooled OOF (prespecified repeat) · share of patients in each tier</p>
+          <table className="mt-3 w-full tabular-nums">
+            <thead className="text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+              <tr><th className="py-2">Target</th><th>High-positive</th><th>PPV [95% CI]</th><th>High-negative</th><th>NPV [95% CI]</th><th>LOW</th></tr>
             </thead>
-            <tbody>
+            <tbody className="text-sm">
               {ev.table2.map((r) => (
-                <tr key={r.target} className={`border-t border-slate-100 ${r.target === target ? "bg-slate-50 font-medium" : ""}`}>
-                  <td className="py-1">{SHORT[r.target as TargetId]}</td>
+                <tr key={r.target} className={`border-t border-slate-200 ${r.target === target ? "bg-sky-50 font-semibold" : ""}`}>
+                  <td className="py-2.5 font-semibold">{SHORT[r.target as TargetId]}</td>
                   <td>{p100(r.pct_high_positive)}</td>
-                  <td>{p100(r.ppv)}{r.ppv_ci ? ` [${p100(r.ppv_ci[0])}–${p100(r.ppv_ci[1])}]` : ""}</td>
+                  <td>{p100(r.ppv)}{r.ppv_ci && <span className="text-xs text-slate-500"> [{p100(r.ppv_ci[0])}–{p100(r.ppv_ci[1])}]</span>}</td>
                   <td>{p100(r.pct_high_negative)}</td>
-                  <td>{p100(r.npv)}{r.npv_ci ? ` [${p100(r.npv_ci[0])}–${p100(r.npv_ci[1])}]` : ""}</td>
+                  <td>{p100(r.npv)}{r.npv_ci && <span className="text-xs text-slate-500"> [{p100(r.npv_ci[0])}–{p100(r.npv_ci[1])}]</span>}</td>
                   <td>{p100(r.pct_low_confidence)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <p className="mt-2 text-[11px] text-slate-600">
-            Every patient still receives a binary prediction. LOW means the score lies outside a region that met the
-            pre-registered target in training-side validation, so no PPV/NPV is quoted for it.
+          <p className="mt-3 text-sm text-slate-700">
+            Every patient still gets a prediction. LOW means no PPV/NPV is quoted, because that score range did not meet
+            the pre-registered target.
           </p>
         </section>
-      </div>
+      )}
 
-      <section className="overflow-x-auto rounded-lg border border-slate-200 bg-white p-3" aria-label="Official metrics">
-        <h2 className="text-sm font-semibold text-slate-900">Table 1 · official metrics · {SHORT[target]}</h2>
-        <p className="text-[11px] text-slate-500">
-          outer-fold mean ± SD over 25 outer folds (Layer A operating threshold) · prevalence {p100(t1[0]?.prevalence)} ·
-          * = undefined in some folds (reported as NA, never 0) · benchmarks apply the same selection rule within one family
-        </p>
-        <table className="mt-2 w-full min-w-[900px] text-xs tabular-nums">
-          <thead className="text-left text-[11px] text-slate-500">
-            <tr><th className="py-1 pr-2">Model</th>{METRICS.map(([, l]) => <th key={l} className="pr-2">{l}</th>)}</tr>
-          </thead>
-          <tbody>
-            {t1.map((r) => (
-              <tr key={r.model} className={`border-t border-slate-100 ${r.model === "nested_cv_selected" ? "font-semibold text-slate-900" : "text-slate-700"}`}>
-                <td className="py-1 pr-2">{MODEL_LABEL[r.model] ?? r.model}</td>
-                {METRICS.map(([k]) => <td key={k} className="whitespace-nowrap pr-2">{cell(r.metrics[k])}</td>)}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {figures.selected_families && (
-          <p className="mt-2 text-[11px] text-slate-600">
-            Family selected across the 25 outer folds (inner-CV AUC → 1-SE rule → simplest):{" "}
-            {Object.entries(figures.selected_families).map(([f, n]) => `${f} ${n}`).join(" · ")} · calibration-guard
-            events: {figures.calibration_guard_events ?? 0}
-          </p>
-        )}
-      </section>
-
-      {figures.roc && figures.pr && figures.reliability ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="evidence-figures">
+      {section === "curves" && (figures.roc && figures.pr && figures.reliability ? (
+        <div className="grid gap-4 md:grid-cols-2" data-testid="evidence-figures">
           <LineChart title={`ROC · ${SHORT[target]}`}
                      caption={`${figures.scope ?? ""}${figures.table2_auc ? ` · AUC ${figures.table2_auc.toFixed(3)}` : ""}${
                        figures.table2_auc_ci ? ` [${figures.table2_auc_ci[0]!.toFixed(3)}–${figures.table2_auc_ci[1]!.toFixed(3)}]` : ""}`}
@@ -223,8 +336,9 @@ export function EvidencePage() {
         </div>
       ) : (
         <p className="text-sm text-slate-500">Figures are not available for this bundle.</p>
-      )}
-      <ClinicalBenchmark target={target} />
+      ))}
+
+      {section === "clinical" && <ClinicalBenchmark target={target} />}
     </div>
   );
 }

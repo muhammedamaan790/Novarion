@@ -3,6 +3,7 @@ import { expect, test } from "@playwright/test";
 
 test("Model Evidence compares CAD with the guideline pretest score and shows subgroups per target", async ({ page }) => {
   await page.goto("/?page=evidence");
+  await page.getByTestId("evidence-section-clinical").click();
   const panel = page.getByTestId("clinical-benchmark");
   await expect(panel).toContainText("CAD versus the guideline pretest score", { timeout: 30_000 });
   await expect(panel).toContainText("Diamond–Forrester (published)");

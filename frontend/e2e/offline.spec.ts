@@ -27,6 +27,7 @@ test("backend unreachable at start: static bundle, full dataset flow, no live in
   await page.getByTestId("page-new").click();
   await expect(page.getByTestId("new-case-offline")).toContainText("New cases need the live model");
   await page.getByTestId("page-evidence").click();
+  await page.getByTestId("evidence-section-performance").click();
   await expect(page.getByText("Table 1 · official metrics · CAD")).toBeVisible();
 });
 

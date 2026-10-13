@@ -127,11 +127,19 @@ test("Model Evidence page shows scoped tables and figures for each target", asyn
   await page.getByTestId("page-evidence").click();
   await expect(page.getByTestId("evidence-page")).toBeVisible();
   await expect(page).toHaveURL(/page=evidence/);
+  await expect(page.getByTestId("evidence-key-numbers")).toContainText("Sensitivity · CAD"); // summary first
+  await page.getByTestId("evidence-section-performance").click();
   await expect(page.getByText("Table 1 · official metrics · CAD")).toBeVisible();
+  await expect(page.getByTestId("metrics-table").locator("thead th")).toHaveCount(7); // model + 6 core metrics
+  await page.getByTestId("metrics-all").check();
+  await expect(page.getByTestId("metrics-table").locator("thead th")).toHaveCount(13);
   await expect(page.getByText(/outer-fold mean ± SD/).first()).toBeVisible();
+  await page.getByTestId("evidence-section-confidence").click();
   await expect(page.getByText(/pooled OOF \(prespecified repeat\)/).first()).toBeVisible();
   await page.getByTestId("evidence-lcx").click();
+  await page.getByTestId("evidence-section-performance").click();
   await expect(page.getByText("Table 1 · official metrics · LCX")).toBeVisible();
+  await page.getByTestId("evidence-section-curves").click();
   if (REAL) await expect(page.getByText("Threshold sweep · LCX")).toBeVisible();
   await page.screenshot({ path: `${SHOTS}/6-evidence.png` });
   if (REAL) {

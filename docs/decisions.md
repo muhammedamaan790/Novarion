@@ -524,6 +524,12 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     because they change what the numbers mean. The disclaimer moves from a banner to a one-line footer on every
     screen, including the sign-in page (brief item 5).
   - Secondary greys are one shade darker and body text is medium weight, for legibility.
+  - Model evidence gets section tabs (Summary · Performance · Confidence tiers · Curves · vs guideline score). Summary
+    shows the selected target's ROC-AUC, sensitivity, specificity, PPV and NPV as large numbers. Table 1 shows those
+    plus the Brier score by default (rates as percentages, mean bold with ± SD beneath); all 12 metrics and the
+    trivial baselines are behind toggles. A takeaway line states the finding the close rows carry: the model types
+    perform about the same, a claim made only when the AUC gap is smaller than every fold-to-fold SD, and the
+    selection rule picked the simplest family.
 - **Decision (sign-in):**
   - Accounts live in `artifacts/users.json` (gitignored; `NOVARION_USERS_FILE` overrides) and are managed with
     `scripts/users.py add|remove|list`. They are stored as salted scrypt hashes (N = 2^14, r = 8, p = 1), never as
