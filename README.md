@@ -92,8 +92,8 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 50 flows pass on the Docker stack with the real model in Edge, Chrome and Firefox, including axe
-  accessibility checks.
+- Browser E2E: 61 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+  accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
 
@@ -109,6 +109,10 @@ UCI #411 (SHA-256 pinned) → feature registry + leakage guard (Cath/CAD/LAD/LCX
 
 ### Exploring a case
 
+- **One workspace per open patient** (D-023): every dataset patient, new case or reopened saved case opens in its
+  own workspace and keeps its own tab, selected vessel and, for a new case, its typed values and live prediction. A
+  bar under the header lists the open workspaces, with a close button on each and a search box that finds an open
+  patient by ID, case number, sex, age or risk factor (or offers to open a dataset patient that isn't open yet).
 - **What-if sensitivity** (new and edited cases): one input at a time is varied across its training range and the
   probability curve is drawn against the threshold. Age and sex are locked. It is labelled "model sensitivity, not
   treatment simulation", and Unknown inputs that could flip the predicted class are listed.
@@ -173,11 +177,11 @@ make docker-e2e                                  # the same E2E flows against th
 - the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (50/50 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
-**Since v1.0.2, on `main` (D-022; model unchanged, still v1.0.2):** a sign-in page with real accounts, a home screen
-with one NEW CASE button, and a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence:
-Summary · Performance · Confidence tiers · Curves · vs guideline score). Verified: 198 Python tests, 24 unit tests and
-57 browser flows, against the mock and against the rebuilt Docker stack with the real model. Because it adds API
-endpoints, it ships as release v1.0.3; the release manifest and tag are written at submission time.
+**Since v1.0.2, on `main` (model unchanged, still v1.0.2):** a sign-in page with real accounts, a home screen with
+one NEW CASE button, a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence: Summary ·
+Performance · Confidence tiers · Curves · vs guideline score) (D-022), and one workspace per open patient with a
+search bar (D-023). Verified: 198 Python tests, 24 unit tests and 61 browser flows, against the mock and against the
+rebuilt Docker stack with the real model.
 
 Still open, for the team:
 - the second-machine run;

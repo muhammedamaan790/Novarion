@@ -552,3 +552,35 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Release:** a frontend and API change (new `/auth/*` endpoints, new error codes), so it ships as v1.0.3. The
   model and bundle are unchanged.
 
+## D-023 — One workspace per open patient, with search
+
+- **Date:** 2026-10-13
+- **Status:** DECIDED
+- **Context:** After D-022 only one case could be open at a time. Opening another patient replaced the first, and an
+  unsaved New case was lost on leaving it. The user asked for one workspace per patient and a search bar, because
+  with many open workspaces a patient is hard to find.
+- **Decision (interface only; no model, threshold, prediction or API change):**
+  - Every dataset patient, New case and case reopened from My cases opens in its own workspace. Opening something
+    already open focuses it instead of duplicating it. Each New case is a separate workspace ("New case 1", "New case
+    2"), named by its case number once saved.
+  - A bar under the header lists the open workspaces with a close button each. Closing the active one shows its
+    neighbour; closing the last returns home. Its search box matches the ID, the case number, the kind, and for
+    dataset patients their sex, age and risk factors. A typed patient ID ("6", "ZAS-0006") always offers that
+    patient, even when it also matches someone's age.
+  - **State per workspace:** the active case lives in the store's flat fields, so every panel reads it as before.
+    Switching parks it in its workspace entry and restores the other.
+  - **New case forms:** every open New case form stays mounted while hidden, so typed values survive switching. Its
+    results are written to its own workspace (`commitToWorkspace`) even when another patient is on screen. A late
+    prediction can therefore never land in the visible case, and it is not lost either; this replaces the old "discard
+    on leave" rule.
+  - The workspace screen stays mounted (hidden) on the other pages. The 3D canvas renders on demand, so this costs
+    nothing while it is hidden.
+  - **Drafts:** the single unsaved-draft slot is offered only to the first New case of a session.
+  - **Stored cases:** reopening one from My cases always rereads it from storage.
+  - **Deletion:** deleting a case closes its workspace, and any other workspace that had saved into it becomes
+    unsaved again.
+- **Verification:** `e2e/workspaces.spec.ts` covers per-workspace tab and selection, no duplicates, a New case keeping
+  its values while other patients are viewed, search by ID or details and opening from search, and closing. The
+  updated `flow-b-safety` test holds a New case prediction in flight, switches to another patient, then checks that
+  the response leaves the visible case untouched and arrives in its own workspace.
+

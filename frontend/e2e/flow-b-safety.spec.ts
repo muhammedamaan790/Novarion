@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("leaving a new case discards its delayed prediction", async ({ page }) => {
+test("a delayed prediction lands in its own workspace, never in the case on screen", async ({ page }) => {
   let release!: () => void;
   let responseReady!: () => void;
   const held = new Promise<void>((resolve) => { release = resolve; });
@@ -9,22 +9,26 @@ test("leaving a new case discards its delayed prediction", async ({ page }) => {
     const response = await route.fetch();
     responseReady();
     await held;
-    await route.fulfill({ response }).catch(() => {}); // cancellation is expected after leaving the form
+    await route.fulfill({ response }).catch(() => {});
   });
 
   await page.goto("/");
   await page.getByTestId("page-new").click();
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0003");
-  await prepared;
+  await prepared; // the new case's prediction is held in flight
   await page.getByTestId("page-library").click();
-  const committed = page.getByTestId("live-announcer"); // exists only while an analysis is committed
-  await expect(committed).toHaveCount(0);
-  release();
-  await page.waitForTimeout(700); // allow the held response to try to commit after the tab switch
-  await expect(committed).toHaveCount(0);
-  await page.getByTestId("patient-ZAS-0004").click(); // and it never leaks into the next case opened
+  await page.getByTestId("patient-ZAS-0004").click(); // another patient is now on screen
   await expect(page.getByTestId("card-cad")).toBeVisible({ timeout: 30_000 });
+  const onScreen = await page.getByTestId("predictions").getAttribute("data-input-sha256");
+
+  release();
+  await page.waitForTimeout(700); // the held response arrives while ZAS-0004 is on screen
   await expect(page.getByRole("heading", { name: /ZAS-0004/ })).toBeVisible();
+  await expect(page.getByTestId("predictions")).toHaveAttribute("data-input-sha256", onScreen!); // untouched
+
+  await page.getByTestId("ws-tab-New case 1").click(); // ...and it is waiting in its own workspace
+  await expect(page.getByTestId("live-summary")).toBeVisible();
+  await expect(page.getByTestId("case-status")).toContainText("Prediction up to date");
 });
 
 test("editing an input clears old predictions while validation is pending", async ({ page }) => {

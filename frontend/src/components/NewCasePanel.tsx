@@ -2,12 +2,12 @@
 // Typing → instant client-side checks → 300 ms of quiet → one /validate + one /predict. Only the latest input
 // revision may update the 3D view and panels; stale responses are discarded (AbortController + revision check).
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, TARGET_IDS, api, type InputValue, type Meta, type ValidateResponse } from "../api/client";
 import { clearDraft, loadDraft, scheduleDraft } from "../cases/caseStore";
 import type { DraftRecord } from "../cases/db";
 import { readCaseFile, type ImportedRow, type ImportReport, type UnitStatus } from "../cases/importCase";
-import { useStore } from "../store/useStore";
+import { type CaseSlice, useStore, workspaceAnalysis } from "../store/useStore";
 import { MODE_BADGE } from "./wording";
 
 type Feature = Meta["features"][number];
@@ -93,7 +93,9 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
   );
 }
 
-export function NewCasePanel({ meta }: { meta: Meta }) {
+/** One New case form per new-case workspace. It stays mounted while other workspaces are on screen, and every result it
+ *  produces is committed to its own workspace (D-023), never to whichever case happens to be visible. */
+export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: string; offerDraft: boolean }) {
   const features = useMemo(() => meta.features.filter((f) => f.input_mode === "entered"), [meta]);
   const [inputs, setInputs] = useState<Record<string, InputValue>>({});
   const [sourceRecord, setSourceRecord] = useState<number | null>(null);
@@ -108,10 +110,11 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
 
   // Draft recovery (plan §1): an unsaved draft from an earlier visit is offered, never applied silently.
   useEffect(() => {
+    if (!offerDraft) return; // one draft slot: offered to the first new case of the session only
     let alive = true;
     void loadDraft().then((d) => { if (alive && d) setRecoverable(d); }).catch(() => undefined);
     return () => { alive = false; };
-  }, []);
+  }, [offerDraft]);
 
   // Autosave the current draft (debounced). It stays a recoverable draft until "Save case" turns it into a scenario.
   useEffect(() => {
@@ -136,12 +139,12 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
   const [prefillId, setPrefillId] = useState("");
   const [prefillStatus, setPrefillStatus] = useState<"idle" | "loading" | "error">("idle");
   const prefillRequest = useRef<AbortController | null>(null);
-  const analysis = useStore((s) => s.analysis);
-  const setAnalysis = useStore((s) => s.setAnalysis);
+  const analysis = useStore((s) => workspaceAnalysis(s, wsId));
+  const commit = useCallback((partial: Partial<CaseSlice>) => useStore.getState().commitToWorkspace(wsId, partial), [wsId]);
   const patients = useQuery({ queryKey: ["patients"], queryFn: api.patients });
 
-  // Leaving the panel invalidates every in-flight request: a late response must never overwrite the analysis of
-  // whatever the user opened next (e.g. "Open the out-of-fold result").
+  // Closing this workspace invalidates every in-flight request. While the workspace is merely in the background, a
+  // late response still lands in it (commit), never in the case on screen.
   useEffect(() => {
     const revisionRef = revision;
     const inflightRef = inflight;
@@ -159,7 +162,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
     inflight.current?.abort();
     const controller = new AbortController();
     inflight.current = controller;
-    if (useStore.getState().mode === "new") setAnalysis(null); // an edited input never keeps the old prediction
+    commit({ analysis: null }); // an edited input never keeps the old prediction
     const filled = features.filter((f) => inputs[f.id] !== undefined && inputs[f.id] !== null).length;
     if (filled === 0) return () => controller.abort();
     const timer = window.setTimeout(async () => {
@@ -170,25 +173,24 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
         if (rev !== revision.current) return;
         setValidation(v.data);
         if (!v.data.ready) {
-          if (useStore.getState().mode !== "new") return;
-          setAnalysis(null); // fail closed: never keep colours from an older input
+          commit({ analysis: null }); // fail closed: never keep colours from an older input
           setStatus("idle");
           return;
         }
         const p = await api.predict({ inputs, unit_status: unitStatus, input_revision: rev }, controller.signal);
         if (rev !== revision.current || p.data.input_revision !== rev) return; // stale response: discard
-        if (useStore.getState().mode !== "new") return; // the user has left the new-case workflow
         if (!TARGET_IDS.every((t) => p.data.targets?.[t])) throw new Error("Incomplete prediction response");
-        setAnalysis({ ...p.data, explanations: {}, evidence: {}, requestInputs: inputs });
-        const st = useStore.getState();
-        st.setCaseRef(null); // a new transient analysis is not saved yet ("Save as new scenario")
-        st.setPendingCase({ inputs, unitStatus, canonicalInputs: v.data.canonical_inputs ?? null,
-                            datasetRecordId: sourceRecord, source: sourceKind.current });
+        commit({
+          analysis: { ...p.data, explanations: {}, evidence: {}, requestInputs: inputs },
+          caseRef: null, // a new transient analysis is not saved yet ("Save as new scenario")
+          pendingCase: { inputs, unitStatus, canonicalInputs: v.data.canonical_inputs ?? null,
+                         datasetRecordId: sourceRecord, source: sourceKind.current },
+        });
         setStatus("idle");
       } catch (err) {
         if ((err as Error).name === "AbortError") return;
         if (rev === revision.current) {
-          setAnalysis(null);
+          commit({ analysis: null });
           setStatus(err instanceof ApiError || err instanceof Error ? "error" : "idle");
         }
       }
@@ -197,7 +199,7 @@ export function NewCasePanel({ meta }: { meta: Meta }) {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [inputs, unitStatus, sourceRecord, features, setAnalysis]);
+  }, [inputs, unitStatus, sourceRecord, features, commit]);
 
   const cancelPrefill = () => {
     prefillRequest.current?.abort();

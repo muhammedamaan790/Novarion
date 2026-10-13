@@ -1,6 +1,6 @@
 // Screen 5 "Case history" (plan §12A.7, .8): cases live only in this browser (IndexedDB); reopening renders the STORED
 // analysis exactly as it was — no backend call, so it can never be re-explained by a newer model, and it works offline.
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { listBackups, storageErrorMessage, storageHealth } from "../cases/backup";
 import { caseStatus, currentAnalysis, deleteCase, exportCases, exportLearningPackage, importCases, listCasesChecked,
@@ -14,13 +14,12 @@ const STATUS_STYLE = { "Unreviewed": "bg-amber-100 text-amber-900", "Reviewed": 
   "Outcome recorded": "bg-sky-100 text-sky-900" } as const;
 const STATUS_TEXT = { "Unreviewed": "Unreviewed", "Reviewed": "Review recorded", "Outcome recorded": "Outcome pending" } as const;
 
-function open(c: CaseRecord) {
-  const st = useStore.getState();
-  st.setAnalysis(toDisplay(currentAnalysis(c)));
-  st.setCaseRef({ caseId: c.case_id, displayId: c.display_id });
-  st.setEditingCaseId(c.source === "dataset" ? null : c.case_id);
-  st.selectTarget(null);
-  st.openStoredCase();
+function open(c: CaseRecord, queryClient: QueryClient) {
+  // Each stored case opens in its own workspace (or focuses it if it is already open). Storage is the source of truth:
+  // drop any cached copy, which a workspace that stayed open in the background may still hold.
+  void queryClient.invalidateQueries({ queryKey: ["case", c.case_id] });
+  useStore.getState().openSavedCase({ caseId: c.case_id, displayId: c.display_id, analysis: toDisplay(currentAnalysis(c)),
+                                      editingCaseId: c.source === "dataset" ? null : c.case_id });
 }
 
 export function MyCasesPanel() {
@@ -125,7 +124,7 @@ export function MyCasesPanel() {
           const status = caseStatus(c);
           return (
             <li key={c.case_id}>
-              <button type="button" onClick={() => open(c)} data-testid={`case-${c.display_id}`}
+              <button type="button" onClick={() => open(c, queryClient)} data-testid={`case-${c.display_id}`}
                       className={`w-full rounded border px-2 py-1 text-left text-xs ${
                         caseRef?.caseId === c.case_id ? "border-slate-900 bg-slate-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}>
                 <span className="font-semibold">{c.display_id}</span> · {SOURCE_LABEL[c.source]}
@@ -148,10 +147,7 @@ export function MyCasesPanel() {
                               setDeleteError(null);
                               try {
                                 await deleteCase(c.case_id);
-                                if (useStore.getState().caseRef?.caseId === c.case_id) {
-                                  useStore.getState().setCaseRef(null);
-                                  useStore.getState().setAnalysis(null);
-                                }
+                                useStore.getState().closeSavedCase(c.case_id);
                               } catch (err) {
                                 setDeleteError(storageErrorMessage(err));
                               }

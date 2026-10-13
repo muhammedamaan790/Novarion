@@ -8,6 +8,7 @@ import { MyCasesPanel } from "./components/MyCasesPanel";
 import { DatasetLibrary } from "./components/PatientPanel";
 import { SignInPage } from "./components/SignInPage";
 import { HomePage, Workspace } from "./components/Workspace";
+import { WorkspaceBar } from "./components/WorkspaceBar";
 import { SHORT, predictionText, probPct } from "./components/wording";
 import { type CaseTab, type Page, useStore } from "./store/useStore";
 
@@ -105,6 +106,7 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
     </button>
   );
   const page = useStore((s) => s.page);
+  const hasWorkspace = useStore((s) => s.activeId !== null);
   const datasetPatientId = useStore((s) => s.datasetPatientId);
   const analysis = useStore((s) => s.analysis);
   const setAnalysis = useStore((s) => s.setAnalysis);
@@ -130,6 +132,7 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900 lg:h-screen">
       <Header mock={mock} runMode={runMode.data} user={user} onSignOut={onSignOut} />
+      {meta.data && <WorkspaceBar />}
       {meta.isError && (
         <p role="alert" className="m-4 rounded bg-red-50 p-3 text-sm text-red-800">
           Backend unreachable or not ready: predictions disabled. Start the API (see README) and reload.
@@ -147,7 +150,13 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
           {page === "home" && <HomePage user={user} />}
           {page === "library" && <DatasetLibrary />}
           {page === "cases" && <div className="mx-auto h-full w-full max-w-5xl p-6"><MyCasesPanel /></div>}
-          {page === "workspace" && <Workspace meta={meta.data.data} analysis={analysis} runMode={runMode.data} />}
+          {/* Mounted while any workspace is open, hidden on other pages: open New case forms keep their values.
+              The 3D view renders on demand only, so a hidden workspace costs nothing. */}
+          {hasWorkspace && (
+            <div className={page === "workspace" ? "h-full" : "hidden"}>
+              <Workspace meta={meta.data.data} analysis={analysis} runMode={runMode.data} />
+            </div>
+          )}
           {page === "evidence" && <EvidencePage />}
           {page === "models" && <ModelCenterPage />}
         </main>

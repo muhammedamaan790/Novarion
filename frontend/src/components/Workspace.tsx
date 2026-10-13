@@ -46,10 +46,11 @@ function Title({ analysis }: { analysis: DisplayAnalysis | null }) {
   const mode = useStore((s) => s.mode);
   const datasetPatientId = useStore((s) => s.datasetPatientId);
   const caseRef = useStore((s) => s.caseRef);
+  const label = useStore((s) => s.workspaces.find((w) => w.id === s.activeId)?.label ?? "New case");
   const inputs = (analysis as (DisplayAnalysis & { canonical_inputs?: Record<string, unknown> }) | null)?.canonical_inputs;
   const who = inputs && typeof inputs.age === "number" ? ` · ${inputs.age} y · ${inputs.sex === 1 ? "male" : "female"}` : "";
   const title = mode === "dataset" ? `${datasetPatientId ?? ""}${who}`
-    : mode === "new" ? (caseRef ? `${caseRef.displayId}${who}` : "New case") : `${caseRef?.displayId ?? "Saved case"}${who}`;
+    : mode === "new" ? (caseRef ? `${caseRef.displayId}${who}` : label) : `${caseRef?.displayId ?? "Saved case"}${who}`;
   return (
     <div className="flex items-center gap-3">
       <h1 className="text-lg font-bold text-slate-900">{title}</h1>
@@ -68,6 +69,9 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
   const selectedTarget = useStore((s) => s.selectedTarget);
   const view = useStore((s) => s.view);
   const target: TargetId = selectedTarget ?? "cad";
+  const activeId = useStore((s) => s.activeId);
+  const workspaces = useStore((s) => s.workspaces);
+  const newCases = workspaces.filter((w) => w.kind === "new");
   const back = () => {
     const st = useStore.getState();
     if (mode === "cases") st.openMyCases();
@@ -125,27 +129,36 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
       </section>
 
       <section className={`${pane("data")} rounded-lg border border-slate-200 bg-white p-4`} aria-label="Patient data">
-        {mode === "new" && runMode === "offline" ? (
+        {mode === "new" && runMode === "offline" && (
           <p className="rounded bg-violet-50 p-3 text-sm text-violet-900" data-testid="new-case-offline">
             New cases need the live model, which is unreachable. In offline demo mode you can open any dataset
             patient (precomputed out-of-fold results), save cases, review them and create Review Snapshots.
           </p>
-        ) : mode === "new" ? (
-          // The form and a live summary side by side: every edit re-predicts (brief: real-time updates).
-          <div className="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,32%)]">
-            <div className="min-h-[34rem] lg:min-h-0"><NewCasePanel meta={meta} /></div>
-            <aside className="space-y-3 overflow-auto">
-              {analysis && <CaseBar analysis={analysis} meta={meta} />}
-              {analysis ? <Summary analysis={analysis} testId="live-summary" /> : emptyNote}
-              {analysis && (
-                <button type="button" onClick={() => useStore.getState().setCaseTab("result")} data-testid="see-result"
-                        className="w-full rounded-lg bg-slate-900 py-2 text-sm font-bold text-white hover:bg-slate-700">
-                  See the result on the heart →
-                </button>
-              )}
-            </aside>
+        )}
+        {/* Every open New case form stays mounted (only the active one is shown), so each keeps its values and its
+            live prediction while you look at other workspaces (D-023). */}
+        <div className={`grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,32%)] ${
+          mode === "new" && runMode !== "offline" ? "" : "hidden"}`}>
+          <div className="min-h-[34rem] lg:min-h-0">
+            {newCases.map((w) => (
+              <div key={w.id} className={`h-full ${w.id === activeId ? "" : "hidden"}`}>
+                <NewCasePanel meta={meta} wsId={w.id} offerDraft={w.key === "new-1"} />
+              </div>
+            ))}
           </div>
-        ) : analysis ? <PatientData meta={meta} analysis={analysis} /> : emptyNote}
+          {/* The form and a live summary side by side: every edit re-predicts (brief: real-time updates). */}
+          <aside className="space-y-3 overflow-auto">
+            {mode === "new" && analysis && <CaseBar analysis={analysis} meta={meta} />}
+            {analysis ? <Summary analysis={analysis} testId="live-summary" /> : emptyNote}
+            {analysis && (
+              <button type="button" onClick={() => useStore.getState().setCaseTab("result")} data-testid="see-result"
+                      className="w-full rounded-lg bg-slate-900 py-2 text-sm font-bold text-white hover:bg-slate-700">
+                See the result on the heart →
+              </button>
+            )}
+          </aside>
+        </div>
+        {mode !== "new" && (analysis ? <PatientData meta={meta} analysis={analysis} /> : emptyNote)}
       </section>
 
       <section className={`${pane("whatif")} rounded-lg border border-slate-200 bg-white p-4`} aria-label="What-if">

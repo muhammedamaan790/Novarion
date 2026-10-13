@@ -54,9 +54,9 @@ test("an expired session (401 from any call) returns to the sign-in page", async
   await page.getByTestId("sign-in-password").fill("right-password");
   await page.getByTestId("sign-in-submit").click();
   await expect(page.getByTestId("home-new-case")).toBeVisible({ timeout: 30_000 });
-  await page.route("**/api/v1/patients", (route) =>
+  await page.route("**/api/v1/evaluation", (route) => // fetched only when Model evidence opens
     route.fulfill({ status: 401, json: { error_code: "UNAUTHENTICATED", message: "Sign in first.", details: {} } }));
-  await page.getByTestId("home-library").click();
+  await page.getByTestId("page-evidence").click();
   await expect(page.getByTestId("sign-in")).toBeVisible();
 });
 
