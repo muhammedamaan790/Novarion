@@ -173,6 +173,12 @@ make docker-e2e                                  # the same E2E flows against th
 - the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (50/50 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
+**Since v1.0.2, on `main` (D-022; model unchanged, still v1.0.2):** a sign-in page with real accounts, a home screen
+with one NEW CASE button, and a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence:
+Summary · Performance · Confidence tiers · Curves · vs guideline score). Verified: 198 Python tests, 24 unit tests and
+57 browser flows, against the mock and against the rebuilt Docker stack with the real model. Because it adds API
+endpoints, it ships as release v1.0.3; the release manifest and tag are written at submission time.
+
 Still open, for the team:
 - the second-machine run;
 - rehearsals and an outside-user usability test;
