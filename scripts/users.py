@@ -2,6 +2,7 @@
 
 Usage:
   uv run python scripts/users.py add <username>       # prompts twice for the password; replaces an existing one
+  uv run python scripts/users.py add <username> --weak-ok   # local demo only: allows a password under 8 characters
   uv run python scripts/users.py remove <username>
   uv run python scripts/users.py list
 
@@ -28,6 +29,8 @@ def main(argv: list[str]) -> int:
     if argv[:1] == ["list"]:
         print("\n".join(sorted(users)) or "(no accounts)")
         return 0
+    weak_ok = "--weak-ok" in argv
+    argv = [a for a in argv if a != "--weak-ok"]
     if len(argv) != 2 or argv[0] not in {"add", "remove"}:
         print(__doc__)
         return 2
@@ -43,9 +46,11 @@ def main(argv: list[str]) -> int:
         print("username: 3-32 characters, lowercase letters, digits, '.', '_' or '-'")
         return 1
     password = getpass.getpass(f"Password for {username}: ")
-    if len(password) < MIN_PASSWORD_CHARS:
-        print(f"password must be at least {MIN_PASSWORD_CHARS} characters")
+    if not password or (len(password) < MIN_PASSWORD_CHARS and not weak_ok):
+        print(f"password must be at least {MIN_PASSWORD_CHARS} characters (--weak-ok allows less, for a local demo only)")
         return 1
+    if len(password) < MIN_PASSWORD_CHARS:
+        print("warning: weak password; never use this account on a server others can reach")
     if getpass.getpass("Repeat password: ") != password:
         print("passwords differ")
         return 1
