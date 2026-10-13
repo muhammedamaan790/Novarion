@@ -5,7 +5,9 @@ configs, both lockfiles, the offline demo bundle, the git commit and the fronten
 --final it writes a release CANDIDATE (freeze_status "CANDIDATE"); with --final it refuses a dirty working tree and
 an existing FINAL manifest, because after the freeze any change to the model, features, anatomy, thresholds,
 explanations, API or demo patients requires a new version.
-Usage: uv run python scripts/release_manifest.py [--final]
+A release can change the app without changing the model (D-022/D-023): --version sets the release number, and the
+manifest records the model version separately. Without --version the release number is the model version.
+Usage: uv run python scripts/release_manifest.py [--version X.Y.Z] [--final]
 """
 
 from __future__ import annotations
@@ -34,16 +36,22 @@ def git(*args: str) -> str:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
 
 
+def version_tuple(v: str) -> tuple[int, ...]:
+    return tuple(int(x) for x in v.split("."))
+
+
 def main() -> int:
     final = "--final" in sys.argv
+    registry = json.loads((ROOT / "registry" / "models.json").read_text(encoding="utf-8"))
+    release = sys.argv[sys.argv.index("--version") + 1] if "--version" in sys.argv else registry["production_version"]
     if final:
-        if OUT.exists() and json.loads(OUT.read_text(encoding="utf-8")).get("freeze_status") == "FINAL":
-            print("refused: a FINAL release manifest already exists; a change needs a new version")
+        previous = json.loads(OUT.read_text(encoding="utf-8")) if OUT.exists() else {}
+        if previous.get("freeze_status") == "FINAL" and version_tuple(release) <= version_tuple(previous["release_version"]):
+            print(f"refused: release v{previous['release_version']} is already FINAL; a change needs a higher version")
             return 2
         if git("status", "--porcelain"):
             print("refused: commit everything first (the manifest pins the git commit)")
             return 2
-    registry = json.loads((ROOT / "registry" / "models.json").read_text(encoding="utf-8"))
     entry = next(m for m in registry["models"] if m["version"] == registry["production_version"])
     bundle_manifest = json.loads((ROOT / entry["path"] / "manifest.json").read_text(encoding="utf-8"))
     demo_index = json.loads((ROOT / entry["path"] / "demo_bundle" / "index.json").read_text(encoding="utf-8"))
@@ -52,7 +60,8 @@ def main() -> int:
     node = subprocess.run(["node", "--version"], capture_output=True, text=True, check=False).stdout.strip()
     config = ROOT / "config"
     manifest = {
-        "release_version": registry["production_version"],
+        "release_version": release,
+        "model_version": registry["production_version"],
         "git_sha": git("rev-parse", "HEAD"),
         "artifact_manifest_sha256": bundle_manifest["artifact_manifest_sha256"],
         "feature_registry_sha256": sha(config / "feature_registry.yaml"),
@@ -63,6 +72,7 @@ def main() -> int:
         "anatomy_manifest_sha256": sha(config / "anatomy_manifest.json"),
         "anatomy_map_sha256": sha(config / "anatomy_map.json"),
         "demo_config_sha256": sha(config / "demo_config.yaml"),
+        "api_contract_sha256": sha(ROOT / "contracts" / "openapi.json"),
         "frontend_lock_sha256": sha(ROOT / "frontend" / "package-lock.json"),
         "backend_lock_sha256": sha(ROOT / "uv.lock"),
         "demo_bundle_sha256": demo_index["demo_bundle_sha256"],
@@ -72,9 +82,9 @@ def main() -> int:
         "created_at": datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "freeze_status": "FINAL" if final else "CANDIDATE",
     }
-    OUT.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
-    print(f"release_manifest.json written: v{manifest['release_version']} {manifest['freeze_status']} "
-          f"@ {manifest['git_sha'][:10]}")
+    OUT.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(f"release_manifest.json written: v{manifest['release_version']} (model v{manifest['model_version']}) "
+          f"{manifest['freeze_status']} @ {manifest['git_sha'][:10]}")
     return 0
 
 
