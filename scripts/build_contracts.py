@@ -49,7 +49,8 @@ def _id(name: str) -> uuid.UUID:
 
 
 def write_json(path: Path, obj) -> None:
-    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    # LF on every OS (D-020): a Windows run must produce the same bytes as CI and the checkout.
+    path.write_text(json.dumps(obj, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
 
 
 def openapi_document() -> dict:
