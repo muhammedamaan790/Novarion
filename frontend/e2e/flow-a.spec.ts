@@ -166,11 +166,12 @@ test("compare all vessels: callouts on the heart + contribution heatmap for ever
   await openPatient(page, "ZAS-0003");
   await page.getByTestId("compare-all").click();
   await page.waitForTimeout(1500);
-  await page.screenshot({ path: `${SHOTS}/11-compare.png` }); // callouts on the heart
+  await page.screenshot({ path: `${SHOTS}/11-compare-heart.png` }); // callouts on the heart
   await page.getByTestId("case-tab-why").click();
   const panel = page.getByTestId("compare-panel");
   await expect(panel).toContainText("Compare all targets", { timeout: 15_000 });
   for (const t of ["CAD", "LAD", "LCX", "RCA"]) await expect(panel.locator("th", { hasText: t })).toBeVisible();
+  await page.screenshot({ path: `${SHOTS}/11-compare.png` }); // the contribution heatmap (report Figure 2)
   await expect(page).toHaveURL(/view=compare/);
   await page.keyboard.press("1"); // selecting a vessel leaves compare mode
   await expect(page.getByTestId("why-panel")).toBeVisible();

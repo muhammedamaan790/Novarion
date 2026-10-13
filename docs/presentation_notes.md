@@ -43,4 +43,5 @@ next to the 71 % always-CAD baseline. Inflated numbers usually come from tuning 
 - "CAD probability", "LAD stenosis-label probability"; never "risk of disease", "diagnosis", "you have".
 - "HIGH / LOW MODEL CONFIDENCE"; never bare HIGH/LOW; never "certainty".
 - SHAP = "model contribution"; never "risk factor" or "cause".
-- The disclaimer is visible in every frame of the video (persistent banner) and spoken at the start and end.
+- The disclaimer is visible in every frame of the video (bold footer line on every screen, the sign-in page
+  included) and spoken at the start and end.

@@ -143,9 +143,10 @@ nested cross-validation (4 model families, 92 pre-registered configurations) →
 layers → versioned, hash-verified model bundle (v{manifest['model_version']}) → stateless FastAPI service (Pydantic
 contract → OpenAPI → generated TypeScript types) → React 19 + React Three Fiber client (Zustand state, IndexedDB case
 store). Registries (features, targets, anatomy map) make new features, models or structures a configuration change.</p>
-{img("2-lad.png", "Figure 1 — Command Center on a held-out dataset patient (out-of-fold prediction): LAD selected; the "
-     "camera flies to the vessel and the others fade. Colour family = predicted class, depth = distance from the "
-     "decision threshold, hatching = LOW model confidence. Cards show the binary call, probability and confidence.")}
+{img("2-lad.png", "Figure 1 — A case's Result tab on a held-out dataset patient (out-of-fold prediction): LAD "
+     "selected; the camera flies to the vessel and the others fade. Colour family = predicted class, depth = distance "
+     "from the decision threshold, hatching = LOW model confidence. Beside it, a two-line summary and one line per "
+     "target (binary call, probability, confidence) that expands to its stability interval and reasons.")}
 
 <h2>2. Data and preprocessing</h2>
 <p>Extension of Z-Alizadeh Sani (UCI #411, CC BY 4.0), verified on download: {schema.get('n_rows', 303)} patients ×
@@ -235,8 +236,8 @@ and {cases[3]['patient_id']}, whose atypical profile forces LOW confidence.</p>
 
 <h2>5. 3D visualization, interpretability and the system</h2>
 <div class="two">
-{img("11-compare.png", "Figure 2 — Compare all vessels: on-heart callouts and a features × {CAD, LAD, LCX, RCA} "
-     "contribution heatmap (amber ↑ / blue ↓, depth = size).")}
+{img("11-compare.png", "Figure 2 — Compare all targets (a case's Why tab): a features × {CAD, LAD, LCX, RCA} "
+     "contribution heatmap (amber ↑ / blue ↓, depth = size); the Result tab adds matching callouts on the heart.")}
 {img("10-whole-body.png", "Figure 3 — Whole-body view: the heart inside a translucent torso and rib cage (body context "
      "fades automatically in vessel close-ups).")}
 </div>
