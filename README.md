@@ -37,7 +37,8 @@ cd frontend && npm ci && npm run dev   # http://localhost:5173
 
 **Sign-in (optional):** create an account with `uv run python scripts/users.py add NAME` (it asks for the password
 twice and stores only a salted scrypt hash in the gitignored `artifacts/users.json`), then restart the backend.
-While that file exists, the app opens on a sign-in page and the API refuses requests without a session; delete it
+While that file exists, the app opens on a public landing page with a Sign in button (D-028), and the API refuses
+requests without a session; delete it
 to turn sign-in off (D-022).
 
 When the backend is unreachable, the frontend switches to **offline demo mode**. It loads a hash-verified static
@@ -94,7 +95,7 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 70 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+- Browser E2E: 71 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
   accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -179,7 +180,7 @@ make docker-e2e                                  # the same E2E flows against th
 **Release v1.0.5 (frozen; `release_manifest.json`, git tag `v1.0.5`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (70/70 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (71/71 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 **New since release v1.0.2 (the model is unchanged):** a sign-in page with
@@ -190,8 +191,9 @@ accuracy beside each prediction (D-024), and a 3D heart page with the anatomy al
 from an external audit (D-026: wrong-workspace saves, per-account local storage, offline file integrity anchored to
 the release, model-bound evidence and both confidence scopes, safer promotion/rollback/rebuilds, narrower claims;
 confidence now reads "high support · internal evaluation" / "outside qualified range"), a 4x smaller first download
-(the 3D view and PDF code load on demand), and a landing section on the home page (D-027). Verified: 221 Python tests,
-34 unit tests and 70 browser flows, against the mock and against the rebuilt Docker stack with the real model.
+(the 3D view and PDF code load on demand), a landing section on the home page (D-027), and a public landing page
+before sign-in that explains the problem and the approach (D-028). Verified: 221 Python tests, 34 unit tests and 71
+browser flows, against the mock and against the rebuilt Docker stack with the real model.
 Still not published: the trained model bundle (audit R01); a fresh clone needs `make reproduce` for real predictions.
 
 Still open, for the team:

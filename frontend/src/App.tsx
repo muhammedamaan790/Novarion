@@ -8,6 +8,7 @@ import { MyCasesPanel } from "./components/MyCasesPanel";
 import { selectAccountStorage } from "./cases/backup";
 import { AnatomyPage } from "./components/AnatomyPage";
 import { DatasetLibrary } from "./components/PatientPanel";
+import { LandingPage } from "./components/LandingPage";
 import { SignInPage } from "./components/SignInPage";
 import { HomePage } from "./components/HomePage";
 import { Workspace } from "./components/Workspace";
@@ -75,8 +76,18 @@ function useKeyboard() {
 export default function App() {
   const queryClient = useQueryClient();
   const session = useQuery({ queryKey: ["session"], queryFn: api.session, retry: false, staleTime: Infinity });
+  // Signed out, the public landing page comes first (D-028); its Sign in buttons open #sign-in, so Back returns to it.
+  const [signInShown, setSignInShown] = useState(() => window.location.hash === "#sign-in");
   useEffect(() => {
-    const onSignedOut = () => queryClient.setQueryData<AuthSession>(["session"], (s) => (s ? { ...s, user: null } : s));
+    const onHash = () => setSignInShown(window.location.hash === "#sign-in");
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+  useEffect(() => {
+    const onSignedOut = () => {
+      queryClient.setQueryData<AuthSession>(["session"], (s) => (s ? { ...s, user: null } : s));
+      setSignInShown(true); // an expired session goes straight back to the sign-in form, not the landing page
+    };
     window.addEventListener(SIGNED_OUT_EVENT, onSignedOut);
     return () => window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut);
   }, [queryClient]);
@@ -92,7 +103,9 @@ export default function App() {
   }, [session.isPending, storageUser]);
   if (session.isPending) return <div className="min-h-screen bg-slate-50" aria-busy />;
   if (s?.auth_required && !s.user) {
+    if (!signInShown) return <LandingPage onSignIn={() => { window.location.hash = "sign-in"; setSignInShown(true); }} />;
     return <SignInPage accountsConfigured={s.accounts_configured} onSignedIn={(next) => {
+      if (window.location.hash) window.history.replaceState(null, "", window.location.pathname + window.location.search);
       queryClient.setQueryData(["session"], next);
       void queryClient.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "session" }); // drop 401s from before
     }} />;

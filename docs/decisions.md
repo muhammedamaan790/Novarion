@@ -707,3 +707,30 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   - A limits line states internal evaluation on one cohort, no clinical validation, no diagnosis.
 - **Verification:** flow-a checks the facts against the real model (0.93; 98.5%) and checks that the mock shows no
   model figure; the axe test covers the home page. 70/70 E2E on the mock and on real Docker.
+
+## D-028 — A public landing page before sign-in
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** Deployed with accounts, the first thing a visitor saw was the sign-in form. The user asked for a page
+  before it that explains the problem and how NOVARION's model addresses it, with a Sign in button, built from an
+  existing topic-appropriate template rather than designed from scratch, and with the pages inside the app unchanged.
+- **Decision:**
+  - When sign-in is required and nobody is signed in, the app shows `LandingPage` first. Its Sign in buttons open
+    `#sign-in`, the existing sign-in page, so the browser's Back button returns to the landing page. After signing in
+    the hash is removed; signing out returns to the landing page. An expired session (a 401 mid-session) goes straight
+    to the sign-in form, since that user was already working.
+  - With sign-in off (development, E2E, offline demo) nothing changes: the app opens on its home page.
+  - The layout adapts Landwind by Themesberg (MIT): navbar, hero with image, a strip of facts in place of the logo
+    strip, feature grid, content section, statement section, call to action and footer. Flowbite's script is not used
+    and nothing loads from another origin. Icons are Heroicons (MIT), inline. The hero image is a screenshot of the
+    app's own reference heart (BodyParts3D, CC BY 4.0), 22 kB WebP in `frontend/public/landing/`.
+  - Content: the problem (WHO: ischaemic heart disease is the leading cause of death; angiography is invasive; in
+    Patel et al., NEJM 2010, about 4 in 10 elective angiographies found obstructive disease), the approach (nested CV
+    over four model families, calibration, exact SHAP, pre-registered confidence targets), how it works, and the
+    limits.
+  - **No model figures on this page:** they need a session, and the in-app pages show them bound to the served model
+    (audit R09). Only dataset and method facts appear (303 patients, 55 measurements, 4 targets, 5 × 5 nested CV).
+- **Verification:** a new E2E flow checks the landing content, both Sign in buttons, Back, the unchanged sign-in
+  page and that nothing loads from another origin; the axe test covers the landing page; the sign-in, sign-out,
+  expired-session and per-account flows go through it. 71/71 E2E on the mock and on real Docker.

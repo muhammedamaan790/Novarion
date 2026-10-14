@@ -19,6 +19,7 @@ async function stubAuth(page: Page) {
 }
 
 async function signIn(page: Page, username: string) {
+  await page.getByTestId("landing-sign-in").click(FIRST_LOAD); // signed out, the landing page comes first (D-028)
   await expect(page.getByTestId("sign-in")).toBeVisible(FIRST_LOAD);
   await page.getByTestId("sign-in-username").fill(username);
   await page.getByTestId("sign-in-password").fill("password");

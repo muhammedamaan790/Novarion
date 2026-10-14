@@ -20,10 +20,12 @@ Feature units and definitions: the published feature table of the dataset (arXiv
 ## Interface components
 - **HyperUI** — the home page adapts "Banner · Center" and "Feature grid · Grid with content".
   https://github.com/markmead/hyperui — MIT License, Copyright (c) Mark Mead.
-- **Heroicons** — the three home-page icons (inline SVG paths). https://github.com/tailwindlabs/heroicons — MIT License,
-  Copyright (c) Tailwind Labs, Inc.
+- **Heroicons** — the home-page and landing-page icons (inline SVG paths). https://github.com/tailwindlabs/heroicons —
+  MIT License, Copyright (c) Tailwind Labs, Inc.
+- **Landwind** (Tailwind CSS landing page by Themesberg) — the public landing page shown before sign-in (D-028) adapts
+  its layout. https://github.com/themesberg/tailwind-landing-page — MIT License, Copyright (c) 2022 Themesberg.
 
-MIT License text (applies to both): Permission is hereby granted, free of charge, to any person obtaining a copy of
+MIT License text (applies to all three): Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in the Software without restriction,
 including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following
