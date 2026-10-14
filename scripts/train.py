@@ -1,6 +1,7 @@
 """Training orchestrator (plan §6.4, §6.10b): nested CV (parallel, cached) → evaluation tables → final models.
 
   uv run --group train python scripts/train.py nested     # 4 targets × 25 outer folds, cached per fold
+  (the cache key covers config, training code and training-library versions; FORCE_RETRAIN=1 ignores the cache)
   uv run --group train python scripts/train.py evaluate   # Table 1, Table 2, leaderboard (from the cached folds)
   uv run --group train python scripts/train.py final      # deployed model per target (CV-select on all 303 → refit)
   uv run --group train python scripts/train.py all
@@ -51,11 +52,50 @@ TARGETS = ("cad", "lad", "lcx", "rca")
 N_JOBS = max(1, (os.cpu_count() or 2) - 1)
 
 
-def cache_key() -> str:
-    parts = [default_train_config().sha256]  # code changes need an explicit rerun (D-019)
+# What a fit depends on beyond its config (audit R14): the training code and the training libraries. UI, backend and
+# lifecycle edits stay outside, so they never invalidate the (1.5 h) training cache.
+TRAINING_CODE = ("ml/novarion_ml/train", "ml/novarion_ml/features", "ml/novarion_ml/calibrate",
+                 "ml/novarion_ml/thresholds", "ml/novarion_ml/data", "ml/novarion_ml/hashing.py")
+TRAINING_PACKAGES = ("numpy", "pandas", "scipy", "scikit-learn", "xgboost", "xgboost-cpu", "catboost", "interpret", "interpret-core",
+                     "joblib")
+
+
+def _lf_sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def code_identity(root: Path = ROOT) -> str:
+    """LF-normalized hash of every training source file (path + content), so a CRLF checkout gets the same identity."""
+    files = sorted(p for entry in TRAINING_CODE for p in ((root / entry).rglob("*.py") if (root / entry).is_dir()
+                                                          else [root / entry]))
+    parts = [f"{p.relative_to(root).as_posix()}:{_lf_sha256(p)}" for p in files]
+    return hashlib.sha256("\n".join(parts).encode()).hexdigest()
+
+
+def dependency_identity(lock_text: str | None = None) -> str:
+    """Hash of the locked versions of the training libraries only (other uv.lock changes do not invalidate fits)."""
+    import tomllib
+
+    lock = tomllib.loads(lock_text if lock_text is not None else (ROOT / "uv.lock").read_text(encoding="utf-8"))
+    versions = sorted((p["name"], p.get("version", "")) for p in lock.get("package", []) if p["name"] in TRAINING_PACKAGES)
+    return hashlib.sha256(json.dumps(versions).encode()).hexdigest()
+
+
+def config_key() -> str:
+    """The pre-R14 key (config files only): kept so migrate_cache_key.py can recognise records produced under it."""
+    parts = [default_train_config().sha256]
     for name in ("feature_registry.yaml", "targets.yaml", "data_source.json"):
         parts.append(text_sha256(CONFIG_DIR / name))
     return hashlib.sha256("|".join(parts).encode()).hexdigest()
+
+
+def cache_key() -> str:
+    """A fit is reused only if config, training code and training libraries are all unchanged (audit R14).
+    FORCE_RETRAIN=1 ignores every cached fit."""
+    return hashlib.sha256(f"{config_key()}|code:{code_identity()}|deps:{dependency_identity()}".encode()).hexdigest()
+
+
+FORCE = os.environ.get("FORCE_RETRAIN") == "1"
 
 
 def validate_fold_record(record: dict, fold, target: str, key: str, labels) -> None:
@@ -118,7 +158,7 @@ def nested() -> None:
         for f in folds[t]:
             path = _fold_path(t, f.repeat, f.fold)
             model_ok = f.repeat != train.evaluation_repeat or (NESTED / "models" / f"{t}_r{f.repeat}_f{f.fold}.joblib").exists()
-            if path.exists() and json.loads(path.read_text(encoding="utf-8")).get("cache_key") == key and model_ok:
+            if not FORCE and path.exists() and json.loads(path.read_text(encoding="utf-8")).get("cache_key") == key and model_ok:
                 continue
             todo.append((t, f.repeat, f.fold, f.train_ids, f.test_ids, key))
     # evaluation-repeat folds first: they feed the OOF bundle and Table 2
@@ -148,7 +188,7 @@ def _final_task(target, key):
 
 def final() -> None:
     key = cache_key()
-    todo = [t for t in TARGETS if not ((FINAL / f"{t}.json").exists() and (FINAL / f"{t}.joblib").exists()
+    todo = [t for t in TARGETS if FORCE or not ((FINAL / f"{t}.json").exists() and (FINAL / f"{t}.joblib").exists()
                                        and json.loads((FINAL / f"{t}.json").read_text()).get("cache_key") == key)]
     print(f"final models: {todo}", flush=True)
     for t, selected, secs in joblib.Parallel(n_jobs=min(N_JOBS, len(todo) or 1))(
