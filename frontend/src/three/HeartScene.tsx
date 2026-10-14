@@ -8,7 +8,8 @@ import { useStore } from "../store/useStore";
 import type { SceneState } from "./sceneState";
 import { MYOCARDIUM_LINEAR, NEUTRAL_LINEAR, oklchToLinearSrgb, vesselColor, type ColorTransfer } from "./colors";
 
-export const MODEL_URL = "/models/heart.glb";
+import { MODEL_URL } from "./modelUrl";
+export { MODEL_URL };
 export const LABELLED_TARGETS = ["lad", "lcx", "rca"] as const satisfies readonly TargetId[];
 const VESSEL_NODES = ["vessel_lad", "vessel_lcx", "vessel_rca", "vessel_lm"] as const;
 const CONTEXT_NODES = ["torso_shell", "rib_cage"] as const; // translucent body context, never pickable

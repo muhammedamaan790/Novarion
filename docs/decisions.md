@@ -775,3 +775,21 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     `artifacts/` stays untracked, so CI's bundle-dependent tests are unchanged.
 - **Measured on the free plan's limits locally (0.1 CPU, 512 MB):** 148 MB in use; ready about 4 minutes after a
   cold start; `/predict` 0.6 s, `/analyze/full` 1.5 s.
+
+## D-031 — The landing hero's heart moves
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user asked for motion on the landing page, for example the 3D heart itself.
+- **Decision:**
+  - The hero shows the still image at once. On a wide screen with WebGL and without a reduced-motion preference, the
+    app's own 3D scene loads in the background (its own chunk; the first download grows by 1.6 kB) and fades in.
+  - It visits the whole heart, then the LAD, LCX and RCA, 3.5 s each: the camera flies to each artery and isolates it,
+    its label turns green and a caption names it. It pauses while the tab is hidden.
+  - Presentational only: no pointer input (forced on every child, because the 3D canvas turns it back on), so the
+    page scrolls normally over it. No patient, no prediction.
+  - Before sign-in the API needs a session, so the anatomy map comes from the public, release-pinned offline bundle
+    (`/demo_bundle/meta.json`). `MODEL_URL` moves to `three/modelUrl.ts` so the landing can prefetch the model without
+    loading the 3D engine.
+- **Verification:** a new E2E flow checks the fade-in, the four captions in order, wheel scrolling over the heart, and
+  that reduced motion and no WebGL keep the still image. 72/72 E2E on the mock; 34 unit tests.

@@ -1,10 +1,12 @@
 // Public landing page, shown before sign-in (D-028): what problem NOVARION addresses and how. Layout adapted from
 // Landwind by Themesberg (MIT, © 2022 Themesberg): navbar, hero with image, logo strip (here: facts), feature grid,
 // content section, statement section and CTA; its footer is left out. Flowbite's script is not used and nothing loads
-// from another origin. Icons from Heroicons (MIT, © Tailwind Labs), inline. The hero image is the app's own reference heart
-// (BodyParts3D, CC BY 4.0). Only dataset and method facts appear here: model figures need a session and are shown
-// after sign-in, bound to the served model (audit R09).
+// from another origin. Icons from Heroicons (MIT, © Tailwind Labs), inline. The hero heart is the app's own reference
+// anatomy (BodyParts3D, CC BY 4.0), in motion where the browser allows it (LandingHeart, D-031). Only dataset and
+// method facts appear here: model figures need a session and are shown after sign-in, bound to the served model
+// (audit R09).
 import { DisclaimerFooter } from "./Chrome";
+import { LandingHeart } from "./LandingHeart";
 
 const ICONS = {
   warning: "M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z",
@@ -108,9 +110,7 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
               </button>
             </div>
             <div className="hidden lg:col-span-5 lg:mt-0 lg:flex lg:flex-col lg:items-center">
-              <img src="/landing/heart.webp" width={870} height={773} className="h-auto w-full rounded-2xl shadow-xl ring-1 ring-slate-900/5"
-                   alt="NOVARION's 3D reference heart with the LAD, LCX and RCA arteries labelled" />
-              <p className="mt-3 text-xs text-slate-600">Reference anatomy from BodyParts3D (CC BY 4.0), not a patient.</p>
+              <LandingHeart />
             </div>
           </div>
         </section>
