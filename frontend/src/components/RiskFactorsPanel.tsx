@@ -35,15 +35,22 @@ export function RiskFactorsPanel({ analysis }: { analysis: DisplayAnalysis }) {
       </header>
 
       {found.length === 0 ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900" data-testid="risk-none">
-          None of the modifiable risk factors checked here is present in the recorded values
-          {notAssessed.length > 0 ? " that could be assessed" : ""}.
+        <p className="rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-slate-800" data-testid="risk-none">
+          No selected threshold flags were triggered in the recorded values{notAssessed.length > 0 ? " that could be assessed" : ""}.
+          This does not mean the results are normal or that coronary risk is low: only the measures listed below were
+          checked, against the selected cut-offs.
         </p>
       ) : (
         <ul className="grid gap-3 md:grid-cols-2">
           {found.map((r) => (
-            <li key={r.id} className="rounded-lg border border-slate-200 bg-white p-3" data-testid={`risk-${r.id}`}>
-              <p className="font-bold text-slate-900">{r.title}</p>
+            <li key={r.id} data-testid={`risk-${r.id}`}
+                className={`rounded-lg border bg-white p-3 ${r.level === "borderline" ? "border-amber-200" : "border-slate-200"}`}>
+              <p className="font-bold text-slate-900">
+                {r.title}
+                {r.level === "borderline" && (
+                  <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-900">borderline</span>
+                )}
+              </p>
               <p className="text-xs font-semibold text-slate-600">{r.evidence}</p>
               <p className="mt-1.5 text-sm text-slate-800">{r.info}</p>
               <p className="mt-1.5 text-[11px] text-slate-500">Threshold: {r.source}</p>
@@ -63,8 +70,9 @@ export function RiskFactorsPanel({ analysis }: { analysis: DisplayAnalysis }) {
         <p className="mt-1">{HABITS.join(" · ")}.</p>
       </div>
       <p className="text-xs text-slate-500">
-        Checked: smoking, diabetes and fasting blood sugar, blood pressure, LDL, HDL, triglycerides and BMI. Age, sex and
-        family history also affect coronary risk but cannot be changed.
+        Checked: smoking, diabetes and fasting blood sugar, blood pressure, LDL, HDL, triglycerides and BMI, each against
+        a selected high threshold and, where one is published, a borderline range. Age, sex and family history also
+        affect coronary risk but cannot be changed.
       </p>
     </section>
   );
