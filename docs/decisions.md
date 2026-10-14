@@ -944,6 +944,30 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Verification:** `e2e/landing-heart.spec.ts` (9 flows; it replaces the D-031 flow in auth.spec.ts). Mock E2E 96
   passed + 1 real-only skip; 39 unit tests; lint, types and build clean. Screenshots: `results/ui/landing-heart/` (local; results/ui is not committed).
 
+## D-037 — Model Center charts in the Model evidence style
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user found the Model evidence charts (D-035) clearer than the Model Center's, which still drew the
+  replay learning curves with the older hand-made line chart and showed everything else as tables.
+- **Decision:** the Model Center reuses the D-035 parts (shadcn chart + Recharts, the evidence kit's card, CSV/JSON
+  export and dot-and-interval chart) in `components/modelcenter/charts.tsx`. Only stored numbers are drawn.
+  - **Learning curves:** one small chart per vessel on a shared AUC axis that keeps chance (0.5) in view: the mean over
+    the arrival orders as a line, the min–max over orders as a band, and a tooltip with SD, mean Brier and the number of
+    orders. One export carries every point plus the replay config hash.
+  - **Replay gate outcomes:** a stacked bar per gate (PASS / FAIL, production stays / insufficient evidence) and
+    "Which rules failed": in how many of the gate runs each rule failed for at least one vessel, counted from the
+    stored gate log. A screen-reader table repeats the counts.
+  - **Gate report:** above the existing table, the paired ΔAUC (challenger − production) per vessel with its 95% CI
+    against the pre-registered −0.05 margin; a vessel whose CI lower bound is not above the margin is grey. The grey is
+    read from the CI itself, because the rule's key differs between gate versions (the contract mock uses an older name).
+  - The old `evidence/LineChart.tsx` had no other user and is removed. The page loads lazily
+    (`ModelCenterPageLazy.tsx`, like the evidence page), so Recharts stays out of the app shell: main bundle 498.7 kB
+    (it would have been 950.9 kB with the page loaded eagerly); the page is a 23 kB chunk.
+- **Verification:** `e2e/learning.spec.ts` checks the ΔAUC chart against the mock's report and, with the real model,
+  the four learning curves, the gate chart and the failed-rules count; no new flows, so the E2E count is unchanged.
+  Checked at 1440 px and 390 px with the real model: no sideways scroll. Lint and types clean.
+
 ## D-038 — A red Delete button in My cases; a full-width New case form
 
 - **Date:** 2026-10-14

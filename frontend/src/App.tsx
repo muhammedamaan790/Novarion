@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { SIGNED_OUT_EVENT, TARGET_IDS, api, detectRunMode, switchToOffline, type AuthSession, type TargetId } from "./api/client";
 import { DisclaimerFooter, Header } from "./components/Chrome";
 import { EvidencePage } from "./components/evidence/EvidencePageLazy";
-import { ModelCenterPage } from "./components/modelcenter/ModelCenterPage";
+import { ModelCenterPage } from "./components/modelcenter/ModelCenterPageLazy";
 import { MyCasesPanel } from "./components/MyCasesPanel";
 import { selectAccountStorage } from "./cases/backup";
 import { AnatomyPage } from "./components/AnatomyPage";

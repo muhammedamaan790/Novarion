@@ -68,6 +68,13 @@ test("Model Center: production status, registry, replay study and audit log; no 
   if (!REAL) { // the contract mock carries a rejected candidate with a gate report
     await center.getByRole("button", { name: "FAIL" }).click();
     await expect(page.getByTestId("gate-report")).toContainText("pre-promotion validation evidence");
+    // D-037: the paired ΔAUC chart reads the report's own numbers (mock LCX: 0.770 − 0.800, CI [−0.09, 0.02])
+    await expect(page.getByTestId("delta-auc-chart")).toBeVisible();
+    await expect(page.getByTestId("delta-auc-lcx")).toContainText("−0.030");
+  } else { // D-037: the replay study is drawn as learning curves plus gate outcomes, one curve per vessel
+    for (const t of ["cad", "lad", "lcx", "rca"]) await expect(page.getByTestId(`learning-curve-${t}`)).toBeVisible();
+    await expect(page.getByTestId("gate-outcomes")).toBeVisible();
+    await expect(page.getByTestId("failed-rules")).toContainText("of 20");
   }
   await page.screenshot({ path: `${REAL ? "../results/ui/real" : "../results/ui"}/13-model-center.png`, fullPage: true });
 });

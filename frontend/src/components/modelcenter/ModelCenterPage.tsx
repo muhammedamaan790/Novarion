@@ -6,9 +6,8 @@ import { useState } from "react";
 import { ApiError, TARGET_IDS, api, type Meta, type Schemas } from "../../api/client";
 import { listCases } from "../../cases/caseStore";
 import { SHORT } from "../wording";
-import { LineChart } from "../evidence/LineChart";
+import { DeltaAucChart, GateOutcomes, LearningCurves, RULE_TEXT } from "./charts";
 
-const C = { primary: "#2a78d6" };
 const STATUS_STYLE: Record<string, string> = {
   production: "bg-emerald-100 text-emerald-800", candidate: "bg-sky-100 text-sky-900", rejected: "bg-red-100 text-red-800",
   retired: "bg-slate-100 text-slate-600", replay: "bg-violet-100 text-violet-800",
@@ -16,20 +15,8 @@ const STATUS_STYLE: Record<string, string> = {
 const GATE_STYLE: Record<string, string> = {
   PASS: "text-emerald-700", FAIL: "text-red-700", INSUFFICIENT_EVIDENCE: "text-amber-800",
 };
-const RULE_TEXT: Record<string, string> = {
-  delta_auc_ci_low_above_margin: "ΔAUC 95% CI lower bound > −0.05",
-  delta_brier_point_ok: "ΔBrier ≤ +0.01",
-  delta_brier_ci_high_ok: "ΔBrier 95% CI upper bound ≤ +0.03",
-  cal_slope_ci_overlaps: "calibration-slope CI overlaps [0.8, 1.2]",
-  mean_calibration_diff_ok: "|observed − mean predicted| ≤ 0.10",
-  improved: "improvement (ΔAUC ≥ +0.01 or ΔBrier ≤ −0.005)",
-};
 const f3 = (v: number | null | undefined) => (v == null ? "—" : v.toFixed(3));
 const ci = (v: number[] | null | undefined) => (v ? `[${v[0]!.toFixed(3)}, ${v[1]!.toFixed(3)}]` : "—");
-const sizeToX = (n: number) => (n - 100) / 200; // the shared chart has a unit domain
-const xToSize = (x: number) => String(Math.round(x * 200 + 100));
-const aucToY = (auc: number) => (auc - 0.5) / 0.5; // y axis spans AUC 0.50 (chance, the baseline) to 1.00
-const yToAuc = (y: number) => (0.5 + y * 0.5).toFixed(2);
 
 function GateReport({ version }: { version: string }) {
   const report = useQuery({ queryKey: ["model-report", version], queryFn: async () => (await api.modelReport(version)).data });
@@ -43,6 +30,7 @@ function GateReport({ version }: { version: string }) {
         <b className={GATE_STYLE[r.gate_status]}>{r.gate_status.replaceAll("_", " ")}</b> ·{" "}
         <span className="text-slate-500">{r.evidence_label}</span>
       </p>
+      <DeltaAucChart report={r} />
       <div className="overflow-x-auto">
         <table className="w-full text-[11px] tabular-nums">
           <thead className="text-left text-slate-500">
@@ -120,7 +108,6 @@ function PromoteForm({ version, onDone }: { version: string; onDone: () => void 
 
 function ReplayStudy({ replay }: { replay: Schemas["ReplayResponse"] }) {
   const sizes = replay.training_sizes;
-  const gates = Object.entries(replay.gate_frequencies);
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-3" data-testid="replay-study">
       <h2 className="text-sm font-bold text-slate-900">{replay.title}</h2>
@@ -131,32 +118,10 @@ function ReplayStudy({ replay }: { replay: Schemas["ReplayResponse"] }) {
         <i>next</i> {replay.holdout_batch_size} arrivals (never on its own training rows). Replay search space:{" "}
         {replay.families.join(" + ")} (a documented compute reduction). Replay models never become production.
       </p>
-      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
-        {TARGET_IDS.map((t) => {
-          const pts = replay.learning_curve[t]!;
-          return (
-            <LineChart key={t} title={`Learning curve · ${SHORT[t]}`}
-                       caption={`AUC on the next ${replay.holdout_batch_size} arrivals · mean of ${replay.seeds} orders · band = min–max`}
-                       xLabel="Training size (patients)" yLabel="Forward-holdout AUC (0.5 = chance)" formatX={xToSize}
-                       formatY={yToAuc}
-                       series={[{ id: t, label: "mean AUC", color: C.primary, x: pts.map((p) => sizeToX(p.training_size)),
-                                  y: pts.map((p) => aucToY(p.auc_mean)), lo: pts.map((p) => aucToY(p.auc_min)),
-                                  hi: pts.map((p) => aucToY(p.auc_max)) }]} />
-          );
-        })}
+      <div className="mt-3 grid gap-3 xl:grid-cols-3">
+        <LearningCurves replay={replay} className="xl:col-span-2" />
+        <GateOutcomes replay={replay} />
       </div>
-      <table className="mt-2 text-xs tabular-nums">
-        <thead className="text-left text-slate-500"><tr><th className="pr-3">Gate</th><th className="pr-3">PASS</th>
-          <th className="pr-3">FAIL</th><th>Insufficient evidence</th></tr></thead>
-        <tbody>
-          {gates.map(([g, f]) => (
-            <tr key={g} className="border-t border-slate-100">
-              <td className="pr-3">{g}</td><td className="pr-3">{f.PASS}</td><td className="pr-3">{f.FAIL}</td>
-              <td>{f.INSUFFICIENT_EVIDENCE}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
       <p className="mt-1 text-[11px] text-slate-500">
         A FAIL means the current model stays: with holdouts of {replay.holdout_batch_size} the confidence intervals are wide,
         so the pre-registered gate is conservative by design. The curve shows whether more verified cases are likely to help
