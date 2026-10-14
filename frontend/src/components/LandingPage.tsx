@@ -89,7 +89,7 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
             <div className="mr-auto place-self-center lg:col-span-7">
               <p className="mb-3 font-bold tracking-wide text-emerald-700">Coronary case review · AI research prototype</p>
               <h1 className="mb-4 max-w-2xl text-4xl leading-none font-extrabold md:text-5xl xl:text-6xl">
-                Which coronary artery is at risk, before the catheter?
+                Which coronary artery is at risk, before an invasive heart test?
               </h1>
               <p className="mb-6 max-w-2xl text-slate-700 md:text-lg lg:mb-8 lg:text-xl">
                 NOVARION estimates coronary artery disease, and narrowing in each of the three main arteries (LAD, LCX
@@ -135,7 +135,7 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
               <h2 className="mb-4 text-4xl font-extrabold">Coronary disease is common, and confirming it is invasive</h2>
               <p className="text-slate-700 sm:text-xl">
                 Before an angiography, the doctor already holds a patient's history, ECG, echo and blood results. Weighing
-                dozens of them by eye, for each artery separately, is hard, so many patients go to the catheter lab to find out.
+                dozens of them by eye, for each artery separately, is hard, so many patients are sent for the invasive test to find out.
               </p>
             </div>
             <div className="space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-3">
