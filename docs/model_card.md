@@ -56,6 +56,8 @@ Nested cross-validation: outer stratified 5-fold × 5 repeats, inner 5-fold for 
 | LCX stenosis | 0.0% | — | 0.0% | — | 100.0% |
 | RCA stenosis | 0.0% | — | 0.0% | — | 100.0% |
 
+These are the threshold regions before the display gates. **As displayed** (after the UNKNOWN-input, atypical-profile and stability gates; `results/displayed_tiers.json`, Table 2b), CAD shows high support for 44.6% of patients at PPV 98.5% [96.2–100]; quote this figure in the app, demo and report.
+
 No vessel model qualified a high-confidence region at the pre-registered targets; the targets were fixed before results and are not lowered (D-008). Every case still receives a binary prediction.
 
 ## Feature-group ablation (descriptive)

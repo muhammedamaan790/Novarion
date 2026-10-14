@@ -20,9 +20,9 @@ every prediction with exact SHAP contributions beside the patient's measurements
 workflow: case → quality gate → 3D review → human note → hash-verified Review Snapshot → case history. A governed
 learning loop lets verified outcomes reach a model update only through a validation gate and human approval.
 
-![Command Center: LAD selected on a held-out patient](docs/img/command-center-lad.png)
+![Case review: LAD selected on a held-out patient (ZAS-0003, real model v1.0.2)](docs/img/command-center-lad.png)
 
-| Compare all vessels | Model Center |
+| Compare all vessels | Model Center: replay learning curves and gate outcomes |
 |---|---|
 | ![Compare all vessels](docs/img/compare-vessels.png) | ![Model Center](docs/img/model-center.png) |
 
@@ -106,9 +106,9 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 97 flows on the mock (96 pass; one needs the real model's figures), Edge, including axe accessibility
-  checks; 89 also passed with the real model before the landing-heart work (D-036); release v1.0.6 was verified with 77 on the Docker stack, and the earlier 50-flow
-  suite also ran in Chrome and Firefox.
+- Browser E2E: 98 flows on the mock (97 pass, three of them on a re-run alone under load; one needs the real model's figures), Edge, including axe accessibility
+  checks; all 98 also passed with the real model on local servers (2026-10-15; two on a re-run alone, under load). Release v1.0.6 was verified with 77 on the Docker stack, and the earlier 50-flow suite also
+  ran in Chrome and Firefox.
 
 ## How it works
 
@@ -157,7 +157,8 @@ predictions, and the production model never changes silently.
 **Historical replay** (a research demonstration, *not* temporal validation): the same 303 patients are replayed in 10
 random arrival orders through the same lifecycle code. LCX improves as cases accumulate (AUC 0.671 → 0.714), and the
 other targets plateau. The gate promoted a challenger in only 1 of 20 replays, because with 50-patient holdouts the
-paired intervals are wide. That conservatism is by design.
+paired intervals are wide. That conservatism is by design. The Model Center draws this as a learning curve per vessel
+with its spread across arrival orders, the gate outcomes and the rules that failed (D-037).
 
 ## Documents
 
@@ -167,7 +168,7 @@ paired intervals are wide. That conservatism is by design.
 | [`docs/compliance.md`](docs/compliance.md) | Track A compliance audit, item by item, with evidence |
 | [`docs/model_card.md`](docs/model_card.md) | Model card |
 | [`docs/tripod_ai.md`](docs/tripod_ai.md) | TRIPOD+AI reporting checklist |
-| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-021 |
+| [`docs/decisions.md`](docs/decisions.md) | Decision log D-001…D-039 |
 | [`docs/audit/`](docs/audit/README.md) | External audit by MysteryMindz (PR #1), integrated in D-019 |
 | [`results/error_analysis.md`](results/error_analysis.md), [`results/eda.md`](results/eda.md) | Error analysis and EDA |
 | `results/ablation.json` | Feature-group ablation |
@@ -182,7 +183,7 @@ paired intervals are wide. That conservatism is by design.
 
 ```bash
 make test                                        # 238 Python tests
-cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 42 unit + 97 E2E (mock API)
+cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 42 unit + 98 E2E (mock API)
 make docker-e2e                                  # the same E2E flows against the Docker stack + real model
 # Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_WEB_PORT=8081 docker compose up
 ```
@@ -209,18 +210,28 @@ model (D-029, D-030). In v1.0.6: the landing page's 3D heart moves, visiting eac
 form problems in a corner panel and a hand cursor on clickables (D-032); fixes from a live walk-through and a smoother
 3D heart (D-033); a "Risk factors" case tab with educational, non-advisory information (D-034). Verified: 221 Python
 tests, 39 unit tests and 77 browser flows, against the mock, against the
-rebuilt Docker stack with the real model, and against the hosted image. **After v1.0.6:** a research-grade Model
-evidence page (D-035): shadcn/ui charts on Recharts, a Methods & limitations tab, confidence-tier cards that
-reconcile to the cohort, the guideline comparison as a paired ΔAUC plot, subgroup forest plots and CSV/JSON export of
-every chart; 89 browser flows with the real model (local servers) and against the mock. Then an explorable landing
-heart, "Explore the coronary arteries" (D-036): artery controls, picking, a stoppable one-pass tour, deliberate zoom
-that never takes page scrolling, opt-in 3D on touch screens, and image fallbacks; 97 browser flows on the mock.
-Then the backend fixes from the second external audit (D-039, items N03, N05 scripts, N07 risk factors, N08, N09):
-lifecycle journal events reach the Model Center API, every lifecycle writer is locked and journaled, stability
-intervals carry their own identity and full coverage, reproduction checks are finite-aware, a released version is
-rebuilt only as an unregistered reproduction, published evidence carries the identity of its computation, and the
-Risk factors tab flags borderline ranges; 238 Python and 42 unit tests pass (the real-model browser run for these is
-still to do). The audit's frontend items (N01, N02, N04, N05 frontend, N06, N07 landing copy, N10, N11) are open.
+rebuilt Docker stack with the real model, and against the hosted image.
+
+**On `main` since v1.0.6 (unreleased; the model is unchanged, still v1.0.2):**
+- **Model evidence page** (D-035): shadcn/ui charts on Recharts, a Methods & limitations tab, confidence-tier cards
+  that reconcile to the cohort, the guideline comparison as a paired ΔAUC plot, subgroup forest plots and CSV/JSON
+  export of every chart.
+- **Explorable landing heart**, "Explore the coronary arteries" (D-036): artery controls, picking, a stoppable
+  one-pass tour, deliberate zoom that never takes page scrolling, opt-in 3D on touch screens and image fallbacks.
+- **Model Center charts** in the same style (D-037): per-vessel replay learning curves with min–max bands, replay gate
+  outcomes with the rules that failed, and the gate report's paired ΔAUC against the −0.05 margin; the page loads on
+  demand, so the main bundle stays at 499 kB.
+- **My cases and New case** (D-038): a red Delete button at the end of each saved case; a full-width New case form
+  with larger controls.
+- **Second external audit, backend items** (D-039: N03, N05 scripts, N07 risk factors, N08, N09): lifecycle journal
+  events reach the Model Center API, every lifecycle writer is locked and journaled, stability intervals carry their
+  own identity and full coverage, reproduction checks are finite-aware, a released version is rebuilt only as an
+  unregistered reproduction, published evidence carries the identity of its computation, and the Risk factors tab
+  flags borderline ranges. No page lets the window scroll past the disclaimer (a new browser check).
+- **Verified:** 238 Python tests, 42 unit tests, 98 browser flows against the mock (97 pass; one needs the real
+  model's figures; three passed on a re-run alone) and all 98 against the real model on local servers (2026-10-15; two load-sensitive flows passed on a re-run alone).
+
+The audit's frontend items (N01, N02, N04, N05 frontend, N06, N07 landing copy, N10, N11) are still open.
 The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
 clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
 
@@ -228,7 +239,7 @@ Still open, for the team:
 - the second-machine run;
 - rehearsals and an outside-user usability test;
 - the demo video;
-- a public hosted URL, if the submission requires one.
+- release v1.0.7, to freeze the work above under its own manifest.
 
 Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
 (v1.0.7 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).

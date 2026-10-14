@@ -1,7 +1,7 @@
 # Presentation notes (demo, video, judge Q&A)
 
 Written **before** any real model results exist (D-008), so the wording cannot be tuned to the outcome.
-Replace every `[ACTUAL …]` with the measured value from `results/`; never round in our favour.
+The measured values from `results/` (model v1.0.2) are filled in below; never round in our favour.
 
 ## 1. If many predictions are OUTSIDE QUALIFIED RANGE
 
@@ -24,7 +24,7 @@ tier (demo patients are fixed in `config/demo_config.yaml` before final predicti
 contrast is visible.
 
 **In the report (Table 2):** the share of HIGH-positive / HIGH-negative / LOW per target, with the measured PPV/NPV
-of the HIGH regions `[ACTUAL]`. If a target has no qualified region at all, say it plainly: "the available features
+of the HIGH regions. Measured, as displayed: CAD 44.6% high-positive at PPV 98.5% [96.2–100], no high-negative region; LAD, LCX and RCA have no qualified region (Table 2b). If a target has no qualified region at all, say it plainly: "the available features
 do not separate this vessel well enough in this cohort to qualify a high-confidence region."
 
 ## 2. "Other teams report 90 %+ accuracy. Why are your numbers lower?"
@@ -34,8 +34,8 @@ do not separate this vessel well enough in this cohort to qualify a high-confide
 > inside the training folds only. Many published results on this dataset select features or tune on the full data,
 > or report accuracy at a threshold picked on the test set, which inflates the number. On a cohort that is 71 %
 > CAD-positive, 'always predict CAD' already scores 71 % accuracy, so we report accuracy next to that baseline, plus
-> ROC-AUC, balanced accuracy and calibration. Our CAD ROC-AUC is `[ACTUAL]` (outer-fold mean ± SD); the vessel
-> models are weaker (`[ACTUAL]`), which is an honest property of predicting vessel-level stenosis from routine
+> ROC-AUC, balanced accuracy and calibration. Our CAD ROC-AUC is 0.930 ± 0.035 (outer-fold mean ± SD); the vessel
+> models are weaker (LAD 0.838, LCX 0.721, RCA 0.736), which is an honest property of predicting vessel-level stenosis from routine
 > clinical features."
 
 Supporting evidence to have open: Table 1 (model vs always-negative / always-positive / prior baselines), the
