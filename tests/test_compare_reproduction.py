@@ -36,3 +36,30 @@ def test_an_output_missing_on_the_other_side_is_a_failure(tmp_path):
     (other / "results").mkdir(parents=True)
     (other / "results" / "stability.json").write_text("{}")
     assert missing_outputs(here, other) == ["registry/replay.json"]
+
+
+def _golden(p=0.8, cls="positive", name="dataset_ZAS-0001", sha="a" * 64):
+    return [{"name": name, "input_sha256": sha,
+             "targets": {t: {"probability": p, "predicted_class": cls} for t in ("cad", "lad", "lcx", "rca")}}]
+
+
+def test_golden_predictions_are_compared_finite_aware_and_by_case_identity():
+    """Audit N09: the golden loop used abs()/max(), so a NaN on one side was silently dropped."""
+    from compare_reproduction import golden_diff
+
+    assert golden_diff(_golden(), _golden()) == (0.0, [])
+    assert golden_diff(_golden(), _golden(p=math.nan))[1]  # one-sided NaN is a difference
+    assert golden_diff(_golden(p=math.nan), _golden(p=math.nan)) == (0.0, [])
+    assert golden_diff(_golden(), _golden(cls="negative"))[1]
+    assert "golden cases differ" in golden_diff(_golden(), _golden(sha="b" * 64))[1][0]  # other inputs
+    assert "golden cases differ" in golden_diff(_golden(), [])[1][0]  # missing cases
+
+
+def test_ledger_scores_are_compared_finite_aware_and_require_the_reference():
+    from compare_reproduction import ledger_diff
+
+    folds = {"cad:0": {"training_oof_prob": [0.1, 0.2]}}
+    assert ledger_diff(folds, lambda t, k: {"training_oof_prob": [0.1, 0.2]}) == (0.0, [])
+    assert ledger_diff(folds, lambda t, k: {"training_oof_prob": [0.1, math.nan]})[1]
+    assert "no training_oof_prob" in ledger_diff(folds, lambda t, k: {})[1][0]
+    assert ledger_diff(folds, lambda t, k: {"training_oof_prob": [0.1]})[1]  # length mismatch

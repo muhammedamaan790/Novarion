@@ -11,6 +11,7 @@ import os
 
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
+import hashlib
 import json
 import sys
 import time
@@ -25,10 +26,22 @@ sys.path.insert(0, str(ROOT / "ml"))
 sys.path.insert(0, str(ROOT))
 
 from novarion_ml.data.load import build_targets, build_X, load_source, patient_id
+from novarion_ml.hashing import text_sha256
 from novarion_ml.train.config import default_train_config
 from novarion_ml.uncertainty.stability import stability_fold
 
 TARGETS = ("cad", "lad", "lcx", "rca")
+MIN_VALID = 80
+STABILITY_CODE = (ROOT / "scripts" / "stability.py", ROOT / "ml" / "novarion_ml" / "uncertainty" / "stability.py")
+
+
+def stability_identity(split_manifest_sha256: str, replicates: int, min_valid: int) -> str:
+    """What produced the intervals, beyond the fits' cache key (audit N09): the stability code itself (training's key
+    deliberately does not cover it), its settings and the exact split. build_bundle refuses intervals from anything
+    else."""
+    parts = {"code": {p.name: text_sha256(p) for p in STABILITY_CODE}, "split_manifest_sha256": split_manifest_sha256,
+             "replicates": replicates, "min_valid": min_valid}
+    return hashlib.sha256(json.dumps(parts, sort_keys=True).encode("utf-8")).hexdigest()
 
 
 def _task(target: str, fold: int, replicates: int) -> dict:
@@ -46,6 +59,10 @@ def _task(target: str, fold: int, replicates: int) -> dict:
     return out
 
 
+def _split_sha() -> str:
+    return json.loads((ROOT / "results" / "split_manifest.json").read_text(encoding="utf-8"))["split_manifest_sha256"]
+
+
 def main() -> None:
     replicates = int(sys.argv[sys.argv.index("--replicates") + 1]) if "--replicates" in sys.argv else 100
     train = default_train_config()
@@ -57,7 +74,8 @@ def main() -> None:
     report: dict = {"method": "plan §6.10a algorithm B (OOF-safe refit bootstrap, evaluation repeat)",
                     # The fits these intervals belong to (audit R15): build_bundle refuses them for any other fits.
                     "cache_key": cache_key(),
-                    "replicates": replicates, "min_valid": 80, "folds": [], "targets": {t: {} for t in TARGETS}}
+                    "stability_identity": stability_identity(_split_sha(), replicates, MIN_VALID),
+                    "replicates": replicates, "min_valid": MIN_VALID, "folds": [], "targets": {t: {} for t in TARGETS}}
     for r in results:
         crossings = 0
         for rid, interval in r["intervals"].items():

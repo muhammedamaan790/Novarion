@@ -92,8 +92,11 @@ def _thresholds(d: dict[str, Any]) -> Thresholds:
     return Thresholds(d["t_op"], d["t_neg"], d["t_pos"], q(d["qualification_negative"]), q(d["qualification_positive"]))
 
 
-def verify_bundle(bundle_dir: Path, release_manifest: Path | None = None) -> tuple[dict[str, Any], str, dict[str, Any]]:
-    """Return (manifest, artifact_manifest_sha256, demo index) or raise IntegrityError. Never loads a partial bundle."""
+def verify_bundle(bundle_dir: Path, release_manifest: Path | None = None, *,
+                  check_release_pin: bool = True) -> tuple[dict[str, Any], str, dict[str, Any]]:
+    """Return (manifest, artifact_manifest_sha256, demo index) or raise IntegrityError. Never loads a partial bundle.
+    `check_release_pin=False` only for an unregistered reproduction build of a released version (build_bundle, audit
+    N09): its fresh timestamps cannot match the release's pin; it is compared by content instead."""
     doc = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
     manifest, claimed = doc["manifest"], doc["artifact_manifest_sha256"]
     if hashlib.sha256(rfc8785.dumps(manifest)).hexdigest() != claimed:
@@ -120,7 +123,7 @@ def verify_bundle(bundle_dir: Path, release_manifest: Path | None = None) -> tup
     # A self-declared hash only detects accidental corruption. When the committed release manifest pins this model
     # version, the index must also match the release's pin (audit R18). Hashes, not signatures.
     release = release_manifest or ROOT / "release_manifest.json"
-    if release.exists():
+    if check_release_pin and release.exists():
         pinned = json.loads(release.read_text(encoding="utf-8"))
         pinned_model = pinned.get("model_version", pinned.get("release_version"))
         if pinned_model == manifest.get("model_version") and pinned.get("demo_bundle_sha256") not in (

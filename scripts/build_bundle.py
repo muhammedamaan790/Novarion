@@ -49,13 +49,28 @@ from novarion_ml.train.config import default_train_config
 from novarion_ml.uncertainty.reference import Ledger, ReferenceContext
 
 
-def stability_problem(doc: dict, key: str, fold_records: dict) -> str | None:
-    """Intervals are joined by patient id, so they must come from exactly these fits (audit R15)."""
+def stability_problem(doc: dict, key: str, fold_records: dict, identity: str) -> str | None:
+    """Intervals are joined by patient id, so they must come from exactly these fits (audit R15), from the current
+    stability code and settings, and cover every evaluation fold and every patient of every target (audit N09): an
+    empty or partial file must not pass for a complete one."""
     if doc.get("cache_key") != key:
         return "results/stability.json was computed for other fits (cache key)"
+    if doc.get("stability_identity") != identity:
+        return ("results/stability.json was computed by other stability code, settings or split "
+                "(or before its identity was recorded)")
+    got = sorted((f["target"], f["fold"]) for f in doc.get("folds", []))
+    expected = sorted((t, k + 1) for t, recs in fold_records.items() for k in range(len(recs)))
+    if got != expected:
+        missing, extra = sorted(set(expected) - set(got)), sorted(set(got) - set(expected))
+        return f"stability folds do not match the evaluation folds (missing {missing[:4]}, extra or repeated {extra[:4]})"
     for f in doc["folds"]:
         if fold_records[f["target"]][f["fold"] - 1]["selected"] != f["config_id"]:
             return f"stability {f['target']} fold {f['fold']} used {f['config_id']}, not that fold's selected configuration"
+    for t, recs in fold_records.items():
+        patients = {patient_id(int(i)) for rec in recs for i in rec["test_ids"]}
+        absent = sorted(patients - set(doc.get("targets", {}).get(t, {})))
+        if absent:
+            return f"stability {t} has no interval for {len(absent)} patients (e.g. {absent[:3]})"
     return None
 
 def _version_arg() -> str:
@@ -130,22 +145,58 @@ def refuse_registered(final: Path, registry_file: Path) -> None:
                              "immutable, so build a new version with --version X.Y.Z")
 
 
-def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = None) -> None:
+REPRODUCTIONS = ROOT / "work" / "bundle-builds"
+
+
+def released(version: str, release_manifest: Path) -> bool:
+    """Does the committed release manifest pin this model version's demo index (audit R18)?"""
+    if not release_manifest.exists():
+        return False
+    pinned = json.loads(release_manifest.read_text(encoding="utf-8"))
+    return (pinned.get("model_version", pinned.get("release_version")) == version
+            and pinned.get("demo_bundle_sha256") is not None)
+
+
+def output_plan(version: str, out: Path | None, release_manifest: Path) -> tuple[Path, bool]:
+    """Where to build, and whether this is an unregistered reproduction (audit N09). A released version is immutable
+    and pinned: a fresh build of it gets new timestamps, so it can never match the pin and must never replace it. It is
+    built as a reproduction under work/bundle-builds (the default for a released version), verified in full except
+    for the pin, never registered, and compared by content with scripts/compare_reproduction.py. A new version is
+    built into artifacts/models and registered as before."""
+    if not released(version, release_manifest):
+        return validated_output_dir(out or ROOT / "artifacts" / "models" / f"v{version}"), False
+    final = validated_output_dir(out or REPRODUCTIONS / f"v{version}")
+    if not final.is_relative_to(REPRODUCTIONS.resolve()):
+        raise SystemExit(f"refused: v{version} is a released version (release_manifest.json pins it); a fresh build of it "
+                         f"is a reproduction: build it under {REPRODUCTIONS} (the default) and compare it with "
+                         "scripts/compare_reproduction.py, or build a new version with --version X.Y.Z")
+    return final, True
+
+
+def _out_arg() -> Path | None:
+    return Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else None
+
+
+def main(results: Path = RESULTS, out: Path | None = None, registry_file: Path | None = None,
+         release_manifest: Path | None = None) -> None:
     warnings.filterwarnings("ignore")
-    final = validated_output_dir(out)  # dry runs belong under work/bundle-builds
+    final, reproduction = output_plan(VERSION, out if out is not None else _out_arg(),
+                                      release_manifest or ROOT / "release_manifest.json")
+    if reproduction:
+        print(f"v{VERSION} is released: building an unregistered reproduction in {final} (audit N09)")
     registry_file = registry_file or ROOT / "registry" / "models.json"
     refuse_registered(final, registry_file)
     # Everything is assembled in a staging directory and moved into place only once complete and verified, so a failed
     # or interrupted build never leaves a half-written bundle where a usable one was (audit R19).
     stage = final.parent / f".staging-{final.name}-{uuid.uuid4().hex[:8]}"
     try:
-        _build(results, final, stage, registry_file)
+        _build(results, final, stage, registry_file, reproduction)
     except BaseException:
         shutil.rmtree(stage, ignore_errors=True)  # the live bundle (if any) was never touched
         raise
 
 
-def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
+def _build(results: Path, final: Path, OUT: Path, registry_file: Path, reproduction: bool = False) -> None:
     RESULTS = results
     registry = default_registry()
     targets_cfg = load_targets()
@@ -234,13 +285,17 @@ def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
     stability_path = RESULTS / "stability.json"
     if stability_path.exists():
         stab_doc = json.loads(stability_path.read_text(encoding="utf-8"))
-        problem = stability_problem(stab_doc, key, fold_records)
+        from scripts.stability import stability_identity
+
+        identity = stability_identity(split["split_manifest_sha256"], stab_doc.get("replicates", -1),
+                                      stab_doc.get("min_valid", -1))
+        problem = stability_problem(stab_doc, key, fold_records, identity)
         if problem:
             raise SystemExit(f"refused: {problem}; rerun scripts/stability.py")
         stab = stab_doc["targets"]
         for (t, k), art in fold_art.items():
             fold_ids = {int(i) for i in fold_records[t][k]["test_ids"]}
-            art.stability = {rid: stab[t][patient_id(rid)] for rid in fold_ids if patient_id(rid) in stab[t]}
+            art.stability = {rid: stab[t][patient_id(rid)] for rid in fold_ids}  # complete: checked above
         shutil.copy(stability_path, OUT / "stability.json")
 
     def oof_engine(rid: int) -> Engine:
@@ -405,7 +460,8 @@ def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
     sys.path.insert(0, str(ROOT / "backend"))
     from app.bundle_service import verify_bundle
 
-    verify_bundle(OUT)  # the complete staged bundle must pass the same check the server runs
+    # the complete staged bundle must pass the same check the server runs (a reproduction: all but the release pin)
+    verify_bundle(OUT, check_release_pin=not reproduction)
     replaced = final.with_name(f".replaced-{final.name}-{uuid.uuid4().hex[:8]}") if final.exists() else None
     if replaced:
         os.replace(final, replaced)  # only an unregistered scratch build can be here (refuse_registered)
@@ -413,6 +469,11 @@ def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
     if replaced:
         shutil.rmtree(replaced)
     OUT = final
+
+    if reproduction:
+        print(f"reproduction of v{VERSION} built in {OUT} (not registered); compare it by content with "
+              "scripts/compare_reproduction.py")
+        return
 
     # ---------------------------------------------------------------- registry pointer
     # Under the lifecycle lock and journaled like every other registry change (audit N08); earlier versions are kept

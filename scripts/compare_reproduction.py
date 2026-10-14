@@ -33,6 +33,40 @@ def load(base: Path, rel: str):
     return json.loads((base / rel).read_text(encoding="utf-8"))
 
 
+def golden_diff(ga: list[dict], gb: list[dict]) -> tuple[float, list[str]]:
+    """Golden predictions, finite-aware like everything else (audit N09): the same cases in the same order with the same
+    inputs, then every target's probability (a NaN on one side is a difference, not a dropped value) and class."""
+    names_a = [(c["name"], c["input_sha256"]) for c in ga]
+    names_b = [(c["name"], c["input_sha256"]) for c in gb]
+    if names_a != names_b:
+        return 0.0, [f"golden cases differ: {len(ga)} vs {len(gb)} cases or other names/inputs"]
+    worst, issues = 0.0, []
+    for x, y in zip(ga, gb, strict=True):
+        for t in TARGETS:
+            w, i = max_numeric_diff(x["targets"][t]["probability"], y["targets"][t]["probability"],
+                                    f"{x['name']}/{t}/probability")
+            worst, issues = max(worst, w), issues + i
+            if x["targets"][t]["predicted_class"] != y["targets"][t]["predicted_class"]:
+                issues.append(f"{x['name']}/{t}: class {x['targets'][t]['predicted_class']} vs "
+                              f"{y['targets'][t]['predicted_class']}")
+    return worst, issues
+
+
+def ledger_diff(folds: dict[str, dict], other_fold) -> tuple[float, list[str]]:
+    """D-019 recomputed fold scores against a real retrain's, finite-aware; a missing reference output is a
+    difference (audit N09). `other_fold(target, k)` loads the other run's results/nested record."""
+    worst, issues = 0.0, []
+    for key, v in folds.items():
+        t, k = key.split(":")
+        y = other_fold(t, k).get("training_oof_prob")
+        if y is None:
+            issues.append(f"{key}: no training_oof_prob in the other run")
+            continue
+        w, i = max_numeric_diff(v["training_oof_prob"], y, f"{key}/training_oof_prob")
+        worst, issues = max(worst, w), issues + i
+    return worst, issues
+
+
 def max_numeric_diff(a, b, path: str = "") -> tuple[float, list[str]]:
     """Largest |a − b| over matching numbers; structural differences are listed."""
     if isinstance(a, dict) and isinstance(b, dict):
@@ -124,29 +158,18 @@ def main() -> int:
     check("deployed configurations", all(x == y for x, y in finals.values()), str({t: x for t, (x, _) in finals.items()}))
     w, issues = max_numeric_diff(load(ROOT, "results/metrics.json"), load(other, "results/metrics.json"))
     check("metrics (Tables 1-2)", w <= 1e-9 and not issues, f"max |diff| {w:.2e}; {issues[:3]}")
-    ga = load(production_dir(ROOT), "golden/golden_predictions.json")["cases"]
-    gb = load(production_dir(other), "golden/golden_predictions.json")["cases"]
-    worst, classes = 0.0, True
-    for x, y in zip(ga, gb, strict=True):
-        for t in TARGETS:
-            worst = max(worst, abs(x["targets"][t]["probability"] - y["targets"][t]["probability"]))
-            classes &= x["targets"][t]["predicted_class"] == y["targets"][t]["predicted_class"]
-    check("golden predictions", worst <= 1e-6 and classes, f"max |dp| {worst:.2e}; classes identical: {classes}")
+    worst, issues = golden_diff(load(production_dir(ROOT), "golden/golden_predictions.json")["cases"],
+                                load(production_dir(other), "golden/golden_predictions.json")["cases"])
+    check("golden predictions", worst <= 1e-6 and not issues, f"max |dp| {worst:.2e}; {issues[:3]}")
     for rel in ("results/stability.json", "registry/replay.json"):
         if (ROOT / rel).exists():  # present here => required there (checked above)
             w, issues = max_numeric_diff(load(ROOT, rel), load(other, rel))
             check(rel, w <= 1e-9 and not issues, f"max |diff| {w:.2e}; {issues[:3]}")
     if (ROOT / "results/fold_ledger_oof.json").exists():
-        rec = load(ROOT, "results/fold_ledger_oof.json")["folds"]
-        worst = 0.0
-        for key, v in rec.items():
-            t, k = key.split(":")
-            y = load(other, f"results/nested/{t}/r0f{k}.json").get("training_oof_prob")
-            if y is None:
-                worst = math.inf
-                break
-            worst = max(worst, max(abs(p - q) for p, q in zip(v["training_oof_prob"], y, strict=True)))
-        check("D-019 recomputed fold scores vs a real retrain", worst <= 1e-9, f"max |diff| {worst:.2e}")
+        worst, issues = ledger_diff(load(ROOT, "results/fold_ledger_oof.json")["folds"],
+                                    lambda t, k: load(other, f"results/nested/{t}/r0f{k}.json"))
+        check("D-019 recomputed fold scores vs a real retrain", worst <= 1e-9 and not issues,
+              f"max |diff| {worst:.2e}; {issues[:3]}")
     (ROOT / "results" / "reproduction.json").write_text(json.dumps({"other": other.name, "pass": ok, "checks": report},
                                                                     indent=1), encoding="utf-8")
     print("REPRODUCED" if ok else "DIFFERENCES FOUND")
