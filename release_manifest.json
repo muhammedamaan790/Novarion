@@ -1,7 +1,7 @@
 {
- "release_version": "1.0.4",
+ "release_version": "1.0.5",
  "model_version": "1.0.2",
- "git_sha": "c2443e04669691931f5c3a1e4df3801595dd2af1",
+ "git_sha": "5875ee2b195f3fdc09257eddd51a3075c5e4d6cf",
  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
  "feature_registry_sha256": "70e4d6f187b480ffe663114de169f5bed958bf01d1a4b192af2074c7f832213e",
  "target_schema_sha256": "6d49e80938ae2fd250129ec2d185611dc3478c193279b242949d855062cf938d",
@@ -15,6 +15,7 @@
  "frontend_lock_sha256": "b24ed3e12bfafb7e3ddf9712a9df14ed31d475b0be086d35610c071b3e433bd1",
  "backend_lock_sha256": "58a91aabd0d3a2cd2461a2239fc9b4e997865cd050579f0136f6b073ece79cea",
  "demo_bundle_sha256": "5248258c396639ebd746bdf748f23c4763d58075df1fb718ce1d307d489f3b4b",
+ "demo_static_sha256": "718f1c45a1b35a14f50b615d50e992af844a27578f782b816a2e0f4e3a3c9a71",
  "training_data_sha256": "3864a1ab3cd78d7295b900ec4b001890593dc0f174316e4ae4ad2f82c80d10bb",
  "runtime": {
   "python": "3.11.16",
@@ -24,6 +25,6 @@
   "@react-three/drei": "10.7.9",
   "three": "0.186.1"
  },
- "created_at": "2026-10-13T14:49:36Z",
+ "created_at": "2026-10-14T13:26:06Z",
  "freeze_status": "FINAL"
 }
