@@ -18,6 +18,41 @@ const GROUP_LABEL: Record<string, string> = {
 };
 const DEBOUNCE_MS = 300;
 
+type QualityIssue = ValidateResponse["items"][number];
+
+/** Problems with entered values, as a small panel at the bottom right instead of a list inside the form (top right
+ *  would cover the case tabs and Save). Missing values are not listed: the form marks each one "required" and the
+ *  status line counts them. Dismissed until the set of problems changes. Rendered inside the form's pane, so a hidden
+ *  form (another case or page) hides it too. */
+function IssuesPanel({ issues, features }: { issues: QualityIssue[]; features: Feature[] }) {
+  const key = issues.map((i) => `${i.severity}:${i.code}:${i.feature_id ?? ""}`).join("|");
+  const [dismissed, setDismissed] = useState<string | null>(null);
+  if (!issues.length || dismissed === key) return null;
+  const blocking = issues.filter((i) => i.severity === "BLOCK").length;
+  return (
+    <div role="status" data-testid="case-issues"
+         className={`fixed bottom-12 right-4 z-40 w-80 rounded-lg border bg-white p-3 text-xs shadow-xl ${
+           blocking ? "border-red-300" : "border-amber-300"}`}>
+      <div className="mb-1 flex items-start justify-between gap-2">
+        <p className={`font-bold ${blocking ? "text-red-800" : "text-amber-900"}`}>
+          {blocking ? `${blocking} value${blocking === 1 ? "" : "s"} to fix` : "Check these values"}
+          {issues.length > blocking && blocking > 0 && `, ${issues.length - blocking} to check`}
+        </p>
+        <button type="button" aria-label="Dismiss" data-testid="case-issues-dismiss" onClick={() => setDismissed(key)}
+                className="-mr-1 -mt-1 rounded px-1.5 text-base leading-none text-slate-500 hover:bg-slate-100">×</button>
+      </div>
+      <ul className="max-h-48 space-y-1 overflow-auto">
+        {issues.map((i, k) => (
+          <li key={k} className={i.severity === "BLOCK" ? "text-red-700" : "text-amber-800"}>
+            <span className="font-semibold">{features.find((f) => f.id === i.feature_id)?.display ?? i.feature_id ?? "Case"}:</span>{" "}
+            {i.message}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Field({ f, value, onChange, idPrefix }: {
   f: Feature; value: InputValue | undefined; onChange: (v: InputValue) => void; idPrefix: string;
 }) {
@@ -379,7 +414,18 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
         {prefillStatus === "loading" ? "Loading selected patient…"
           : prefillStatus === "error" ? "Could not load the selected patient. No results shown; retry or enter values."
           : missing > 0
-          ? `${missing} field${missing === 1 ? "" : "s"} still required`
+          ? <>
+              {`${missing} field${missing === 1 ? "" : "s"} still required`}
+              <button type="button" data-testid="go-to-required" className="ml-2 font-semibold underline"
+                      onClick={() => {
+                        const first = features.find((f) => inputs[f.id] === undefined || inputs[f.id] === null);
+                        const el = first && document.getElementById(`${wsId}-field-${first.id}`);
+                        el?.scrollIntoView({ block: "center" });
+                        el?.focus();
+                      }}>
+                Go to the first
+              </button>
+            </>
           : status === "updating"
             ? "Updating prediction…"
             : status === "error"
@@ -395,15 +441,7 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
           </button>
         )}
       </div>
-      {(blocks.length > 0 || warnings.length > 0) && (
-        <ul className="max-h-24 overflow-auto text-[11px]">
-          {[...blocks, ...warnings].map((i, k) => (
-            <li key={k} className={i.severity === "BLOCK" ? "text-red-700" : "text-amber-800"}>
-              {i.severity} · {features.find((f) => f.id === i.feature_id)?.display ?? i.feature_id ?? "case"}: {i.message}
-            </li>
-          ))}
-        </ul>
-      )}
+      <IssuesPanel issues={[...blocks, ...warnings].filter((i) => i.code !== "missing_required")} features={features} />
 
       <form className="min-h-0 flex-1 space-y-3 overflow-auto pr-1" onSubmit={(e) => e.preventDefault()}>
         {groups.map(([group, fs]) => (

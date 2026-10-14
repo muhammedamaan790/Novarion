@@ -4,11 +4,16 @@
 // scrolls normally over it.
 import { useCallback, useEffect, useRef } from "react";
 import type { Meta, TargetId } from "../api/client";
+// The committed anatomy map (the API serves this same file); bundled into this on-demand chunk, so the landing page
+// needs neither the API (which requires a session) nor the offline export (absent on hosted builds).
+import anatomyMap from "../../../config/anatomy_map.json";
 import { HeartScene, LABELLED_TARGETS, type AnatomyMap } from "../three/HeartScene";
 import { useAnatomyScene } from "../three/sceneState";
 
-export default function LandingHeartScene({ meta, target }: { meta: Meta; target: TargetId | null }) {
-  const map = meta.anatomy_map as unknown as AnatomyMap;
+const META = { anatomy_map: anatomyMap } as unknown as Meta; // HeartScene reads only the anatomy map
+
+export default function LandingHeartScene({ target }: { target: TargetId | null }) {
+  const map = anatomyMap as unknown as AnatomyMap;
   const scene = useAnatomyScene();
   const labels = useRef<Partial<Record<TargetId, HTMLElement | null>>>({});
   const { select } = scene;
@@ -23,7 +28,7 @@ export default function LandingHeartScene({ meta, target }: { meta: Meta; target
 
   return (
     <div className="pointer-events-none absolute inset-0 [&_*]:pointer-events-none!" data-testid="landing-heart-3d">
-      <HeartScene meta={meta} analysis={null} placeLabel={placeLabel} sceneState={scene} />
+      <HeartScene meta={META} analysis={null} placeLabel={placeLabel} sceneState={scene} />
       <div className="absolute inset-0 overflow-hidden" aria-hidden>
         {LABELLED_TARGETS.map((t) => (
           <span key={t} ref={(el) => { labels.current[t] = el; }} style={{ visibility: "hidden" }}

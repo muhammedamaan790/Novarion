@@ -18,3 +18,22 @@ body,
 body {
   font-weight: 500; /* medium by default; headings and labels stay bold */
 }
+
+/* A hand cursor on everything clickable (Tailwind's base styles leave buttons with the arrow); not-allowed when off. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  select:not(:disabled),
+  summary,
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  label:has(> input[type="checkbox"]:not(:disabled)),
+  label:has(> input[type="radio"]:not(:disabled)) {
+    cursor: pointer;
+  }
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+}

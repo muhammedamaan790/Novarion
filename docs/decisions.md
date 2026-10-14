@@ -788,8 +788,27 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     its label turns green and a caption names it. It pauses while the tab is hidden.
   - Presentational only: no pointer input (forced on every child, because the 3D canvas turns it back on), so the
     page scrolls normally over it. No patient, no prediction.
-  - Before sign-in the API needs a session, so the anatomy map comes from the public, release-pinned offline bundle
-    (`/demo_bundle/meta.json`). `MODEL_URL` moves to `three/modelUrl.ts` so the landing can prefetch the model without
-    loading the 3D engine.
+  - Before sign-in the API needs a session, so the scene bundles the committed `config/anatomy_map.json` (the file
+    the API serves) into its on-demand chunk. A first version read the offline export instead; that export is not in
+    git, so CI and the hosted build kept the still image (CI caught it). `MODEL_URL` moves to `three/modelUrl.ts` so
+    the landing can prefetch the model without loading the 3D engine.
 - **Verification:** a new E2E flow checks the fade-in, the four captions in order, wheel scrolling over the heart, and
   that reduced motion and no WebGL keep the still image. 72/72 E2E on the mock; 34 unit tests.
+
+## D-032 — Form problems in a corner panel; a hand cursor on everything clickable
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user found the red BLOCK list inside the New case form cluttered (one line per missing field) and
+  asked for a pop-up in a corner instead, and for a hand cursor on hover over clickable things.
+- **Decision:**
+  - Missing values are no longer listed: the form already marks each one "required" and the status line counts them,
+    now with a "Go to the first" button.
+  - Real problems (out of range, units, cross-field conflicts, warnings) show in a small dismissible panel at the
+    bottom right. The user suggested the top right, but there it covered the case tabs and the Save button (an E2E
+    flow caught it). Dismissed until the set of problems changes; a hidden form hides its panel.
+  - Tailwind's base styles leave buttons with the arrow cursor: one base rule gives buttons, selects, checkboxes,
+    radios, file pickers and their labels a hand cursor, and "not-allowed" when disabled.
+- **Verification:** a new E2E flow (panel position and content, nothing listed for a blank form, dismiss, go to the
+  first required field, the cursor); 73/73 E2E on the mock and on real Docker.
+

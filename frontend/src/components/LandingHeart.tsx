@@ -1,9 +1,9 @@
 // The landing hero's heart (D-031). The still image shows at once; on a wide screen with WebGL and without a
 // reduced-motion preference, the moving 3D heart loads in the background and fades in over it, then visits the LAD,
-// LCX and RCA in turn. The anatomy map comes from the public, release-pinned offline bundle (/demo_bundle/meta.json):
-// the API needs a session, and nothing on this page may call it before sign-in.
+// LCX and RCA in turn. Nothing on this page calls the API (it needs a session): the anatomy map is bundled with the
+// scene (LandingHeartScene) and the model is a static file.
 import { Suspense, lazy, useEffect, useState } from "react";
-import type { Meta, TargetId } from "../api/client";
+import type { TargetId } from "../api/client";
 import { MODEL_URL } from "../three/modelUrl";
 import { ANATOMY_NAME } from "./wording";
 
@@ -23,25 +23,23 @@ function motionWanted(): boolean {
 }
 
 export function LandingHeart() {
-  const [meta, setMeta] = useState<Meta | null>(null);
+  const [loaded, setLoaded] = useState(false);
   const [shown, setShown] = useState(false);
   const [step, setStep] = useState(0);
   useEffect(() => {
     if (!motionWanted()) return;
     let alive = true;
-    // Fetch the model too, so the scene appears with the heart already in the browser cache.
-    void Promise.all([fetch("/demo_bundle/meta.json").then((r) => (r.ok ? r.json() : null)), fetch(MODEL_URL)])
-      .then(([doc]) => {
-        if (alive && (doc as Meta | null)?.anatomy_map) setMeta(doc as Meta);
-      })
+    // Fetch the model first, so the scene appears with the heart already in the browser cache.
+    void fetch(MODEL_URL)
+      .then((r) => { if (alive && r.ok) setLoaded(true); })
       .catch(() => undefined); // the still image stays
     return () => { alive = false; };
   }, []);
   useEffect(() => {
-    if (!meta) return;
+    if (!loaded) return;
     const id = window.setTimeout(() => setShown(true), 600); // parse and first frame, then fade in
     return () => window.clearTimeout(id);
-  }, [meta]);
+  }, [loaded]);
   useEffect(() => {
     if (!shown) return;
     const id = window.setInterval(() => { if (!document.hidden) setStep((s) => s + 1); }, STEP_MS);
@@ -54,10 +52,10 @@ export function LandingHeart() {
       <div className="relative w-full overflow-hidden rounded-2xl bg-[#f4f5f7] shadow-xl ring-1 ring-slate-900/5">
         <img src="/landing/heart.webp" width={870} height={773} className="h-auto w-full"
              alt="NOVARION's 3D reference heart with the LAD, LCX and RCA arteries labelled" />
-        {meta && (
+        {loaded && (
           <div className={`absolute inset-0 transition-opacity duration-700 ${shown ? "opacity-100" : "opacity-0"}`}>
             <Suspense fallback={null}>
-              <Scene meta={meta} target={target} />
+              <Scene target={target} />
             </Suspense>
           </div>
         )}
