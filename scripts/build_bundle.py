@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -44,6 +45,15 @@ from novarion_ml.thresholds.layers import Qualification, Thresholds
 from novarion_ml.train.config import default_train_config
 from novarion_ml.uncertainty.reference import Ledger, ReferenceContext
 
+
+def stability_problem(doc: dict, key: str, fold_records: dict) -> str | None:
+    """Intervals are joined by patient id, so they must come from exactly these fits (audit R15)."""
+    if doc.get("cache_key") != key:
+        return "results/stability.json was computed for other fits (cache key)"
+    for f in doc["folds"]:
+        if fold_records[f["target"]][f["fold"] - 1]["selected"] != f["config_id"]:
+            return f"stability {f['target']} fold {f['fold']} used {f['config_id']}, not that fold's selected configuration"
+    return None
 
 def _version_arg() -> str:
     """`--version X.Y.Z` (default 1.0.2 = 1.0.1 + fold-safe evidence ledgers, D-019; 0.1.0 was the dev bundle)."""
@@ -106,9 +116,33 @@ def validated_output_dir(out: Path) -> Path:
     return target
 
 
+def refuse_registered(final: Path, registry_file: Path) -> None:
+    """A registered bundle is immutable (audit R19): rebuilding it in place could destroy the version in use."""
+    if not final.exists() or not registry_file.exists():
+        return
+    for m in json.loads(registry_file.read_text(encoding="utf-8"))["models"]:
+        path = Path(m["path"])
+        if (path if path.is_absolute() else ROOT / path).resolve() == final:
+            raise SystemExit(f"refused: {final.name} is registered as v{m['version']} ({m['status']}); bundles are "
+                             "immutable, so build a new version with --version X.Y.Z")
+
+
 def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = None) -> None:
     warnings.filterwarnings("ignore")
-    OUT = validated_output_dir(out)  # dry runs belong under work/bundle-builds
+    final = validated_output_dir(out)  # dry runs belong under work/bundle-builds
+    registry_file = registry_file or ROOT / "registry" / "models.json"
+    refuse_registered(final, registry_file)
+    # Everything is assembled in a staging directory and moved into place only once complete and verified, so a failed
+    # or interrupted build never leaves a half-written bundle where a usable one was (audit R19).
+    stage = final.parent / f".staging-{final.name}-{uuid.uuid4().hex[:8]}"
+    try:
+        _build(results, final, stage, registry_file)
+    except BaseException:
+        shutil.rmtree(stage, ignore_errors=True)  # the live bundle (if any) was never touched
+        raise
+
+
+def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
     RESULTS = results
     registry = default_registry()
     targets_cfg = load_targets()
@@ -156,8 +190,6 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
     # Validate evidence inputs before touching any previously built bundle.
     fold_ledgers = {(t, rec["fold"]): fold_training_ledger(rec, Y[t])
                     for t in TARGETS for rec in fold_records[t]}
-    if OUT.exists():
-        shutil.rmtree(OUT)
     OUT.mkdir(parents=True)
     oof_prob = {t: {} for t in TARGETS}
     fold_of = {t: {} for t in TARGETS}
@@ -198,7 +230,11 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
     # Stability intervals (plan §6.10a) for the OOF fold artifacts, if the bootstrap has been run
     stability_path = RESULTS / "stability.json"
     if stability_path.exists():
-        stab = json.loads(stability_path.read_text(encoding="utf-8"))["targets"]
+        stab_doc = json.loads(stability_path.read_text(encoding="utf-8"))
+        problem = stability_problem(stab_doc, key, fold_records)
+        if problem:
+            raise SystemExit(f"refused: {problem}; rerun scripts/stability.py")
+        stab = stab_doc["targets"]
         for (t, k), art in fold_art.items():
             fold_ids = {int(i) for i in fold_records[t][k]["test_ids"]}
             art.stability = {rid: stab[t][patient_id(rid)] for rid in fold_ids if patient_id(rid) in stab[t]}
@@ -362,8 +398,20 @@ def main(results: Path = RESULTS, out: Path = OUT, registry_file: Path | None = 
              "files": patient_files}
     write_json(demo / "index.json", {"index": index, "demo_bundle_sha256": hashlib.sha256(rfc8785.dumps(index)).hexdigest()})
 
+    # ---------------------------------------------------------------- verify, then install atomically
+    sys.path.insert(0, str(ROOT / "backend"))
+    from app.bundle_service import verify_bundle
+
+    verify_bundle(OUT)  # the complete staged bundle must pass the same check the server runs
+    replaced = final.with_name(f".replaced-{final.name}-{uuid.uuid4().hex[:8]}") if final.exists() else None
+    if replaced:
+        os.replace(final, replaced)  # only an unregistered scratch build can be here (refuse_registered)
+    os.replace(OUT, final)
+    if replaced:
+        shutil.rmtree(replaced)
+    OUT = final
+
     # ---------------------------------------------------------------- registry pointer
-    registry_file = registry_file or ROOT / "registry" / "models.json"
     # Keep the history: earlier versions become "retired" (bundles referenced by the registry are never deleted).
     previous = json.loads(registry_file.read_text(encoding="utf-8"))["models"] if registry_file.exists() else []
     history = [{**m, "status": "retired" if m["status"] == "production" else m["status"]}

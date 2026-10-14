@@ -22,6 +22,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "ml"))
+sys.path.insert(0, str(ROOT))
 
 from novarion_ml.data.load import build_targets, build_X, load_source, patient_id
 from novarion_ml.train.config import default_train_config
@@ -51,7 +52,11 @@ def main() -> None:
     tasks = [(t, k, replicates) for t in TARGETS for k in range(train.outer_k)]
     print(f"stability bootstrap: {len(tasks)} (target, fold) tasks x {replicates} replicates", flush=True)
     results = joblib.Parallel(n_jobs=max(1, (os.cpu_count() or 2) - 1))(joblib.delayed(_task)(*t) for t in tasks)
+    from scripts.train import cache_key
+
     report: dict = {"method": "plan §6.10a algorithm B (OOF-safe refit bootstrap, evaluation repeat)",
+                    # The fits these intervals belong to (audit R15): build_bundle refuses them for any other fits.
+                    "cache_key": cache_key(),
                     "replicates": replicates, "min_valid": 80, "folds": [], "targets": {t: {} for t in TARGETS}}
     for r in results:
         crossings = 0
