@@ -5,11 +5,15 @@ services:
     build: {context: ., dockerfile: docker/backend.Dockerfile}
     environment:
       NOVARION_RUN_MODE: local
-      NOVARION_TRUST_PROXY: "1"  # requests arrive through our nginx, which sets X-Real-IP
+      NOVARION_TRUST_PROXY: "1"  # requests arrive through our nginx, which sets X-Real-IP...
+      NOVARION_TRUSTED_PROXIES: "172.16.0.0/12,10.0.0.0/8,192.168.0.0/16"  # ...trusted only from the compose network
     volumes:
       - ./artifacts:/app/artifacts:ro
       - ./registry:/app/registry:ro
-    ports: ["${NOVARION_API_PORT:-8000}:8000"]   # NOVARION_API_PORT=8001 if 8000 is taken
+    # Not published (audit R17): the API is reached through the web server, at http://localhost:8080/api/v1.
+    # For direct debugging only, uncomment (and remember the backend then sees the host as its peer):
+    # ports: ["${NOVARION_API_PORT:-8000}:8000"]
+    expose: ["8000"]
   frontend:
     build: {context: ., dockerfile: docker/frontend.Dockerfile}
     depends_on:
