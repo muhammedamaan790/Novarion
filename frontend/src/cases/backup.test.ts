@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { backupBeforeUpgrade, backupDb, KEEP_BACKUPS, listBackups, storageErrorMessage, storeBackup } from "./backup";
 import { addReview, deleteCase, listCases, listCasesChecked } from "./caseStore";
 import { db, type CaseRecord } from "./db";
+import { completeAnalysis } from "./testFixtures";
 
 function makeCase(id: string): CaseRecord {
   return {
@@ -11,7 +12,7 @@ function makeCase(id: string): CaseRecord {
     created_at: "2026-10-12T00:00:00Z", updated_at: "2026-10-12T00:00:00Z", source: "manual", dataset_patient_id: null,
     scenarios: [{ scenario_id: `s${id}`, kind: "original", parent_scenario_id: null, state: "FROZEN", input_snapshot: {},
                   unit_status: {}, input_sha256: "a".repeat(64), current_analysis_id: `a${id}`,
-                  analyses: [{ analysis_id: `a${id}`, model_version: "1.0.2" } as never], created_at: "2026-10-12T00:00:00Z" }],
+                  analyses: [completeAnalysis(`a${id}`)], created_at: "2026-10-12T00:00:00Z" }],
     reviews: [], snapshots: [],
   };
 }

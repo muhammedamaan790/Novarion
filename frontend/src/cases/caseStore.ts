@@ -3,6 +3,7 @@
 import { api, type DisplayAnalysis, type InputValue, type Meta, type PatientBundle } from "../api/client";
 import { backupCases, isWellFormedCase } from "./backup";
 import { canonicalize } from "./jcs";
+import { caseProblem } from "./validate";
 import { CASE_SCHEMA_VERSION, db, type CaseRecord, type CaseSource, type DraftRecord, type OutcomeRecord,
   type PersistedAnalysis, type Review, type Scenario, type SnapshotRecord, type StoredSnapshot } from "./db";
 
@@ -295,8 +296,9 @@ export async function importCases(text: string): Promise<CaseImportReport> {
   const { verifySnapshot } = await import("./snapshot");
   for (const c of doc.cases) {
     const label = c?.display_id ?? c?.case_id ?? "unknown case";
-    if (!isWellFormedCase(c)) {
-      report.rejected.push(`${label}: malformed case record`);
+    const problem = caseProblem(c);
+    if (problem) {
+      report.rejected.push(`${label}: ${problem}`); // the reason, so the person importing knows what is wrong
       continue;
     }
     const verified = await Promise.all(c.snapshots.map((s) => verifySnapshot(s.stored_snapshot)));

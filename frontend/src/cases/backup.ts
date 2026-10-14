@@ -3,6 +3,7 @@
 // unopenable main store is never overwritten or deleted by the app: the user restores from a backup or a JSON export.
 import Dexie, { type Table } from "dexie";
 import { CASE_SCHEMA_VERSION, db, type CaseRecord } from "./db";
+import { caseProblem } from "./validate";
 
 export interface CaseBackup {
   id?: number;
@@ -117,9 +118,7 @@ export function storageErrorMessage(err: unknown): string {
   return e?.message ?? String(err);
 }
 
+/** Complete and internally consistent (audit R10): see caseProblem for the exact rules. */
 export function isWellFormedCase(c: unknown): c is CaseRecord {
-  const r = c as CaseRecord;
-  return typeof r?.case_id === "string" && Array.isArray(r.scenarios) && r.scenarios.length > 0
-    && Array.isArray(r.reviews) && Array.isArray(r.snapshots)
-    && r.scenarios.every((s) => Array.isArray(s?.analyses) && s.analyses.some((a) => a?.analysis_id === s.current_analysis_id));
+  return caseProblem(c) === null;
 }
