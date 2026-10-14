@@ -18,6 +18,14 @@ test("disclaimer is always visible; the mock is labelled as a mock, the real mod
   await page.goto("/");
   await expect(page.getByTestId("disclaimer")).toContainText("Not a substitute for formal diagnostic imaging");
   await expect(page.getByTestId("home-new-case")).toBeVisible(); // signed-in landing: one big NEW CASE button
+  await expect(page.getByTestId("home-facts")).toContainText("303patients");
+  // model-bound figures appear only for the real model (never invented, never shown against the mock)
+  if (REAL) {
+    await expect(page.getByTestId("home-facts")).toContainText("0.93CAD ROC-AUC");
+    await expect(page.getByTestId("home-facts")).toContainText("98.5%");
+  } else {
+    await expect(page.getByTestId("home-facts")).not.toContainText("ROC-AUC");
+  }
   await expect(page.getByTestId("mock-chip")).toHaveCount(REAL ? 0 : 1);
   await page.getByTestId("page-library").click();
   await expect(page.getByTestId("disclaimer")).toBeVisible(); // on every screen

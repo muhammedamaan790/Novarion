@@ -35,6 +35,10 @@ export function SignInPage({ accountsConfigured, onSignedIn }: {
           <div className="text-center">
             <p className="text-2xl font-extrabold tracking-[0.25em]">NOVARION</p>
             <p className="mt-1 text-sm font-medium text-slate-600">Coronary case review</p>
+            <p className="mt-3 text-sm text-slate-700">
+              Estimates CAD and LAD, LCX and RCA stenosis from routine clinical measurements and shows them on a 3D heart,
+              with the reasons. An educational research prototype.
+            </p>
           </div>
           {!accountsConfigured && (
             <p role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">
