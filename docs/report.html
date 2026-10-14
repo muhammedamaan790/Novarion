@@ -97,8 +97,8 @@ on the 273 patients with a chest-pain type, using the same out-of-fold predictio
 patient bootstrap 95% CI.</b> Calibration-in-the-large = observed − mean predicted.</p>
 <table class='small'><thead><tr><th>Model</th><th>AUC</th><th>Calibration-in-the-large</th><th>ECE</th><th>ΔAUC of NOVARION [95% CI]</th></tr></thead><tbody><tr><td>NOVARION</td><td>0.935</td><td>+0.013</td><td>0.059</td><td>—</td></tr><tr><td>Updated Diamond–Forrester (published)</td><td>0.852</td><td>+0.158</td><td>0.168</td><td>+0.083 [0.042, 0.127]</td></tr><tr><td>Same three inputs, refit on our folds</td><td>0.890</td><td>+0.002</td><td>0.046</td><td>+0.045 [0.012, 0.083]</td></tr></tbody></table>
 <table class='small narrow'><thead><tr><th>ESC pretest band</th><th>NOVARION: share (observed CAD)</th><th>Diamond–Forrester: share (observed CAD)</th></tr></thead><tbody><tr><td>low (&lt;15%)</td><td>13.6% (13.5%)</td><td>5.1% (21.4%)</td></tr><tr><td>intermediate (15-85%)</td><td>27.1% (44.6%)</td><td>88.6% (73.6%)</td></tr><tr><td>high (&gt;85%)</td><td>59.3% (98.1%)</td><td>6.2% (94.1%)</td></tr></tbody></table>
-<p>The extra measurements add discrimination beyond age, sex and chest-pain type, and NOVARION is better calibrated
-on this high-prevalence cohort; the published score leaves 88.6%
+<p>The extra measurements add discrimination beyond age, sex and chest-pain type. NOVARION is better calibrated than the
+published score on this high-prevalence cohort, but not than the same three inputs refit (ECE in the table); the published score leaves 88.6%
 of patients in the intermediate band, NOVARION 27.1%. The bands are
 descriptive only: NOVARION recommends no tests or treatment, and its low band still holds
 13.5% observed CAD. <b>Subgroups</b> (sex, age; full

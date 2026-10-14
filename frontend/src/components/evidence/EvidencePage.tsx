@@ -79,7 +79,7 @@ function Takeaway({ rows, families }: { rows: Schemas["Table1Row"][]; families?:
   return (
     <p className="rounded-lg bg-sky-50 px-4 py-3 text-sm font-medium text-slate-800" data-testid="metrics-takeaway">
       {similar
-        ? `All model types perform about the same here (ROC-AUC ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)}, a gap smaller than the fold-to-fold spread).`
+        ? `The model types' mean ROC-AUC values are close here (${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)}, a gap smaller than the fold-to-fold spread). This is not a test of equivalence.`
         : `ROC-AUC ranges ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)} across model types.`}
       {top && ` The selection rule picked ${FAMILY[top[0]] ?? top[0]} in ${top[1]} of ${total} folds: the simplest model that does as well.`}
     </p>

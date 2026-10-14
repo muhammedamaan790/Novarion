@@ -56,18 +56,18 @@ These are for model **v1.0.2**: the same models as the frozen v1.0.0, plus stabi
 evidence ledgers (D-017, D-019). Validation
 is nested CV with 5 × 5 outer folds; the full tables are in `results/tables.md`.
 
-| Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | High-confidence share (pooled OOF) |
+| Target | Prevalence | ROC-AUC (outer-fold mean ± SD) | Balanced accuracy | Brier | High support as displayed (after every gate) |
 |---|---|---|---|---|---|
-| CAD | 71.3% | 0.930 ± 0.035 | 0.860 ± 0.051 | 0.095 | 62% validated high-positive (PPV 95%), 38% standard |
-| LAD | 58.4% | 0.838 ± 0.046 | 0.758 ± 0.044 | 0.161 | 100% standard (no qualified region) |
-| LCX | 39.3% | 0.721 ± 0.067 | 0.666 ± 0.067 | 0.209 | 100% standard (no qualified region) |
-| RCA | 37.6% | 0.736 ± 0.037 | 0.666 ± 0.042 | 0.200 | 100% standard (no qualified region) |
+| CAD | 71.3% | 0.930 ± 0.035 | 0.860 ± 0.051 | 0.095 | 44.6% high-positive (PPV 98.5%; 61.7% / PPV 94.7% in the threshold regions before the gates) |
+| LAD | 58.4% | 0.838 ± 0.046 | 0.758 ± 0.044 | 0.161 | 0%: outside the qualified range (no qualified region) |
+| LCX | 39.3% | 0.721 ± 0.067 | 0.666 ± 0.067 | 0.209 | 0%: outside the qualified range (no qualified region) |
+| RCA | 37.6% | 0.736 ± 0.037 | 0.666 ± 0.042 | 0.200 | 0%: outside the qualified range (no qualified region) |
 
 Every prediction is a binary STENOSIS / NO STENOSIS call. **Model confidence** is HIGH only inside a probability
 region whose Wilson-95% lower bound met the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95. These targets were fixed before
 results and never lowered (D-008).
 
-Confidence is also forced to standard (the LOW tier) in two cases:
+Confidence is also forced outside the qualified range (the LOW tier) in two cases:
 
 - **Unknown inputs or an atypical profile.**
 - **An unstable dataset patient.** A patient is unstable when their refit-bootstrap stability interval straddles the
@@ -78,7 +78,9 @@ As displayed after all these gates, the CAD HIGH badge covers 44.6% of patients 
 
 **Against the guideline pretest score** (Table 6): on the 273 patients with a chest-pain type, NOVARION's CAD
 AUC is 0.935 vs 0.852 for the updated Diamond–Forrester score (ΔAUC +0.083 [0.042, 0.127]) and 0.890 for the same
-three inputs refit (+0.045 [0.012, 0.083]), and it is better calibrated. Performance is lower in patients aged 65 and
+three inputs refit (+0.045 [0.012, 0.083]). Its Brier score is better than both (0.089 vs 0.103 for the refit; Brier
+mixes discrimination and calibration). It is better calibrated than the published historical score, but not than the
+refit three-input model (ECE 0.059 vs 0.046; calibration slope 0.88 vs 0.98). Performance is lower in patients aged 65 and
 over (Table 7, subgroups).
 
 **Also measured:**

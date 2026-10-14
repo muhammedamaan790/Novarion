@@ -2,6 +2,8 @@
 
 One JSON line per event. entry_hash = SHA-256(prev_entry_hash ‖ JCS(entry without entry_hash)); the first entry
 chains from GENESIS. Editing, reordering or removing any earlier line breaks every later hash (`verify`).
+Limit (audit R20): deleting the newest lines leaves a shorter chain that still verifies. Detecting that needs the
+last entry_hash kept somewhere else (e.g. in a release note or commit); this log does not do that by itself.
 """
 
 from __future__ import annotations

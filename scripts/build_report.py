@@ -228,8 +228,8 @@ on the {cb['n']} patients with a chest-pain type, using the same out-of-fold pre
 patient bootstrap 95% CI.</b> Calibration-in-the-large = observed − mean predicted.</p>
 {table(["Model", "AUC", "Calibration-in-the-large", "ECE", "ΔAUC of NOVARION [95% CI]"], clin_rows, "small")}
 {table(["ESC pretest band", "NOVARION: share (observed CAD)", "Diamond–Forrester: share (observed CAD)"], band_rows, "small narrow")}
-<p>The extra measurements add discrimination beyond age, sex and chest-pain type, and NOVARION is better calibrated
-on this high-prevalence cohort; the published score leaves {pct(cb['esc_pretest_bands']['published_df']['intermediate (15-85%)']['share'])}
+<p>The extra measurements add discrimination beyond age, sex and chest-pain type. NOVARION is better calibrated than the
+published score on this high-prevalence cohort, but not than the same three inputs refit (ECE in the table); the published score leaves {pct(cb['esc_pretest_bands']['published_df']['intermediate (15-85%)']['share'])}
 of patients in the intermediate band, NOVARION {pct(cb['esc_pretest_bands']['novarion']['intermediate (15-85%)']['share'])}. The bands are
 descriptive only: NOVARION recommends no tests or treatment, and its low band still holds
 {pct(cb['esc_pretest_bands']['novarion']['low (<15%)']['observed_cad_rate'])} observed CAD. <b>Subgroups</b> (sex, age; full
