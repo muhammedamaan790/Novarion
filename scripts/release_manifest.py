@@ -36,6 +36,17 @@ def git(*args: str) -> str:
     return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=True).stdout.strip()
 
 
+def exported_static_sha256(index_sha: str) -> str | None:
+    """The offline export's static-file list (frontend/public/demo_bundle/static.json), if it belongs to this index."""
+    path = ROOT / "frontend" / "public" / "demo_bundle" / "static.json"
+    if not path.exists():
+        return None
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    if doc.get("index_sha256") != index_sha:
+        raise SystemExit("refused: the exported offline bundle belongs to another model bundle; rerun export_demo_bundle.py")
+    return doc["static_sha256"]
+
+
 def version_tuple(v: str) -> tuple[int, ...]:
     return tuple(int(x) for x in v.split("."))
 
@@ -76,6 +87,7 @@ def main() -> int:
         "frontend_lock_sha256": sha(ROOT / "frontend" / "package-lock.json"),
         "backend_lock_sha256": sha(ROOT / "uv.lock"),
         "demo_bundle_sha256": demo_index["demo_bundle_sha256"],
+        "demo_static_sha256": exported_static_sha256(demo_index["demo_bundle_sha256"]),
         "training_data_sha256": bundle_manifest["manifest"]["training_data_sha256"],
         "runtime": {"python": platform.python_version(), "node": node,
                     **{name: deps.get(name) for name in ("react", "@react-three/fiber", "@react-three/drei", "three")}},

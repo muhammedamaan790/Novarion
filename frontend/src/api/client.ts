@@ -101,7 +101,14 @@ interface DemoIndex {
   frontend_compatibility_range: string;
   model_version: string;
   patients: Schemas["PatientListItem"][];
+  files: Record<string, string>; // patients/<id>.json → SHA-256 of its bytes
 }
+
+/** Pins from the committed release manifest, injected at build time (vite.config.ts). */
+declare const __RELEASE_PINS__: { demo_bundle_sha256: string | null; demo_static_sha256: string | null };
+let staticFiles: Record<string, string> | null = null; // meta/evaluation/models/replay → SHA-256 of their bytes
+
+export class IntegrityFailure extends Error {}
 
 let modePromise: Promise<RunMode> | null = null;
 let demoIndex: DemoIndex | null = null;
@@ -133,6 +140,24 @@ async function loadDemoBundle(): Promise<DemoIndex | null> {
       console.error("offline demo bundle failed its integrity check");
       return null;
     }
+    const pins = __RELEASE_PINS__;
+    if (pins.demo_bundle_sha256 && pins.demo_bundle_sha256 !== doc.demo_bundle_sha256) {
+      console.error("offline demo bundle is not the one pinned by this release");
+      return null;
+    }
+    const st = await fetch("/demo_bundle/static.json");
+    if (!st.ok) {
+      console.error("offline demo bundle has no static-file list (re-export it)");
+      return null;
+    }
+    const statics = (await st.json()) as { index_sha256: string; files: Record<string, string>; static_sha256: string };
+    if (statics.index_sha256 !== doc.demo_bundle_sha256
+        || (await jcsSha256({ index_sha256: statics.index_sha256, files: statics.files })) !== statics.static_sha256
+        || (pins.demo_static_sha256 && pins.demo_static_sha256 !== statics.static_sha256)) {
+      console.error("offline demo bundle static files failed their integrity check");
+      return null;
+    }
+    staticFiles = statics.files;
     if (doc.index.bundle_schema_version.split(".")[0] !== BUNDLE_SCHEMA_MAJOR
         || !satisfies(FRONTEND_VERSION, doc.index.frontend_compatibility_range)) {
       console.error("offline demo bundle is not compatible with this frontend");
@@ -174,10 +199,19 @@ async function offline(): Promise<boolean> {
   return (await detectRunMode()) === "offline";
 }
 
+/** Every offline file is checked against its recorded hash before it is parsed (audit R03). */
 async function staticJson<T>(path: string): Promise<ApiResult<T>> {
+  const expected = path.startsWith("patients/") ? demoIndex?.files?.[path] : staticFiles?.[path];
+  if (!expected) throw new IntegrityFailure(`offline file not listed in the verified bundle: ${path}`);
   const response = await fetch(`/demo_bundle/${path}`);
   if (!response.ok) throw new ApiError(response.status, null);
-  return { data: (await response.json()) as T, mock: false };
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  const { sha256Hex } = await import("../cases/jcs");
+  if ((await sha256Hex(bytes)) !== expected) {
+    console.error(`offline file failed its integrity check: ${path}`);
+    throw new IntegrityFailure(`offline file failed its integrity check: ${path}`);
+  }
+  return { data: JSON.parse(new TextDecoder().decode(bytes)) as T, mock: false };
 }
 
 const NOT_OFFLINE = new ApiError(503, {

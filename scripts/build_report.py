@@ -59,6 +59,20 @@ def main() -> None:
     metrics = load(ROOT / "results" / "metrics.json")["targets"]
     ablation = load(ROOT / "results" / "ablation.json")["targets"]
     errors = load(ROOT / "results" / "error_analysis.json")
+    shown = load(ROOT / "results" / "displayed_tiers.json")
+    # Every generated input must describe the production bundle, and the two confidence scopes must reconcile
+    # (audit R08): errors shown HIGH = displayed false positives + false negatives in the HIGH regions.
+    for name, doc in (("error_analysis.json", errors), ("displayed_tiers.json", shown)):
+        if doc.get("model_version") != manifest["model_version"]:
+            raise SystemExit(f"refused: results/{name} is for model {doc.get('model_version')}, "
+                             f"the production bundle is {manifest['model_version']}; regenerate it")
+    if errors.get("artifact_manifest_sha256") != load(ROOT / entry["path"] / "manifest.json")["artifact_manifest_sha256"]:
+        raise SystemExit("refused: results/error_analysis.json was computed from another bundle; regenerate it")
+    for tid, e in errors["targets"].items():
+        d = shown["targets"][tid]
+        if e["errors_high_confidence"] != d["fp_high_positive"] + d["fn_high_negative"]:
+            raise SystemExit(f"refused: {tid} errors shown HIGH ({e['errors_high_confidence']}) do not reconcile with "
+                             f"displayed_tiers.json ({d['fp_high_positive']} FP + {d['fn_high_negative']} FN)")
     schema = load(ROOT / "data" / "schema_report.json")
     perf = load(ROOT / "results" / "perf.json")
     t = metrics
@@ -145,7 +159,7 @@ contract → OpenAPI → generated TypeScript types) → React 19 + React Three 
 store). Registries (features, targets, anatomy map) make new features, models or structures a configuration change.</p>
 {img("2-lad.png", "Figure 1 — A case's Result tab on a held-out dataset patient (out-of-fold prediction): LAD "
      "selected; the camera flies to the vessel and the others fade. Colour family = predicted class, depth = distance "
-     "from the decision threshold, lighter with faint stripes = standard confidence. Beside it, a two-line summary and one line per "
+     "from the decision threshold, lighter with faint stripes = outside the qualified ranges. Beside it, a two-line summary and one line per "
      "target (binary call, probability, confidence) that expands to its stability interval and reasons.")}
 
 <h2>2. Data and preprocessing</h2>
@@ -169,7 +183,7 @@ scaling on cross-fitted logits (guard a &gt; 0; never triggered). <b>Layer A</b>
 threshold on calibrated training-side OOF probabilities. <b>Layer B</b> (model confidence): HIGH only inside a region
 whose Wilson-95% lower bound meets the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 (n ≥ 15); otherwise LOW with a stated
 reason; UNKNOWN inputs and atypical profiles (Gower distance to the training cohort) force LOW. The app labels the
-tiers "validated high confidence" and "standard confidence". The deployed model per
+tiers "high support · internal evaluation" and "outside qualified range" (internal, not clinical, evidence). The deployed model per
 target repeats the selection on all 303 patients and refits. Logistic regression was chosen in most outer folds
 (Table 3), and in the deployed models for CAD, LAD and RCA (LCX: shallow XGBoost).
 <b>Explanations</b> are exact: linear SHAP (LR), TreeSHAP (XGBoost/CatBoost) or native EBM terms in the raw margin,
@@ -179,7 +193,9 @@ displayed calibrated logit is tested for every served explanation. Dataset patie
 dataset patient, the fold's selected configuration is refit with Platt on {stability['replicates']} bootstrap resamples
 of that fold's training rows only (patient-grouped internal cross-fitting, threshold fixed); if the 10th–90th percentile
 interval straddles the decision threshold the patient is shown LOW with reason "unstable" (CAD {crossings['cad']},
-LAD {crossings['lad']}, LCX {crossings['lcx']}, RCA {crossings['rca']} of 303; D-017). After every display gate the CAD HIGH badge covers 44.6% of patients at PPV 98.5% (Table 2b).
+LAD {crossings['lad']}, LCX {crossings['lcx']}, RCA {crossings['rca']} of 303; D-017). After every display gate the CAD HIGH badge covers
+{pct(shown['targets']['cad']['pct_high_positive'])} of patients ({shown['targets']['cad']['n_high_positive']}/303) at PPV
+{pct(shown['targets']['cad']['ppv'])}, with {shown['targets']['cad']['fp_high_positive']} false positives.
 Evidence-band ledgers use each fold's own inner cross-fitted scores, so a held-out patient's label never shapes
 its own evidence (patch release v1.0.2, D-019, found by an external audit).</p>
 
@@ -188,14 +204,17 @@ its own evidence (patch release v1.0.2, D-019, found by an external audit).</p>
 Italic rows: always-positive baseline (and the prior-probability Brier).</p>
 {table(["Target", "Prev.", "ROC-AUC", "PR-AUC", "Accuracy", "Bal. acc.", "Precision", "Recall", "F1", "Brier",
         "Cal. slope"], t1_rows, "small")}
-<p class="cap"><b>Table 2 — confidence tiers. Scope: pooled OOF (prespecified repeat), patient-level bootstrap 95% CI.</b></p>
+<p class="cap"><b>Table 2 — confidence tiers in the threshold regions, before the display gates (input quality,
+atypical profile, stability). Scope: pooled OOF (prespecified repeat), patient-level bootstrap 95% CI.</b> What a user
+actually sees is narrower: see the CAD figures after every gate in §3.</p>
 {table(["Target", "AUC [CI]", "HIGH-pos.", "PPV [CI]", "HIGH-neg.", "NPV [CI]", "LOW", "FP in HIGH-pos."], t2_rows, "small")}
 <p>CAD is ranked well (ROC-AUC {m(t['cad']['model'], 'roc_auc')}) and {pct(t['cad']['table2']['pct_high_positive'])}
-of patients fall in a qualified HIGH-positive region with measured PPV {pct(t['cad']['table2']['ppv'])}. Vessel-level
+of patients fall in a qualified HIGH-positive region with measured PPV {pct(t['cad']['table2']['ppv'])} before the
+display gates ({pct(shown['targets']['cad']['pct_high_positive'])} at PPV {pct(shown['targets']['cad']['ppv'])} as displayed). Vessel-level
 separation from routine features is weaker (LAD {m(t['lad']['model'], 'roc_auc')}, LCX
 {m(t['lcx']['model'], 'roc_auc')}, RCA {m(t['rca']['model'], 'roc_auc')}): <b>no vessel model qualified a
-high-confidence region</b>, so every vessel prediction is shown with standard confidence (the LOW tier) while still
-giving a binary call, next to the model's tested ROC-AUC.
+high-confidence region</b>, so every vessel prediction is shown as outside the qualified range (the LOW tier) while
+still giving a binary call, next to the model's ROC-AUC from internal evaluation.
 The targets were fixed before results and were not lowered (D-008). Accuracy should always be read against the
 always-positive baseline ({m(t['cad']['baselines']['always_positive'], 'accuracy')} for CAD).</p>
 <p class="cap"><b>Table 3 — family benchmarks (same selection rule within one family; ROC-AUC, outer-fold mean ± SD)
@@ -209,8 +228,8 @@ on the {cb['n']} patients with a chest-pain type, using the same out-of-fold pre
 patient bootstrap 95% CI.</b> Calibration-in-the-large = observed − mean predicted.</p>
 {table(["Model", "AUC", "Calibration-in-the-large", "ECE", "ΔAUC of NOVARION [95% CI]"], clin_rows, "small")}
 {table(["ESC pretest band", "NOVARION: share (observed CAD)", "Diamond–Forrester: share (observed CAD)"], band_rows, "small narrow")}
-<p>The extra measurements add discrimination beyond age, sex and chest-pain type, and NOVARION is better calibrated
-on this high-prevalence cohort; the published score leaves {pct(cb['esc_pretest_bands']['published_df']['intermediate (15-85%)']['share'])}
+<p>The extra measurements add discrimination beyond age, sex and chest-pain type. NOVARION is better calibrated than the
+published score on this high-prevalence cohort, but not than the same three inputs refit (ECE in the table); the published score leaves {pct(cb['esc_pretest_bands']['published_df']['intermediate (15-85%)']['share'])}
 of patients in the intermediate band, NOVARION {pct(cb['esc_pretest_bands']['novarion']['intermediate (15-85%)']['share'])}. The bands are
 descriptive only: NOVARION recommends no tests or treatment, and its low band still holds
 {pct(cb['esc_pretest_bands']['novarion']['low (<15%)']['observed_cad_rate'])} observed CAD. <b>Subgroups</b> (sex, age; full
@@ -230,9 +249,10 @@ training-side procedure is re-run on the same 25 folds, logistic-regression fami
 <p>Symptoms and examination (typical chest pain) carry the most signal for CAD and LAD; echo (RWMA region, ejection
 fraction) matters for LAD; demographics (age) for LCX. <b>Error analysis</b> (pooled OOF): CAD
 {errors['targets']['cad']['errors']}/303 errors, of which {errors['targets']['cad']['errors_high_confidence']} were shown with
-HIGH model confidence ({t['cad']['table2']['fp_high_positive']} false positives fall in the HIGH-positive
-region; the atypical-profile rule downgrades the rest to LOW). Rule-selected cases (lowest id meeting each criterion) include {cases[1]['patient_id']}, the CAD
-high-positive-region error — which is exactly the dataset's one label-discordant record (LAD stenotic, Cath normal) —
+HIGH model confidence as displayed (the threshold region alone holds {t['cad']['table2']['fp_high_positive']} false
+positives; the input-quality and stability gates downgrade the rest to LOW). Rule-selected cases (lowest id meeting each
+criterion) include {cases[1]['patient_id']}, a CAD error shown with HIGH confidence{
+", which is the dataset's one label-discordant record (LAD stenotic, Cath normal)" if cases[1]['patient_id'] == "ZAS-0094" else ""},
 and {cases[3]['patient_id']}, whose atypical profile forces LOW confidence.</p>
 {table(["Target", "Errors", "FP", "FN", "Shown with HIGH confidence"], err_rows, "small narrow")}
 

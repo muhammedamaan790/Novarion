@@ -45,7 +45,7 @@ export function FallbackDiagram({ analysis, transfer, sceneState }: {
           </g>
         ))}
       </svg>
-      <p className="text-[11px] text-slate-600">Schematic only; dashed = standard confidence. Each vessel is tinted as a whole.</p>
+      <p className="text-[11px] text-slate-600">Schematic only; dashed = outside qualified range. Each vessel is tinted as a whole.</p>
     </div>
   );
 }

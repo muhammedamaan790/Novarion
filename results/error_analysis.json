@@ -1,13 +1,15 @@
 {
- "scope": "pooled OOF predictions of the prespecified outer repeat (each patient exactly once)",
+ "scope": "pooled OOF predictions of the prespecified outer repeat (each patient exactly once), with the model confidence AS DISPLAYED (after every display gate)",
+ "model_version": "1.0.2",
+ "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
  "targets": {
   "cad": {
    "n": 303,
    "errors": 42,
    "fp": 12,
    "fn": 30,
-   "errors_high_confidence": 8,
-   "errors_low_confidence": 34,
+   "errors_high_confidence": 2,
+   "errors_low_confidence": 40,
    "profile": {
     "Age (y)": {
      "correct": 59.03448275862069,
@@ -156,7 +158,7 @@
  },
  "representative_cases": [
   {
-   "rule": "Correct, HIGH confidence (CAD): lowest id with high_positive and CAD label = 1",
+   "rule": "Correct, shown with HIGH confidence (CAD): lowest id displayed HIGH positive with CAD label = 1",
    "patient_id": "ZAS-0002",
    "focus_target": "cad",
    "predictions": {
@@ -197,44 +199,44 @@
    ]
   },
   {
-   "rule": "Error in the high-positive region (CAD): lowest id with high_positive and CAD label = 0",
-   "patient_id": "ZAS-0094",
+   "rule": "Error shown with HIGH confidence (CAD): lowest id displayed HIGH positive with CAD label = 0",
+   "patient_id": "ZAS-0214",
    "focus_target": "cad",
    "predictions": {
     "cad": {
-     "probability": 0.98,
+     "probability": 0.97,
+     "predicted": "positive",
+     "confidence": "high",
+     "label": 0
+    },
+    "lad": {
+     "probability": 0.887,
      "predicted": "positive",
      "confidence": "low",
      "label": 0
     },
-    "lad": {
-     "probability": 0.697,
-     "predicted": "positive",
-     "confidence": "low",
-     "label": 1
-    },
     "lcx": {
-     "probability": 0.688,
+     "probability": 0.577,
      "predicted": "positive",
      "confidence": "low",
      "label": 0
     },
     "rca": {
-     "probability": 0.551,
+     "probability": 0.351,
      "predicted": "positive",
      "confidence": "low",
      "label": 0
     }
    },
    "atypical": {
-    "flag": true,
-    "distance_percentile": 46.5
+    "flag": false,
+    "distance_percentile": 31.7
    },
    "top_contributions": [
     "Typical chest pain = Yes (up, strong)",
-    "Region with RWMA = 0 (down, strong)",
-    "Atypical chest pain = No (up, strong)",
-    "Hypertension = Yes (up, strong)"
+    "Age = 73 years (up, strong)",
+    "Triglycerides = 62 mg/dL (down, strong)",
+    "Ejection fraction (TTE) = 55% (down, strong)"
    ]
   },
   {

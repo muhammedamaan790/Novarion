@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import type { DisplayAnalysis, Meta, PatientBundle } from "../api/client";
-import { activeOutcomes, addOutcome, addReview, addSnapshot, caseStatus, clearDraft, currentAnalysis, currentScenario,
+import { activeOutcomes, addOutcome, addReview, addSnapshot, caseStatus, clearDraftIfMatches, currentAnalysis, currentScenario,
   getCase, outcomeBlocker, persistNewCase, reanalyzeCase, reviewsFor, saveDatasetCase, toDisplay,
   type OutcomeInput } from "../cases/caseStore";
 import { storageErrorMessage } from "../cases/backup";
@@ -15,12 +15,12 @@ const SOURCE_LABEL = { dataset: "Dataset (OOF)", manual: "Manual entry", import:
 
 function defaultLimitations(a: DisplayAnalysis): string[] {
   const out: string[] = [];
-  if (Object.values(a.targets).some((t) => t?.model_confidence === "low")) out.push("Standard confidence (outside validated ranges)");
+  if (Object.values(a.targets).some((t) => t?.model_confidence === "low")) out.push("Outside qualified confidence range");
   if (a.quality.atypical_profile.flag) out.push("Atypical profile");
   if ((a.quality.unknown_inputs ?? []).length) out.push("Unknown inputs (imputed, not measured)");
   return out;
 }
-const ALL_LIMITATIONS = ["Standard confidence (outside validated ranges)", "Atypical profile", "Unknown inputs (imputed, not measured)",
+const ALL_LIMITATIONS = ["Outside qualified confidence range", "Atypical profile", "Unknown inputs (imputed, not measured)",
   "Predicted-class conflict between targets", "Derived from a training record"];
 const STATUS_STYLE = { "Unreviewed": "bg-amber-100 text-amber-900", "Reviewed": "bg-emerald-100 text-emerald-800",
   "Outcome recorded": "bg-sky-100 text-sky-900" } as const;
@@ -147,15 +147,20 @@ export function CaseBar({ analysis, meta }: { analysis: DisplayAnalysis; meta: M
   };
 
   const save = () => run("Saving", async () => {
+    // Capture who asked before the first await: the user may switch workspaces while storage works (audit R02).
     const st = useStore.getState();
+    const wsId = st.activeId;
+    const startedFrom = analysis.analysis_id;
+    const savedInputs = pending?.inputs;
     const c = mode === "dataset"
       ? await saveDatasetCase(analysis as unknown as PatientBundle)
       : await persistNewCase(pending!, editingCaseId ? (await getCase(editingCaseId)) ?? null : null);
-    st.setCaseRef({ caseId: c.case_id, displayId: c.display_id });
-    if (mode === "new") {
-      st.setEditingCaseId(c.case_id);
-      await clearDraft(); // the draft is now a saved scenario
-    }
+    if (!wsId) return;
+    // Later saves of that case append scenarios to it, even if its inputs were edited during this save...
+    if (mode === "new") st.commitToWorkspace(wsId, { editingCaseId: c.case_id });
+    // ...but it is marked saved only if it still shows exactly the analysis that was stored.
+    st.commitToWorkspace(wsId, { caseRef: { caseId: c.case_id, displayId: c.display_id } }, { analysisId: startedFrom });
+    if (mode === "new" && savedInputs) await clearDraftIfMatches(savedInputs); // the draft is now a saved scenario
   });
 
   if (!caseRef) {
@@ -248,8 +253,11 @@ export function CaseBar({ analysis, meta }: { analysis: DisplayAnalysis; meta: M
           <button type="button" disabled={!!busy} data-testid="reanalyze"
                   className="ml-2 rounded bg-sky-800 px-2 py-0.5 font-semibold text-white disabled:opacity-50"
                   onClick={() => void run("Re-analyzing", async () => {
+                    const wsId = useStore.getState().activeId;
                     const updated = await reanalyzeCase(record.case_id);
-                    useStore.getState().setAnalysis(toDisplay(currentAnalysis(updated)));
+                    // Only the workspace still showing this stored case receives the new analysis (audit R02).
+                    if (wsId) useStore.getState().commitToWorkspace(wsId, { analysis: toDisplay(currentAnalysis(updated)) },
+                                                                    { caseId: record.case_id });
                   })}>
             Re-analyze with v{meta.model_version}
           </button>

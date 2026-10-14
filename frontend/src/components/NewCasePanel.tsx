@@ -18,8 +18,12 @@ const GROUP_LABEL: Record<string, string> = {
 };
 const DEBOUNCE_MS = 300;
 
-function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefined; onChange: (v: InputValue) => void }) {
-  const id = `field-${f.id}`;
+function Field({ f, value, onChange, idPrefix }: {
+  f: Feature; value: InputValue | undefined; onChange: (v: InputValue) => void; idPrefix: string;
+}) {
+  // DOM ids carry the workspace: several New case forms can be mounted at once (audit R13). Test ids stay stable.
+  const id = `${idPrefix}-field-${f.id}`;
+  const testId = `field-${f.id}`;
   const blank = value === undefined || value === null || value === "";
   const label = (
     <label htmlFor={id} className="truncate text-slate-700" title={f.display}>
@@ -45,12 +49,12 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
             value={isUnknown || blank ? "" : String(value)}
             onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
             className={cls}
-            data-testid={id}
+            data-testid={testId}
           />
           {f.allow_unknown && (
             <button
               type="button"
-              title="Mark as UNKNOWN (imputed, forces standard confidence)"
+              title="Mark as UNKNOWN (imputed, never high support)"
               aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
               aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}
@@ -79,7 +83,7 @@ function Field({ f, value, onChange }: { f: Feature; value: InputValue | undefin
           onChange(v === "" ? null : v === UNKNOWN ? UNKNOWN : f.kind === "binary" ? Number(v) : v);
         }}
         className={cls}
-        data-testid={id}
+        data-testid={testId}
       >
         <option value="">— required —</option>
         {options.map((o) => (
@@ -409,7 +413,7 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
             </legend>
             <div className="grid grid-cols-1 gap-x-10 gap-y-1 xl:grid-cols-2">
               {fs.map((f) => (
-                <Field key={f.id} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
+                <Field key={f.id} idPrefix={wsId} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
               ))}
             </div>
           </fieldset>

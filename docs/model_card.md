@@ -18,7 +18,7 @@
 
 - **Calibration:** Platt scaling on cross-fitted out-of-fold logits (slope guard a > 0).
 - **Operating threshold (Layer A):** Youden's J on calibrated training-side OOF probabilities; every case always receives a binary prediction.
-- **Model confidence (Layer B):** shown in the app as VALIDATED HIGH CONFIDENCE (HIGH) or STANDARD CONFIDENCE (LOW), D-024. HIGH only inside a region whose Wilson-95% lower bound met the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 (n ≥ 15) on training-side OOF scores; forced LOW for UNKNOWN inputs or an atypical profile.
+- **Model confidence (Layer B):** shown in the app as HIGH SUPPORT · INTERNAL EVALUATION (HIGH) or OUTSIDE QUALIFIED RANGE (LOW), D-024 / audit R12. HIGH only inside a region whose Wilson-95% lower bound met the pre-registered PPV ≥ 0.90 / NPV ≥ 0.95 (n ≥ 15) on training-side OOF scores; forced LOW for UNKNOWN inputs or an atypical profile.
 - **Explanations:** exactly additive contributions in calibrated log-odds (LR: linear SHAP; XGBoost/CatBoost: TreeSHAP; EBM: native terms), aggregated to registry features; additivity is tested.
 - **Stability (dataset patients only):** 10th–90th percentile of 100 refit-bootstrap replicates of the fold model (outer-training rows only, threshold fixed); an interval straddling the threshold forces LOW with reason "unstable" (D-017). New cases have no interval.
 - **Updates:** governed learning loop (D-018): verified outcomes only, forward holdout, pre-registered paired gate, human-approved promotion, hash-chained audit log. v1.0.2 serves the frozen v1.0.0 models unchanged; no learning-loop update has been promoted.

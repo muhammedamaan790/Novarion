@@ -7,6 +7,7 @@ origins (comma-separated, never "*"). Without a verified model bundle the servic
 from __future__ import annotations
 
 import hmac
+import ipaddress
 import json
 import logging
 import subprocess
@@ -95,10 +96,21 @@ class RateLimiter:
         return True, 0.0
 
 
-def _client_key(request: Request, trust_proxy: bool) -> str:
-    if trust_proxy and request.headers.get("x-real-ip"):
+def _peer_is_trusted(peer: str, networks: tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...]) -> bool:
+    try:
+        address = ipaddress.ip_address(peer)
+    except ValueError:
+        return False
+    return any(address in network for network in networks)
+
+
+def _client_key(request: Request, trust_proxy: bool,
+                networks: tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...] = ()) -> str:
+    """The rate-limit identity: the direct peer, or X-Real-IP only when that peer is a trusted proxy (audit R17)."""
+    peer = request.client.host if request.client else "unknown"
+    if trust_proxy and request.headers.get("x-real-ip") and _peer_is_trusted(peer, networks):
         return request.headers["x-real-ip"]
-    return request.client.host if request.client else "unknown"
+    return peer
 
 
 def _service(request: Request) -> InferenceService:
@@ -285,11 +297,12 @@ def create_app(settings: Settings | None = None, service: InferenceService | Non
         app.include_router(build_local_router(settings))
 
     limiter = RateLimiter(settings.rate_limit_per_minute, settings.rate_limit_burst)
+    proxy_networks = tuple(ipaddress.ip_network(n, strict=False) for n in settings.trusted_proxies)
 
     @app.middleware("http")
     async def _headers(request: Request, call_next):
         if not request.url.path.startswith(f"{API_PREFIX}/health"):  # health checks are never throttled
-            allowed, retry_after = limiter.allow(_client_key(request, settings.trust_proxy), time.monotonic())
+            allowed, retry_after = limiter.allow(_client_key(request, settings.trust_proxy, proxy_networks), time.monotonic())
             if not allowed:
                 body = ErrorResponse(error_code="RATE_LIMITED", message="Too many requests; retry shortly.",
                                      details={"retry_after_s": round(retry_after, 2)})

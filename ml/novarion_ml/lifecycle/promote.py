@@ -15,12 +15,14 @@ What a promoted bundle does NOT change (documented in its manifest `lineage`):
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shutil
 import tempfile
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -41,6 +43,69 @@ UUID_NAMESPACE = uuid.UUID("6f1d3c1e-6c55-4c5e-9a43-6e6f76617269")
 
 class PromotionError(RuntimeError):
     pass
+
+
+class LifecycleIncomplete(PromotionError):
+    """The registry changed but its completion entry could not be written; the next lifecycle command records it."""
+
+
+# ------------------------------------------------------------------------------------------------ coordination (R06/R07)
+@contextmanager
+def lifecycle_lock(directory: Path) -> Iterator[None]:
+    """One lifecycle operation at a time: a second one fails instead of racing on the registry."""
+    lock = directory / ".lifecycle.lock"
+    try:
+        fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        raise PromotionError(f"another lifecycle operation is running (delete {lock} only if none is)") from None
+    try:
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        yield
+    finally:
+        lock.unlink(missing_ok=True)
+
+
+def _registry_matches(registry: dict[str, Any], plan: dict[str, Any]) -> bool:
+    if plan["operation"] == "reject":
+        return any(m["version"] == plan["candidate"] and m["status"] == "rejected" for m in registry["models"])
+    return registry["production_version"] == plan["production"]
+
+
+def reconcile(log: LifecycleLog, registry_file: Path, actor: str) -> str | None:
+    """Close an operation interrupted between its intent and its completion entry, by the registry's ACTUAL state:
+    completed if the registry shows the planned change, aborted if it does not. Returns what was recorded, if anything."""
+    entries = log.verify()
+    if not entries or entries[-1]["event"] != "intent":
+        return None
+    intent = entries[-1]
+    plan = intent["details"]
+    if _registry_matches(read_registry(registry_file), plan):
+        log.append(plan["operation"], actor, {**plan["completion"], "intent_seq": intent["seq"], "recovered": True})
+        return f"{plan['operation']} recorded as completed (recovered)"
+    log.append("aborted", actor, {"operation": plan["operation"], "intent_seq": intent["seq"],
+                                  "reason": "interrupted before the registry changed"})
+    return f"{plan['operation']} recorded as aborted (recovered)"
+
+
+def _apply(log: LifecycleLog, registry_file: Path, actor: str, plan: dict[str, Any], new_registry: dict[str, Any],
+           completion: dict[str, Any]) -> None:
+    """intent → atomic registry write → completion. The intent append validates the actor and the log chain before
+    anything changes; any later interruption is resolved by reconcile() from the registry's actual state."""
+    intent = log.append("intent", actor, {**plan, "completion": completion})
+    try:
+        write_registry(registry_file, new_registry)
+    except Exception:
+        # Best effort: if this append fails too, the next command's reconcile() records the abort instead.
+        with contextlib.suppress(Exception):
+            log.append("aborted", actor, {"operation": plan["operation"], "intent_seq": intent["seq"],
+                                          "reason": "registry write failed; nothing changed"})
+        raise
+    try:
+        log.append(plan["operation"], actor, {**completion, "intent_seq": intent["seq"]})
+    except Exception as exc:
+        raise LifecycleIncomplete(f"the registry now reflects the {plan['operation']}, but its completion entry could not "
+                                  f"be written ({exc}); the next lifecycle command records it") from exc
 
 
 # ------------------------------------------------------------------------------------------------ registry helpers
@@ -99,21 +164,31 @@ def _gate_doc(root: Path, cand: dict[str, Any], log: LifecycleLog) -> dict[str, 
 
 
 def reject(*, root: Path, registry_file: Path, log: LifecycleLog, version: str, actor: str, reason: str) -> None:
-    registry = read_registry(registry_file)
-    cand = entry(registry, version)
-    if cand["status"] != "candidate":
-        raise PromotionError(f"{version} is {cand['status']}, not a candidate")
-    doc = _gate_doc(root, cand, log)
-    registry["models"] = [{**m, "status": "rejected"} if m["version"] == version else m for m in registry["models"]]
-    write_registry(registry_file, registry)
-    log.append("reject", actor, {"candidate": version, "gate_status": doc["report"]["gate_status"],
-                                 "gate_report_sha256": doc["gate_report_sha256"], "reason": reason,
-                                 "production": registry["production_version"]})
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        registry = read_registry(registry_file)
+        cand = entry(registry, version)
+        if cand["status"] != "candidate":
+            raise PromotionError(f"{version} is {cand['status']}, not a candidate")
+        doc = _gate_doc(root, cand, log)
+        new = {**registry, "models": [{**m, "status": "rejected"} if m["version"] == version else m
+                                      for m in registry["models"]]}
+        _apply(log, registry_file, actor, {"operation": "reject", "candidate": version}, new,
+               {"candidate": version, "gate_status": doc["report"]["gate_status"],
+                "gate_report_sha256": doc["gate_report_sha256"], "reason": reason,
+                "production": registry["production_version"]})
 
 
 def rollback(*, root: Path, registry_file: Path, log: LifecycleLog, version: str, actor: str,
              verify: Callable[[Path], tuple[dict, str, dict]]) -> None:
     """Restore a previous production bundle (whole and immutable: model, calibrator, thresholds, references...)."""
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        _rollback(root=root, registry_file=registry_file, log=log, version=version, actor=actor, verify=verify)
+
+
+def _rollback(*, root: Path, registry_file: Path, log: LifecycleLog, version: str, actor: str,
+              verify: Callable[[Path], tuple[dict, str, dict]]) -> None:
     registry = read_registry(registry_file)
     target = entry(registry, version)
     if target["status"] not in ("retired", "production"):
@@ -124,14 +199,26 @@ def rollback(*, root: Path, registry_file: Path, log: LifecycleLog, version: str
     if sha != target["artifact_manifest_sha256"]:
         raise PromotionError("bundle on disk does not match its registry entry")
     previous = registry["production_version"]
-    write_registry(registry_file, _set_production(registry, version))
-    log.append("rollback", actor, {"restored": version, "previous_production": previous,
-                                   "artifact_manifest_sha256": sha})
+    _apply(log, registry_file, actor, {"operation": "rollback", "production": version, "previous_production": previous},
+           _set_production(registry, version),
+           {"restored": version, "previous_production": previous, "artifact_manifest_sha256": sha})
 
 
 def promote(*, root: Path, registry_file: Path, log: LifecycleLog, version: str, actor: str, X: pd.DataFrame,
             Y: dict[str, pd.Series], train: TrainConfig, registry: Registry,
             verify: Callable[[Path], tuple[dict, str, dict]]) -> Path:
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        return _promote(root=root, registry_file=registry_file, log=log, version=version, actor=actor, X=X, Y=Y,
+                        train=train, registry=registry, verify=verify)
+
+
+def _promote(*, root: Path, registry_file: Path, log: LifecycleLog, version: str, actor: str, X: pd.DataFrame,
+             Y: dict[str, pd.Series], train: TrainConfig, registry: Registry,
+             verify: Callable[[Path], tuple[dict, str, dict]]) -> Path:
+    if not actor.strip():
+        raise PromotionError("every lifecycle event needs an actor (steward / approver name)")
+    log.verify()  # fail fast, before an expensive refit, on a broken log
     reg = read_registry(registry_file)
     cand = entry(reg, version)
     if cand["status"] == "replay" or "replay" in Path(cand["path"]).parts:
@@ -142,8 +229,20 @@ def promote(*, root: Path, registry_file: Path, log: LifecycleLog, version: str,
     report = doc["report"]
     if report["gate_status"] != "PASS":
         raise PromotionError(f"gate status is {report['gate_status']}; only PASS can be promoted")
+    # R06: the gate compared this challenger with ONE champion; production must still be exactly that champion.
+    production = entry(reg, reg["production_version"])
+    if (report.get("champion_version") != production["version"]
+            or report.get("champion_artifact_manifest_sha256") != production["artifact_manifest_sha256"]):
+        raise PromotionError(f"the gate compared against champion {report.get('champion_version')}, but production is "
+                             f"now {production['version']}; build and gate a new candidate against it")
+    # R05: refit only on exactly the rows the gate approved (content, count and order bound into the hashed report).
     cand_dir = root / cand["path"]
-    rows = [LearningRow(**r) for r in json.loads((cand_dir / "learning_rows.json").read_text(encoding="utf-8"))]
+    raw_rows = json.loads((cand_dir / "learning_rows.json").read_text(encoding="utf-8"))
+    if "learning_rows_sha256" not in report:
+        raise PromotionError("this gate report predates learning-row binding; build and gate the candidate again")
+    if sha256_jcs(raw_rows) != report["learning_rows_sha256"] or len(raw_rows) != report.get("learning_rows_count"):
+        raise PromotionError("learning_rows.json changed after the gate approved it; build and gate the candidate again")
+    rows = [LearningRow(**r) for r in raw_rows]
     new_frame, new_y = frame_of(rows, list(X.columns), X)
     full = pd.concat([X, new_frame])
     full_y = {t: pd.concat([Y[t], new_y[t]]) for t in TARGETS}
@@ -173,10 +272,19 @@ def promote(*, root: Path, registry_file: Path, log: LifecycleLog, version: str,
         "version": version, "status": "candidate", "created_at": manifest["created_at"], "training_cases": len(full),
         "gate_status": "PASS", "gate_report_sha256": doc["gate_report_sha256"], "artifact_manifest_sha256": sha,
         "path": str(out.relative_to(root)).replace("\\", "/"), "candidate_path": cand["path"]}]
-    write_registry(registry_file, _set_production(reg, version))
-    log.append("promote", actor, {"candidate": version, "previous_production": parent_version,
-                                  "gate_report_sha256": doc["gate_report_sha256"], "artifact_manifest_sha256": sha,
-                                  "config_ids": {t: report["frozen_configs"][t]["config_id"] for t in TARGETS}})
+    try:
+        _apply(log, registry_file, actor, {"operation": "promote", "production": version,
+                                           "previous_production": parent_version},
+               _set_production(reg, version),
+               {"candidate": version, "previous_production": parent_version,
+                "gate_report_sha256": doc["gate_report_sha256"], "artifact_manifest_sha256": sha,
+                "config_ids": {t: report["frozen_configs"][t]["config_id"] for t in TARGETS}})
+    except LifecycleIncomplete:
+        raise  # production switched: the new bundle is in use and must stay
+    except Exception:
+        if read_registry(registry_file)["production_version"] != version:
+            shutil.rmtree(out, ignore_errors=True)  # nothing switched to it: no orphan bundle blocks a retry
+        raise
     return out
 
 

@@ -53,3 +53,32 @@ test("backend dies mid-session: 'Switch to offline demo' recovers the dataset fl
   await expect(page.getByTestId("run-mode")).toHaveText("OFFLINE DEMO");
   await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD); // the open patient reloads from the bundle
 });
+
+test("audit R03: a patient file that differs from its recorded hash is refused, the others still load", async ({ page }) => {
+  await page.route("**/api/v1/**", (route) => route.abort());
+  await page.route("**/demo_bundle/patients/ZAS-0003.json", async (route) => {
+    const doc = await (await route.fetch()).json();
+    doc.bundle.targets.cad.probability = 0.01; // altered prediction; the index is untouched
+    await route.fulfill({ json: doc });
+  });
+  await page.goto("/?page=library");
+  await expect(page.getByTestId("run-mode")).toHaveText("OFFLINE DEMO", FIRST_LOAD);
+  await page.getByTestId("patient-ZAS-0003").click();
+  await expect(page.getByRole("alert")).toContainText("Analysis unavailable", FIRST_LOAD);
+  await expect(page.getByTestId("card-cad")).toHaveCount(0); // never shown as a normal result
+  await page.getByTestId("page-library").click();
+  await page.getByTestId("patient-ZAS-0004").click();
+  await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD); // untampered files still verify
+});
+
+test("audit R03: a static file that differs from its recorded hash is refused", async ({ page }) => {
+  await page.route("**/api/v1/**", (route) => route.abort());
+  await page.route("**/demo_bundle/meta.json", async (route) => {
+    const doc = await (await route.fetch()).json();
+    doc.model_version = "9.9.9";
+    await route.fulfill({ json: doc });
+  });
+  await page.goto("/");
+  await expect(page.getByRole("alert")).toContainText("Backend unreachable or not ready", FIRST_LOAD);
+  await expect(page.getByTestId("home-new-case")).toHaveCount(0);
+});

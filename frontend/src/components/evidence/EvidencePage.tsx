@@ -5,6 +5,7 @@ import { useState } from "react";
 import { TARGET_IDS, api, type Schemas, type TargetId } from "../../api/client";
 import { SHORT } from "../wording";
 import { ClinicalBenchmark } from "./ClinicalBenchmark";
+import { EvidenceIdentityNote, useBoundEvidence } from "./boundEvidence";
 import { LineChart } from "./LineChart";
 
 const C = { primary: "#2a78d6", second: "#1baf7a", third: "#eda100" }; // validated (dataviz validator, light)
@@ -78,7 +79,7 @@ function Takeaway({ rows, families }: { rows: Schemas["Table1Row"][]; families?:
   return (
     <p className="rounded-lg bg-sky-50 px-4 py-3 text-sm font-medium text-slate-800" data-testid="metrics-takeaway">
       {similar
-        ? `All model types perform about the same here (ROC-AUC ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)}, a gap smaller than the fold-to-fold spread).`
+        ? `The model types' mean ROC-AUC values are close here (${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)}, a gap smaller than the fold-to-fold spread). This is not a test of equivalence.`
         : `ROC-AUC ranges ${Math.min(...aucs).toFixed(2)}–${Math.max(...aucs).toFixed(2)} across model types.`}
       {top && ` The selection rule picked ${FAMILY[top[0]] ?? top[0]} in ${top[1]} of ${total} folds: the simplest model that does as well.`}
     </p>
@@ -137,8 +138,69 @@ function MetricsTable({ rows, target }: { rows: Schemas["Table1Row"][]; target: 
   );
 }
 
+interface TierRow {
+  target: string; pct_high_positive: number; ppv: number | null; ppv_ci?: number[] | null; pct_high_negative: number;
+  npv: number | null; npv_ci?: number[] | null; pct_low_confidence: number; n_high_positive?: number; fp_high_positive?: number;
+}
+
+function TierTable({ rows, target, testId }: { rows: TierRow[]; target: TargetId; testId: string }) {
+  return (
+    <table className="mt-3 w-full tabular-nums" data-testid={testId}>
+      <thead className="text-left text-xs font-bold uppercase tracking-wide text-slate-600">
+        <tr><th className="py-2">Target</th><th>High support, positive</th><th>PPV [95% CI]</th><th>High support, negative</th>
+          <th>NPV [95% CI]</th><th>Outside qualified range</th></tr>
+      </thead>
+      <tbody className="text-sm">
+        {rows.map((r) => (
+          <tr key={r.target} className={`border-t border-slate-200 ${r.target === target ? "bg-sky-50 font-semibold" : ""}`}>
+            <td className="py-2.5 font-semibold">{SHORT[r.target as TargetId]}</td>
+            <td>{p100(r.pct_high_positive)}{r.n_high_positive != null && <span className="text-xs text-slate-500"> ({r.n_high_positive}/303)</span>}</td>
+            <td>{p100(r.ppv)}{r.ppv_ci && <span className="text-xs text-slate-500"> [{p100(r.ppv_ci[0])}–{p100(r.ppv_ci[1])}]</span>}</td>
+            <td>{p100(r.pct_high_negative)}</td>
+            <td>{p100(r.npv)}{r.npv_ci && <span className="text-xs text-slate-500"> [{p100(r.npv_ci[0])}–{p100(r.npv_ci[1])}]</span>}</td>
+            <td>{p100(r.pct_low_confidence)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/** Two scopes, never mixed (audit R08): what users are shown, and the threshold regions before the display gates. */
+function ConfidenceTiers({ table2, target }: { table2: TierRow[]; target: TargetId }) {
+  const shown = useBoundEvidence<{ targets: Record<string, TierRow> }>("displayed_tiers");
+  const displayedRows = shown.data ? TARGET_IDS.map((t) => ({ ...shown.data!.targets[t]!, target: t })) : null;
+  return (
+    <div className="space-y-4">
+      <section className="rounded-lg border border-slate-200 bg-white p-4" aria-label="Confidence tiers as displayed">
+        <h2 className="text-base font-bold text-slate-900">Table 2b · confidence as displayed to users</h2>
+        <p className="mt-0.5 text-sm text-slate-600">
+          served out-of-fold analyses, after every display gate (input quality, atypical profile, stability) ·
+          patient-level bootstrap 95% CI
+        </p>
+        <EvidenceIdentityNote identity={shown.identity} activeModel={shown.activeModel} mock={shown.mock} current={shown.current} />
+        {displayedRows ? <TierTable rows={displayedRows} target={target} testId="tiers-displayed" />
+          : <p className="mt-2 text-sm text-slate-600">{shown.error ? "Displayed-tier evidence unavailable." : "Loading…"}</p>}
+      </section>
+      <section className="rounded-lg border border-slate-200 bg-white p-4" aria-label="Threshold-region tiers">
+        <h2 className="text-base font-bold text-slate-900"
+            title="Pooled OOF (prespecified repeat), patient-level bootstrap 95% CI. A region qualifies only if the Wilson lower bound meets the pre-registered PPV ≥ 90% / NPV ≥ 95% (targets never moved).">
+          Table 2 · threshold regions, before the display gates <span className="font-normal text-slate-500">ⓘ</span>
+        </h2>
+        <p className="mt-0.5 text-sm text-slate-600">pooled OOF (prespecified repeat) · where a score met the pre-registered target</p>
+        <TierTable rows={table2} target={target} testId="tiers-threshold" />
+      </section>
+      <p className="text-sm text-slate-700">
+        Every patient gets a prediction. High support means the score lies in a range that met the pre-registered PPV ≥ 90%
+        / NPV ≥ 95% target in internal evaluation on this cohort (not clinical validation). The display gates then move
+        some of those patients outside, so fewer are shown with high support than fall in the threshold regions.
+      </p>
+    </div>
+  );
+}
+
 function Forest({ rows, selected, onSelect }: {
-  rows: { target: TargetId; mean: number; sd: number }[]; selected: TargetId; onSelect: (t: TargetId) => void;
+  rows: { target: TargetId; mean: number | null; sd: number | null }[]; selected: TargetId; onSelect: (t: TargetId) => void;
 }) {
   const W = 560;
   const rowH = 30;
@@ -170,11 +232,14 @@ function Forest({ rows, selected, onSelect }: {
               <text x={8} y={cy + 4} className={`text-[12px] ${active ? "fill-slate-900 font-semibold" : "fill-slate-700"}`}>
                 {SHORT[r.target]}
               </text>
-              <line x1={x(Math.max(0.5, r.mean - r.sd))} x2={x(Math.min(1, r.mean + r.sd))} y1={cy} y2={cy}
-                    stroke={C.primary} strokeWidth="2" strokeLinecap="round" />
-              <circle cx={x(r.mean)} cy={cy} r="5" fill={C.primary} stroke="#fff" strokeWidth="2" />
-              <text x={W - right + 8} y={cy + 4} className="fill-slate-700 text-[11px] tabular-nums">
-                {r.mean.toFixed(2)} ± {r.sd.toFixed(2)}
+              {r.mean !== null && r.sd !== null && (
+                <line x1={x(Math.max(0.5, r.mean - r.sd))} x2={x(Math.min(1, r.mean + r.sd))} y1={cy} y2={cy}
+                      stroke={C.primary} strokeWidth="2" strokeLinecap="round" />
+              )}
+              {r.mean !== null && <circle cx={x(r.mean)} cy={cy} r="5" fill={C.primary} stroke="#fff" strokeWidth="2" />}
+              <text x={W - right + 8} y={cy + 4} className="fill-slate-700 text-[11px] tabular-nums"
+                    data-testid={`forest-value-${r.target}`}>
+                {r.mean === null ? "N/A" : `${r.mean.toFixed(2)}${r.sd === null ? "" : ` ± ${r.sd.toFixed(2)}`}`}
               </text>
             </g>
           );
@@ -200,7 +265,8 @@ export function EvidencePage() {
   const figures = ((ev.figures ?? {}) as Record<string, Figures>)[target] ?? {};
   const forest = TARGET_IDS.map((t) => {
     const row = ev.table1.find((r) => r.target === t && r.model === "nested_cv_selected");
-    return { target: t, mean: row?.metrics.roc_auc?.mean ?? 0.5, sd: row?.metrics.roc_auc?.sd ?? 0 };
+    // Absent stays absent (audit R11): never a plausible default for a scientific measurement.
+    return { target: t, mean: row?.metrics.roc_auc?.mean ?? null, sd: row?.metrics.roc_auc?.sd ?? null };
   });
   const t1 = ev.table1.filter((r) => r.target === target);
   const thr = figures.deployed_thresholds;
@@ -273,36 +339,7 @@ export function EvidencePage() {
         </div>
       )}
 
-      {section === "confidence" && (
-        <section className="rounded-lg border border-slate-200 bg-white p-4" aria-label="Confidence tiers">
-          <h2 className="text-base font-bold text-slate-900"
-              title="Pooled OOF (prespecified repeat), patient-level bootstrap 95% CI. A region qualifies only if the Wilson lower bound meets the pre-registered PPV ≥ 90% / NPV ≥ 95% (targets never moved).">
-            Table 2 · confidence tiers <span className="font-normal text-slate-500">ⓘ</span>
-          </h2>
-          <p className="mt-0.5 text-sm text-slate-600">pooled OOF (prespecified repeat) · share of patients in each tier</p>
-          <table className="mt-3 w-full tabular-nums">
-            <thead className="text-left text-xs font-bold uppercase tracking-wide text-slate-600">
-              <tr><th className="py-2">Target</th><th>Validated positive</th><th>PPV [95% CI]</th><th>Validated negative</th><th>NPV [95% CI]</th><th>Standard</th></tr>
-            </thead>
-            <tbody className="text-sm">
-              {ev.table2.map((r) => (
-                <tr key={r.target} className={`border-t border-slate-200 ${r.target === target ? "bg-sky-50 font-semibold" : ""}`}>
-                  <td className="py-2.5 font-semibold">{SHORT[r.target as TargetId]}</td>
-                  <td>{p100(r.pct_high_positive)}</td>
-                  <td>{p100(r.ppv)}{r.ppv_ci && <span className="text-xs text-slate-500"> [{p100(r.ppv_ci[0])}–{p100(r.ppv_ci[1])}]</span>}</td>
-                  <td>{p100(r.pct_high_negative)}</td>
-                  <td>{p100(r.npv)}{r.npv_ci && <span className="text-xs text-slate-500"> [{p100(r.npv_ci[0])}–{p100(r.npv_ci[1])}]</span>}</td>
-                  <td>{p100(r.pct_low_confidence)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="mt-3 text-sm text-slate-700">
-            Every patient gets a prediction. A validated range met the pre-registered PPV ≥ 90% / NPV ≥ 95% target;
-            a standard prediction lies outside those ranges, so no extra PPV/NPV is quoted for it.
-          </p>
-        </section>
-      )}
+      {section === "confidence" && <ConfidenceTiers table2={ev.table2} target={target} />}
 
       {section === "curves" && (figures.roc && figures.pr && figures.reliability ? (
         <div className="grid gap-4 md:grid-cols-2" data-testid="evidence-figures">

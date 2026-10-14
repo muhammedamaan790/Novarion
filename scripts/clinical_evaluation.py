@@ -230,9 +230,11 @@ def main() -> None:
     out["decision_curves"] = dca
     out["patients_without_chest_pain"] = [patient_id(int(i)) for i in ids[~c]]
     (ROOT / "results" / "clinical_evaluation.json").write_text(json.dumps(out, indent=1), encoding="utf-8")
-    shipped = ROOT / "frontend" / "public" / "evidence" / "clinical_evaluation.json"  # Model Evidence page (static)
-    shipped.parent.mkdir(parents=True, exist_ok=True)
-    shipped.write_text(json.dumps(out), encoding="utf-8")
+    # The Model Evidence page's static copy is published bound to the model it describes (audit R09).
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from publish_evidence import publish
+
+    publish()
 
     cb = out["clinical_baseline"]
     for name in ("novarion_vs_published_df", "novarion_vs_df_inputs_refit"):

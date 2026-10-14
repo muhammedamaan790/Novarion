@@ -349,7 +349,9 @@ def test_cli_verify_candidate_promote_rollback_end_to_end(data, tmp_path):
     assert hashlib.sha256((ROOT / "results" / "metrics.json").read_bytes()).hexdigest() == metrics_before
 
     events = [e["event"] for e in paths.log.verify()]
-    assert events == ["verify_outcomes", "candidate", "reject", "candidate", "promote", "rollback"]
+    # every registry change is journalled: intent before it, the operation's own event after it (audit R07)
+    assert events == ["verify_outcomes", "candidate", "intent", "reject", "candidate", "intent", "promote", "intent",
+                      "rollback"]
     lines = paths.log.path.read_text().splitlines()
     lines[2] = lines[2].replace('"demo"', '"edited"')
     paths.log.path.write_text("\n".join(lines) + "\n")

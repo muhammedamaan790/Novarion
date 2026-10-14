@@ -349,14 +349,27 @@ def test_rate_limit_returns_the_envelope_and_spares_health_checks(body):
     assert c.get("/api/v1/health/ready").status_code == 200  # never throttled
 
 
-def test_proxy_header_is_trusted_only_when_configured(body):
+def test_proxy_header_is_trusted_only_from_a_trusted_proxy(body):
     tight = {"mock": True, "rate_limit_per_minute": 60, "rate_limit_burst": 1}
     spoofed = TestClient(create_app(Settings(**tight)))
     assert post(spoofed, "/predict", body, headers={"X-Real-IP": "1.1.1.1"}).status_code == 200
     assert post(spoofed, "/predict", body, headers={"X-Real-IP": "2.2.2.2"}).status_code == 429  # header ignored
-    proxied = TestClient(create_app(Settings(**tight, trust_proxy=True)))
+    behind_nginx = Settings(**tight, trust_proxy=True, trusted_proxies=("172.16.0.0/12",))
+    proxied = TestClient(create_app(behind_nginx), client=("172.18.0.5", 50000))  # our nginx container
     assert post(proxied, "/predict", body, headers={"X-Real-IP": "1.1.1.1"}).status_code == 200
     assert post(proxied, "/predict", body, headers={"X-Real-IP": "2.2.2.2"}).status_code == 200  # separate buckets
+
+
+def test_a_direct_caller_cannot_choose_its_rate_limit_identity(body):
+    """Audit R17: forged X-Real-IP values from an untrusted peer all share that peer's bucket ([200, 429, 429, 429])."""
+    tight = {"mock": True, "rate_limit_per_minute": 60, "rate_limit_burst": 1}
+    behind_nginx = Settings(**tight, trust_proxy=True, trusted_proxies=("172.16.0.0/12",))
+    direct = TestClient(create_app(behind_nginx), client=("203.0.113.9", 50000))
+    codes = [post(direct, "/predict", body, headers={"X-Real-IP": f"10.0.0.{i}"}).status_code for i in range(4)]
+    assert codes == [200, 429, 429, 429]
+    no_list = TestClient(create_app(Settings(**tight, trust_proxy=True)), client=("172.18.0.5", 50000))
+    assert [post(no_list, "/predict", body, headers={"X-Real-IP": f"10.0.1.{i}"}).status_code
+            for i in range(2)] == [200, 429]  # trust without an allowlist trusts nobody
 
 
 def test_promote_route_is_local_only_token_gated_and_wraps_the_cli():

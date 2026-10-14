@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Meta } from "../api/client";
 import { activeOutcomes, addOutcome, caseStatus, exportLearningPackage, outcomeBlocker, type OutcomeInput } from "./caseStore";
 import { db, type CaseRecord } from "./db";
+import { completeAnalysis } from "./testFixtures";
 
 const PACKAGE_FIELDS = ["kind", "package_schema_version", "records"];
 const RECORD_FIELDS = ["case_source", "learning_record_id", "outcomes"];
@@ -18,14 +19,14 @@ const meta = {
 } as unknown as Meta;
 
 function makeCase(id: string, source: CaseRecord["source"], inputs: Record<string, unknown>): CaseRecord {
-  const analysis = { analysis_id: `a-${id}`, model_version: "1.0.1", stored_at: "2026-10-07T00:00:00Z" };
+  const analysis = completeAnalysis(`a-${id}`, "1.0.1");
   return {
-    case_id: id, number: Number(id.replace(/\D/g, "")) || 1, display_id: `CASE-2026-${id}`, case_schema_version: "1.0.0",
+    case_id: id, number: Number(id.replace(/\D/g, "")) || 1, display_id: `CASE-2026-${id.padStart(4, "0")}`, case_schema_version: "1.0.0",
     created_at: "2026-10-07T00:00:00Z", updated_at: "2026-10-07T00:00:00Z", source,
     dataset_patient_id: source === "dataset" ? "ZAS-0001" : null,
     scenarios: [{ scenario_id: `s-${id}`, kind: "original", parent_scenario_id: null, state: "FROZEN", input_snapshot: inputs,
                   unit_status: {}, input_sha256: "a".repeat(64), current_analysis_id: `a-${id}`,
-                  analyses: [analysis as never], created_at: "2026-10-07T00:00:00Z" }],
+                  analyses: [analysis], created_at: "2026-10-07T00:00:00Z" }],
     reviews: [{ review_id: "r", scenario_id: `s-${id}`, analysis_id: `a-${id}`, note: "private note", limitations: [],
                 created_at: "2026-10-07T00:00:00Z" }],
     snapshots: [],

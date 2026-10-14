@@ -75,7 +75,7 @@ function surfaceAnchor(mesh: THREE.Mesh): THREE.Vector3 {
   return best;
 }
 
-/** MeshStandardMaterial + an optional faint stripe pattern (standard confidence, plan §9.3, D-024) driven by `uHatch`. */
+/** MeshStandardMaterial + an optional faint stripe pattern (outside the qualified ranges, plan §9.3, D-024) driven by `uHatch`. */
 function makeMaterial(): THREE.MeshStandardMaterial {
   const material = new THREE.MeshStandardMaterial({ roughness: 0.6, metalness: 0.0, transparent: true });
   const uniforms = { uHatch: { value: 0 } };

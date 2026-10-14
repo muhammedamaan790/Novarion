@@ -25,7 +25,7 @@ function Legend({ map }: { map: AnatomyMap }) {
       ))}
       <div className="mt-0.5 flex items-center gap-1.5">
         <span className="h-2.5 w-20 border border-dashed border-slate-500 bg-[repeating-linear-gradient(45deg,#cbd5e1_0_3px,#ffffff_3px_6px)]" />
-        standard confidence (lighter, faint stripes)
+        outside qualified range (lighter, faint stripes)
       </div>
     </div>
   );

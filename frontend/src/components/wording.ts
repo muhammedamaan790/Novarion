@@ -44,18 +44,29 @@ export const TOOLTIPS = {
   vessel:
     "Predicted probability of the dataset-defined stenosis label for this vessel. Location within the vessel is not known.",
   confidence:
-    "VALIDATED HIGH CONFIDENCE: the score lies in a range that met the pre-registered PPV ≥ 90% / NPV ≥ 95% target in " +
-    "testing. STANDARD CONFIDENCE: a normal model prediction outside those ranges, so no extra reliability figure is " +
-    "quoted. Both reflect validation in this dataset/cohort, not clinical certainty.",
+    "HIGH SUPPORT · INTERNAL EVALUATION: the score lies in a range that met the pre-registered PPV ≥ 90% / NPV ≥ 95% " +
+    "target in internal (cross-validated) evaluation on this one cohort. It is not clinical validation. OUTSIDE " +
+    "QUALIFIED RANGE: an ordinary model prediction outside those ranges, or downgraded by an input or stability check; " +
+    "no range-specific PPV/NPV is quoted for it.",
   legend:
     "Colour family = predicted class; colour depth = how far the probability is from the decision threshold. " +
     "The probability is shown as a number.",
   how: "Which measured input groups were associated with the model output for this target.",
 };
 
-// D-024: the two confidence tiers, named by what they mean. The API values stay "high" / "low".
-export const CONFIDENCE_LABEL = { high: "VALIDATED HIGH CONFIDENCE", low: "STANDARD CONFIDENCE" } as const;
-export const CONFIDENCE_SHORT = { high: "VALIDATED", low: "STANDARD" } as const;
+// The two confidence tiers, named by what they establish (D-024, reworded per audit R12: internal evaluation, never
+// "validated"). The API values stay "high" / "low".
+export const CONFIDENCE_LABEL = { high: "HIGH SUPPORT · INTERNAL EVALUATION", low: "OUTSIDE QUALIFIED RANGE" } as const;
+export const CONFIDENCE_SHORT = { high: "HIGH SUPPORT", low: "OUTSIDE RANGE" } as const;
+/** Every downgrade reason, short enough to stay visible on a collapsed card (audit R12). */
+export const REASON_SHORT: Record<string, string> = {
+  unknown_input: "an input is UNKNOWN",
+  atypical_profile: "atypical profile",
+  unstable: "unstable near the threshold",
+  gray_zone: "near the threshold",
+  no_validation_evidence: "no held-out evidence",
+  no_qualified_region: "no qualified range for this target",
+};
 
 export const MODE_BADGE: Record<string, string> = {
   oof: "OOF VALIDATION",

@@ -57,9 +57,30 @@ def max_numeric_diff(a, b, path: str = "") -> tuple[float, list[str]]:
         return worst, issues
     if isinstance(a, bool) or isinstance(b, bool) or not isinstance(a, int | float) or not isinstance(b, int | float):
         return 0.0, ([] if a == b else [f"{path}: {a!r} vs {b!r}"])
-    if a is None or b is None or (math.isnan(a) and math.isnan(b)):
-        return 0.0, []
-    return abs(a - b), []
+    # Non-finite values match only themselves (audit R16): |0.8 − NaN| is NaN, which max() would silently drop.
+    fa, fb = float(a), float(b)
+    if not (math.isfinite(fa) and math.isfinite(fb)):
+        same = (math.isnan(fa) and math.isnan(fb)) or fa == fb
+        return 0.0, ([] if same else [f"{path}: {a!r} vs {b!r}"])
+    return abs(fa - fb), []
+
+
+# Outputs a reproduction must produce: a missing one is a failure, never a silently skipped check (audit R16).
+MANDATORY = ("results/split_manifest.json", "results/metrics.json", "results/stability.json", "registry/replay.json")
+
+
+def missing_outputs(here: Path, other: Path) -> list[str]:
+    return [rel for rel in MANDATORY if (here / rel).exists() and not (other / rel).exists()]
+
+
+def splits_identical(a: dict, b: dict) -> tuple[bool, list[str]]:
+    """Every outer fold's ids exactly equal (a numeric difference is a different split) and the same manifest hash."""
+    worst, issues = max_numeric_diff(a, b)
+    if worst != 0:
+        issues = [f"split ids differ (max |diff| {worst})", *issues]
+    if a.get("split_manifest_sha256") != b.get("split_manifest_sha256"):
+        issues = ["split_manifest_sha256 differs", *issues]
+    return not issues, issues
 
 
 def production_dir(base: Path) -> Path:
@@ -81,9 +102,16 @@ def main() -> int:
     configs = sorted(p.name for p in (ROOT / "config").iterdir() if p.suffix in {".yaml", ".json"})
     differing = [n for n in configs if text_sha256(ROOT / "config" / n) != text_sha256(other / "config" / n)]
     check("config files (identical modulo line endings)", not differing, f"{len(configs)} files; differing {differing}")
+    absent = missing_outputs(ROOT, other)
+    check("every expected output present", not absent, f"missing on the other side: {absent}")
+    if absent:  # the remaining checks would read the missing files
+        (ROOT / "results" / "reproduction.json").write_text(
+            json.dumps({"other": other.name, "pass": False, "checks": report}, indent=1), encoding="utf-8")
+        print("DIFFERENCES FOUND")
+        return 1
     a, b = load(ROOT, "results/split_manifest.json"), load(other, "results/split_manifest.json")
-    w, issues = max_numeric_diff(a, b)
-    check("split manifest (every outer fold)", not issues, f"{a['split_manifest_sha256'][:16]}; {issues[:3]}")
+    same, issues = splits_identical(a, b)
+    check("split manifest (every outer fold)", same, f"{a['split_manifest_sha256'][:16]}; {issues[:3]}")
     diffs = []
     for t in TARGETS:
         for f in sorted((ROOT / "results" / "nested" / t).glob("r*f*.json")):
@@ -105,7 +133,7 @@ def main() -> int:
             classes &= x["targets"][t]["predicted_class"] == y["targets"][t]["predicted_class"]
     check("golden predictions", worst <= 1e-6 and classes, f"max |dp| {worst:.2e}; classes identical: {classes}")
     for rel in ("results/stability.json", "registry/replay.json"):
-        if (other / rel).exists():
+        if (ROOT / rel).exists():  # present here => required there (checked above)
             w, issues = max_numeric_diff(load(ROOT, rel), load(other, rel))
             check(rel, w <= 1e-9 and not issues, f"max |diff| {w:.2e}; {issues[:3]}")
     if (ROOT / "results/fold_ledger_oof.json").exists():

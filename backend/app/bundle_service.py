@@ -92,7 +92,7 @@ def _thresholds(d: dict[str, Any]) -> Thresholds:
     return Thresholds(d["t_op"], d["t_neg"], d["t_pos"], q(d["qualification_negative"]), q(d["qualification_positive"]))
 
 
-def verify_bundle(bundle_dir: Path) -> tuple[dict[str, Any], str, dict[str, Any]]:
+def verify_bundle(bundle_dir: Path, release_manifest: Path | None = None) -> tuple[dict[str, Any], str, dict[str, Any]]:
     """Return (manifest, artifact_manifest_sha256, demo index) or raise IntegrityError. Never loads a partial bundle."""
     doc = json.loads((bundle_dir / "manifest.json").read_text(encoding="utf-8"))
     manifest, claimed = doc["manifest"], doc["artifact_manifest_sha256"]
@@ -117,6 +117,15 @@ def verify_bundle(bundle_dir: Path) -> tuple[dict[str, Any], str, dict[str, Any]
         raise IntegrityError("demo bundle index hash mismatch")
     if index["artifact_manifest_sha256"] != claimed:
         raise IntegrityError("demo bundle belongs to a different model bundle")
+    # A self-declared hash only detects accidental corruption. When the committed release manifest pins this model
+    # version, the index must also match the release's pin (audit R18). Hashes, not signatures.
+    release = release_manifest or ROOT / "release_manifest.json"
+    if release.exists():
+        pinned = json.loads(release.read_text(encoding="utf-8"))
+        pinned_model = pinned.get("model_version", pinned.get("release_version"))
+        if pinned_model == manifest.get("model_version") and pinned.get("demo_bundle_sha256") not in (
+                None, index_doc["demo_bundle_sha256"]):
+            raise IntegrityError("demo bundle index differs from the one pinned by the release manifest")
     for rel, expected in index["files"].items():
         path = bundle_dir / "demo_bundle" / rel
         if not path.is_file() or _sha(path) != expected:

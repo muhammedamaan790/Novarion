@@ -2,6 +2,8 @@
 
 One JSON line per event. entry_hash = SHA-256(prev_entry_hash ‖ JCS(entry without entry_hash)); the first entry
 chains from GENESIS. Editing, reordering or removing any earlier line breaks every later hash (`verify`).
+Limit (audit R20): deleting the newest lines leaves a shorter chain that still verifies. Detecting that needs the
+last entry_hash kept somewhere else (e.g. in a release note or commit); this log does not do that by itself.
 """
 
 from __future__ import annotations
@@ -16,7 +18,9 @@ from typing import Any
 import rfc8785
 
 GENESIS = "0" * 64
-EVENTS = ("verify_outcomes", "candidate", "promote", "reject", "rollback")
+# "intent" is written before a registry change and the operation's own event after it; "aborted" closes an intent
+# whose change never happened (audit R07). See promote.reconcile.
+EVENTS = ("verify_outcomes", "candidate", "promote", "reject", "rollback", "intent", "aborted")
 
 
 class LogIntegrityError(RuntimeError):

@@ -15,7 +15,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | 1a CAD classifier · 1b LAD / LCX / RCA classifiers | There is one nested-CV-selected, calibrated model per target (`scripts/train.py`, `results/metrics.json`). Deployed: LR for CAD, LAD and RCA; shallow XGBoost for LCX. | Met |
 | 1c Demographic, exam, ECG, lab and echo inputs | All 55 predictors are covered by `config/feature_registry.yaml`, with types, units, valid ranges and the UNKNOWN policy. Inputs are entered manually or imported from CSV/JSON. | Met |
 | 1d Exclude LAD/LCX/RCA/Cath from inputs | A lineage-aware denylist covers {Cath, CAD, LAD, LCX, RCA} and anything derived from them. Tested by `tests/test_leakage.py`; imports strip label columns. | Met |
-| Comparison with a traditional clinical score | Table 6: CAD AUC 0.935 vs 0.852 for the updated Diamond–Forrester pretest score (ΔAUC +0.083 [0.042, 0.127]); better calibrated; subgroups by sex and age (Table 7); TRIPOD+AI checklist (`docs/tripod_ai.md`). | Met (beyond the brief) |
+| Comparison with a traditional clinical score | Table 6: CAD AUC 0.935 vs 0.852 for the updated Diamond–Forrester pretest score (ΔAUC +0.083 [0.042, 0.127]); better calibrated than the published score, though not than the refit three-input model (audit R20); subgroups by sex and age (Table 7); TRIPOD+AI checklist (`docs/tripod_ai.md`). | Met (beyond the brief) |
 | 1e Accuracy, precision, recall, F1, ROC-AUC | Table 1 reports these as outer-fold mean ± SD over 5 × 5 nested CV, beside an always-positive baseline. PR-AUC, Brier and calibration are also reported (`results/tables.md`, Model Evidence page, report §4). | Met |
 
 ## 3D visualization
@@ -23,7 +23,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 | Brief item | Evidence | Status |
 |---|---|---|
 | 2a Interactive 3D torso/heart (React Three Fiber) | A BodyParts3D heart with named LAD/LCX/RCA/left-main nodes, plus a translucent torso and rib cage (`frontend/public/models/heart.glb`, `config/anatomy_manifest.json`). | Met |
-| 2b Vessel colour driven by predicted probability | OKLCH transfer: the colour family is the predicted class, and the depth is a monotone function of the calibrated probability with t_op as zero. Standard (LOW-tier) confidence lowers chroma and adds faint stripes (D-024). The exact probability is always shown (`frontend/src/three/colors.ts`; `config/anatomy_map.json`). | Met |
+| 2b Vessel colour driven by predicted probability | OKLCH transfer: the colour family is the predicted class, and the depth is a monotone function of the calibrated probability with t_op as zero. Predictions outside the qualified range (LOW tier) have lower chroma and faint stripes (D-024). The exact probability is always shown (`frontend/src/three/colors.ts`; `config/anatomy_map.json`). | Met |
 | 2c Rotate, zoom, select anatomical regions | Orbit and zoom, five camera presets and a whole-body view; a 3D heart page shows the anatomy on its own, with a description of each artery (D-025). Vessels and the heart can be clicked in 3D or selected from cards (one store action). The torso and ribs are deliberately not pickable, so a click can't land on context instead of a vessel (D-011). | Met |
 | Show **where** and **how** | **Where:** the predicted vessel on the heart, tinted as a whole; we never imply a lesion location. **How:** per-vessel feature contributions and group sums. The data has one visit per patient, so we show contributing factors, not progression. | Met (interpreted) |
 | Output ↔ vessel correspondence | `config/anatomy_map.json` binds each target to its node, camera and label anchor (`tests/test_anatomy.py`). | Met |
@@ -52,7 +52,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Deliverable | Evidence | Status |
 |---|---|---|
-| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~15 s; `NOVARION_API_PORT` / `NOVARION_WEB_PORT` move it off busy ports) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
+| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~15 s; the API is reached through it at /api/v1, the backend port is not published (audit R17); `NOVARION_WEB_PORT` moves it off a busy port) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
 | Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.2` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
 | ≤ 6-page documentation | `docs/report.pdf`, 4 pages, with every number read from `results/` at build time. Also `docs/model_card.md` and `docs/decisions.md`. | Met |
 | 3–10 min YouTube demo | Recorded at the end of the project, by the team. | **Open** |
@@ -73,6 +73,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 - No diagnosis, lesion localization, or test or treatment recommendation.
 - No external validation: everything is internal nested CV on one public, 303-patient, high-prevalence cohort.
-- The vessel models never reach the HIGH tier (shown as "validated high confidence"), because no region met the pre-registered PPV/NPV targets. They still give a binary call, labelled "standard confidence" with the model's tested ROC-AUC beside it (D-024).
+- The vessel models never reach the HIGH tier (shown as "high support · internal evaluation"), because no region met the pre-registered PPV/NPV targets. They still give a binary call, labelled "outside qualified range" with the model's ROC-AUC from internal evaluation beside it.
+- "High support" is internal evidence on this cohort, not clinical validation; the app and report say so (audit R12).
 - The replay study is a "historical replay · NOT temporal validation". It shows a flat learning curve for CAD, LAD and RCA and a rising one for LCX, and the gate passed in only 1 of 20 replays.
 - The learning loop is "designed for continual supervised updating". It never learns from its own predictions and never promotes a model without a person.

@@ -35,7 +35,7 @@ item wording.
 | Eligibility criteria and treatments | Partly | As published with the dataset; the participants are patients referred for angiography |
 | Data preparation and quality checks | Reported | `data/schema_report.json`, `config/feature_registry.yaml` (units, valid ranges, encodings), and leakage tests |
 | Outcome definition and how it was assessed | Reported | `config/targets.yaml`: the dataset's angiographic labels (CAD per Cath; ≥ 50% stenosis per vessel). There is no assessor blinding information |
-| Predictors: definition, measurement, timing | Reported | Feature registry. Label columns are excluded by a lineage-aware guard (`tests/test_leakage.py`) |
+| Predictors: definition, measurement, timing | Partly | Feature registry: definitions, units, valid ranges. Label columns are excluded by a lineage-aware guard (`tests/test_leakage.py`). Not established by the source: when each predictor was measured relative to angiography, and whether assessors were blinded to it. This is a reporting gap, not evidence of leakage |
 | Sample size | Partly | Fixed by the dataset (303; 216 CAD). Events per class are reported, and nested CV with bootstrap CIs makes the uncertainty explicit. No a-priori sample-size calculation |
 | Missing data | Reported | None in the source. Explicit UNKNOWN for new cases: imputed from the training fold only and forces LOW confidence |
 | Analytical methods: model types, tuning, selection | Reported | Nested CV (5 × 5 outer, 5 inner), 92 pre-registered configurations, 1-SE rule (`config/train.yaml`, report §3, D-009) |

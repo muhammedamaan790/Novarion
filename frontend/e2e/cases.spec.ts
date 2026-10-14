@@ -20,7 +20,7 @@ test("dataset case: save → review → snapshot → history → reopen offline"
   await expect(page.getByTestId("case-review-status")).toHaveText("Unreviewed");
 
   await page.getByTestId("review-open").click();
-  await expect(page.getByTestId("review-form")).toContainText("Standard confidence (outside validated ranges)"); // pre-ticked from the output
+  await expect(page.getByTestId("review-form")).toContainText("Outside qualified confidence range"); // pre-ticked from the output
   await page.getByLabel("What stood out?").fill("Typical chest pain dominates the CAD estimate; vessels all LOW.");
   await page.getByTestId("review-save").click();
   await expect(page.getByTestId("case-review-status")).toHaveText("Review recorded");

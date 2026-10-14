@@ -633,3 +633,57 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   rendered by the case heart; and axe. 64/64 E2E.
 - **Release:** part of v1.0.4 (with D-024), still serving model v1.0.2.
 
+## D-026 — Fixes from the external main-branch audit (13 October 2026, commit c9e0dcd)
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED. The fixes are on the branch `audit-fixes`, for review as a pull request.
+- **Context:** An external audit listed 20 findings (R01–R20) with acceptance criteria. Each finding was revalidated
+  against the code before changing it; all code findings reproduced. The user decided:
+  - branch + PR;
+  - separate local storage per account (R04, plan approved before implementation);
+  - the R17 plan (approved);
+  - the audit's confidence wording (R12);
+  - publishing the model release (R01) not yet.
+- **Patient-workspace integrity**
+  - R02: an async save or re-analysis now commits to the workspace that started it. The case reference is set only
+    if that workspace still shows the stored analysis, and the draft is cleared only if it is the one saved.
+  - R13: form ids are unique per workspace.
+  - R10: full runtime validation of stored and imported cases, with the reason reported.
+- **Security and privacy**
+  - R04: `novarion:<user>` stores for cases, drafts and backups. Cases from before accounts move only on click.
+    "Not encrypted" is stated in the app.
+  - R17: the backend port is no longer published, and X-Real-IP is trusted only from `NOVARION_TRUSTED_PROXIES`.
+- **Offline and evidence integrity**
+  - R03: every offline file's bytes are checked against the index or `static.json` before parsing.
+  - R18: the app build and the backend anchor the demo index to the committed release manifest's pin. These are
+    hashes, not signatures.
+  - R11: missing metrics show as N/A, never 0.50.
+  - R12: tiers read "HIGH SUPPORT · INTERNAL EVALUATION" / "OUTSIDE QUALIFIED RANGE", with every reason visible.
+  - R08: the error analysis picks examples by displayed tier, is bound to its model and is regenerated (CAD errors
+    shown HIGH: 2, reconciling with displayed_tiers). The report refuses inconsistent inputs and states both scopes:
+    44.6% at PPV 98.5% as displayed; 61.7% at PPV 94.7% in the threshold regions. The Confidence tab shows both.
+  - R09: `scripts/publish_evidence.py` stamps the static evidence with its model, and the page labels a mismatch
+    (or the mock) as historical.
+- **Lifecycle and regeneration safety**
+  - R05: promotion is bound to the hash of the exact gated learning rows.
+  - R06: promotion is bound to the gated champion's version and digest.
+  - R07: lifecycle changes take a lock and are journalled (intent → registry → completion); `reconcile()` resolves
+    an interruption from the registry's actual state.
+  - R14: the cache key covers the training code and training-library versions. The stored results were re-stamped
+    only after proving, via git, identity with 9955a69, the reproduced commit.
+  - R15: stability intervals are bound to their fits.
+  - R16: the reproduction comparison fails on non-finite mismatches, split-id differences and missing outputs.
+  - R19: bundles are built in staging, verified, then moved into place; registered versions are never rebuilt.
+- **Claims (R20):**
+  - Calibration is better than the published score, not than the refit three-input model.
+  - Close mean AUCs are "not a test of equivalence".
+  - TRIPOD predictor timing and blinding are marked "Partly".
+  - The log truncation limit is stated.
+  - The figures use the displayed scope. This corrects the earlier "6 in 10" in the demo notes.
+- **Not done here:**
+  - R01, publishing the real-model bundle: the user decided "not yet". Until it is published, a fresh clone needs
+    `make reproduce` to serve real predictions, and green CI covers code and mock flows only.
+  - The suggested enhancements (failure-case explorer, evidence receipt, staged comparator, usability study).
+- **Release:** the UI, offline-integrity and lifecycle behaviour changed, so after review and merge this is release
+  v1.0.5, still model v1.0.2.
+
