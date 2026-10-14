@@ -8,6 +8,7 @@ frontend verifies before use. Usage: uv run --group inference python scripts/exp
 
 from __future__ import annotations
 
+import hashlib
 import json
 import shutil
 import sys
@@ -34,6 +35,15 @@ def main() -> None:
     (OUT / "models.json").write_text(service.models().model_dump_json(), encoding="utf-8")  # Model Center, read-only
     if (ROOT / "registry" / "replay.json").exists():
         (OUT / "replay.json").write_text(service.replay().model_dump_json(), encoding="utf-8")
+    # The files added here are not in the bundle's index: list their byte hashes, bound to that index (audit R03).
+    import rfc8785
+
+    index_sha = json.loads((OUT / "index.json").read_text(encoding="utf-8"))["demo_bundle_sha256"]
+    files = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(OUT.glob("*.json"))
+             if p.name not in {"index.json", "static.json"}}
+    body = {"index_sha256": index_sha, "files": files}
+    (OUT / "static.json").write_text(json.dumps({**body, "static_sha256": hashlib.sha256(rfc8785.dumps(body)).hexdigest()},
+                                                indent=1) + "\n", encoding="utf-8", newline="\n")
     size = sum(p.stat().st_size for p in OUT.rglob("*") if p.is_file())
     index = json.loads((OUT / "index.json").read_text(encoding="utf-8"))
     print(f"offline demo bundle -> {OUT.relative_to(ROOT)}: model v{index['index']['model_version']}, "

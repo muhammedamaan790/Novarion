@@ -6,6 +6,7 @@ RUN npm ci
 COPY frontend/ ./
 COPY config /config
 COPY contracts /contracts
+COPY release_manifest.json /release_manifest.json
 RUN npm run build
 
 FROM nginx:1.27-alpine

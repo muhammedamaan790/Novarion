@@ -85,3 +85,17 @@ def test_legacy_evidence_is_withheld_without_changing_predictions(monkeypatch, s
         for evidence in result["evidence"].values():
             assert evidence["evidence_ledger"]["positive_label_rate"] is None
             assert evidence["evidence_ledger"]["n"] == 0
+
+
+def test_demo_index_must_match_the_release_pin_for_its_model(bundle, tmp_path):
+    """Audit R18: a rewritten index that re-declares its own hash is refused when the release pins another one."""
+    directory, _, _ = bundle
+    own = json.loads((directory / "demo_bundle" / "index.json").read_text(encoding="utf-8"))["demo_bundle_sha256"]
+    release = tmp_path / "release_manifest.json"
+    write(release, {"release_version": "9.9.9", "model_version": "0.1.0", "demo_bundle_sha256": "0" * 64})
+    with pytest.raises(service.IntegrityError, match="pinned by the release manifest"):
+        service.verify_bundle(directory, release)
+    write(release, {"release_version": "9.9.9", "model_version": "0.1.0", "demo_bundle_sha256": own})
+    service.verify_bundle(directory, release)  # the pinned index
+    write(release, {"release_version": "9.9.9", "model_version": "2.0.0", "demo_bundle_sha256": "0" * 64})
+    service.verify_bundle(directory, release)  # a release of another model pins nothing about this one

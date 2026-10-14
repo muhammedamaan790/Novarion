@@ -9,6 +9,7 @@ COPY ml ml
 COPY backend backend
 COPY config config
 COPY contracts contracts
+COPY release_manifest.json release_manifest.json
 ENV PYTHONPATH=/app/ml:/app/backend NOVARION_RUN_MODE=local
 EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=6 \
