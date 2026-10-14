@@ -141,7 +141,9 @@ export function ModelCenterPage() {
   const localPending = cases.data?.filter((c) => c.source !== "dataset" && c.outcomes?.length).length ?? 0;
   const m = models.data;
   return (
-    <div className="mx-auto max-w-6xl space-y-3 p-4" data-testid="model-center">
+    // relative: the charts' screen-reader tables are absolutely positioned; without a positioned ancestor here they
+    // escaped the page's scroll area and let the whole window scroll past the disclaimer.
+    <div className="relative mx-auto max-w-6xl space-y-3 p-4" data-testid="model-center">
       <section className="rounded-lg border border-slate-200 bg-white p-3">
         <h1 className="text-base font-bold text-slate-900">Model Center</h1>
         <p className="text-xs text-slate-600">

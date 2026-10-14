@@ -171,3 +171,15 @@ test("privacy: every request stays same-origin (no third-party calls, no service
   expect(foreign).toEqual([]);
   expect(await page.evaluate(async () => (await navigator.serviceWorker?.getRegistrations())?.length ?? 0)).toBe(0);
 });
+
+test("no page lets the window scroll past the disclaimer: every page scrolls inside the app", async ({ page }) => {
+  // Model Center did: its charts' absolutely positioned screen-reader tables had no positioned ancestor in the page.
+  for (const url of ["/", "/?page=library", "/?page=cases", "/?page=anatomy", "/?page=evidence", "/?page=models",
+    "/?dataset=ZAS-0003", "/?dataset=ZAS-0003&tab=why", "/?dataset=ZAS-0003&tab=risk"]) {
+    await page.goto(url);
+    await expect(page.getByTestId("disclaimer")).toBeVisible(FIRST_LOAD);
+    await page.waitForTimeout(1500); // charts and the 3D view settle
+    const overflow = await page.evaluate(() => document.scrollingElement!.scrollHeight - window.innerHeight);
+    expect(overflow, url).toBeLessThanOrEqual(1);
+  }
+});
