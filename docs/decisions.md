@@ -867,3 +867,42 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Verification:** 5 new unit tests (39 in all); a new E2E flow (ZAS-0003, a smoker with otherwise normal values,
   gets exactly one card and the education note) and axe on the tab. 77/77 E2E on the mock and on real Docker.
 
+## D-035 — A research-grade Model evidence page
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user asked for the Model evidence page to read as a medical-AI evaluation dashboard: clearer
+  charts, stated uncertainty, confidence tiers given priority, methods and limitations on the page, and exports, all
+  without changing the model, thresholds, qualification rules or splits. Charts use shadcn/ui charts on Recharts.
+- **Decision:**
+  - **Charts:** shadcn/ui's chart component (vendored in `src/components/ui/chart.tsx`, Recharts 3.8.1) for every
+    evidence chart. A shared dot-and-interval chart draws the forests (labels and values are HTML columns aligned to
+    the plot rows; on the Summary each row is a real button). The page and Recharts load lazily, so the app shell
+    stays at ~520 kB. The Model center keeps its small SVG chart.
+  - **Summary:** full-width ROC-AUC forest (fold mean ± SD, labelled as spread, never a CI) with positives per target,
+    info tips on the five cards, and a findings panel that reports only observed differences.
+  - **Performance:** a ROC-AUC dot plot for NOVARION and the four benchmarks; Table 1 right-aligned at three decimals
+    with a reading direction under each metric (↑ higher, ↓ lower, →1, →0); what "selected per fold" means.
+  - **Confidence tiers:** the qualification rules (region, display gates, every patient still predicted); cards for
+    qualified-positive coverage, PPV with its CI and correct count, qualified-negative coverage, NPV and outside
+    range; a line that reconciles the counts to the cohort (135 + 0 + 168 = 303); coverage before and after the gates
+    for every target; why analyses fall outside (overlapping reasons, said so). An empty tier's PPV/NPV reads "not
+    estimable · 0 qualified", never 0%. Counts are shown only when share × n is a whole number.
+  - **Curves:** ROC and PR in Recharts with bootstrap bands; the prevalence baseline is labelled at the left, away from
+    the curve's end; reliability bins in a table (n, observed, CI) with the outer-fold calibration slope and intercept;
+    deployed thresholds as labelled solid lines (coinciding ones merged, "t_op = t_pos"), defined with exact values,
+    and the suppressed ranges (n < 15) stated.
+  - **vs guideline score:** the ESC 2013 Diamond–Forrester table labelled historical; AUCs as point estimates (no CI
+    was computed for them) and the paired ΔAUC with its 95% CI; a subgroup AUC forest with n and CIs. The ESC 2024
+    RF-CL comparison is assessed as feasible (all inputs are recorded) but not computed, so nothing is drawn.
+  - **Methods & limitations** tab, from the model card, `config/targets.yaml` and the TRIPOD-AI checklist, with a list
+    of what this evaluation cannot show. A research-only disclaimer sits under the page header.
+  - **Exports:** CSV and JSON on every chart and table, unrounded and exactly the plotted rows.
+  - **Accessibility:** WAI-ARIA tabs (arrow keys, Home/End), focusable info tips, visible focus rings, dashed vs solid
+    lines and direct labels besides colour, and a compact layout under 560 px.
+  - **Not built (no data):** a pooled ROC operating point, average precision on pooled predictions, CIs for subgroup
+    sensitivity/specificity and for single guideline AUCs, the RF-CL comparison. Each is stated on the page instead.
+- **Verification:** `e2e/evidence.spec.ts` (12 flows: every tab × target without errors, tier reconciliation and "not
+  estimable", exports equal to the evaluation outputs, keyboard tabs and info tips, threshold labels, axe on each tab,
+  no sideways scroll at 390 px). 89/89 E2E with the real model (local servers); 88 + 1 real-only skip on the mock;
+  39 unit tests; lint and build clean.

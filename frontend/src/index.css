@@ -7,6 +7,12 @@
   --color-slate-500: oklch(0.446 0.043 257.281);
   --color-slate-600: oklch(0.372 0.044 257.287);
   --color-slate-700: oklch(0.31 0.044 265.755);
+  /* shadcn/ui tokens used by the chart components (src/components/ui/chart.tsx), mapped onto the app's slate palette */
+  --color-background: #ffffff;
+  --color-foreground: oklch(0.208 0.042 265.755);
+  --color-muted: oklch(0.968 0.007 247.896);
+  --color-muted-foreground: oklch(0.446 0.043 257.281);
+  --color-border: oklch(0.929 0.013 255.508);
 }
 
 html,
