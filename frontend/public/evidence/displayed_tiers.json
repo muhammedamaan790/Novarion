@@ -1,0 +1,139 @@
+{
+ "identity": {
+  "model_version": "1.0.2",
+  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
+  "scope": "confidence tiers as displayed after every gate: served out-of-fold analyses of this model",
+  "source": "results/displayed_tiers.json"
+ },
+ "data": {
+  "model_version": "1.0.2",
+  "n_patients": 303,
+  "scope": "served OOF analyses (prespecified repeat) after every display gate; patient-level bootstrap",
+  "targets": {
+   "cad": {
+    "pct_high_positive": 0.44554455445544555,
+    "pct_high_negative": 0.0,
+    "pct_low_confidence": 0.5544554455445545,
+    "ppv": 0.9851851851851852,
+    "npv": null,
+    "accuracy_high_confidence": 0.9851851851851852,
+    "auc": 0.9306619838229034,
+    "n": 303,
+    "n_high_positive": 135,
+    "n_high_negative": 0,
+    "ppv_ci": [
+     0.9621212121212122,
+     1.0
+    ],
+    "npv_ci": null,
+    "auc_ci": [
+     0.8994186577779977,
+     0.9567825505179035
+    ],
+    "valid_replicates": {
+     "ppv": 2000,
+     "npv": 0,
+     "auc": 2000
+    },
+    "fn_high_negative": 0,
+    "fp_high_positive": 2,
+    "low_reasons": {
+     "unstable": 63,
+     "no_qualified_region": 105,
+     "atypical_profile": 52,
+     "gray_zone": 11
+    }
+   },
+   "lad": {
+    "pct_high_positive": 0.0,
+    "pct_high_negative": 0.0,
+    "pct_low_confidence": 1.0,
+    "ppv": null,
+    "npv": null,
+    "accuracy_high_confidence": null,
+    "auc": 0.8133799659223387,
+    "n": 303,
+    "n_high_positive": 0,
+    "n_high_negative": 0,
+    "ppv_ci": null,
+    "npv_ci": null,
+    "auc_ci": [
+     0.7591767464103848,
+     0.861505030311874
+    ],
+    "valid_replicates": {
+     "ppv": 0,
+     "npv": 0,
+     "auc": 2000
+    },
+    "fn_high_negative": 0,
+    "fp_high_positive": 0,
+    "low_reasons": {
+     "no_qualified_region": 303,
+     "atypical_profile": 52,
+     "unstable": 95
+    }
+   },
+   "lcx": {
+    "pct_high_positive": 0.0,
+    "pct_high_negative": 0.0,
+    "pct_low_confidence": 1.0,
+    "ppv": null,
+    "npv": null,
+    "accuracy_high_confidence": null,
+    "auc": 0.7320515162586774,
+    "n": 303,
+    "n_high_positive": 0,
+    "n_high_negative": 0,
+    "ppv_ci": null,
+    "npv_ci": null,
+    "auc_ci": [
+     0.6752294489688411,
+     0.7867299734395599
+    ],
+    "valid_replicates": {
+     "ppv": 0,
+     "npv": 0,
+     "auc": 2000
+    },
+    "fn_high_negative": 0,
+    "fp_high_positive": 0,
+    "low_reasons": {
+     "unstable": 201,
+     "no_qualified_region": 303,
+     "atypical_profile": 52
+    }
+   },
+   "rca": {
+    "pct_high_positive": 0.0,
+    "pct_high_negative": 0.0,
+    "pct_low_confidence": 1.0,
+    "ppv": null,
+    "npv": null,
+    "accuracy_high_confidence": null,
+    "auc": 0.7315510999721525,
+    "n": 303,
+    "n_high_positive": 0,
+    "n_high_negative": 0,
+    "ppv_ci": null,
+    "npv_ci": null,
+    "auc_ci": [
+     0.6718534326600852,
+     0.7882622706314744
+    ],
+    "valid_replicates": {
+     "ppv": 0,
+     "npv": 0,
+     "auc": 2000
+    },
+    "fn_high_negative": 0,
+    "fp_high_positive": 0,
+    "low_reasons": {
+     "unstable": 158,
+     "no_qualified_region": 303,
+     "atypical_profile": 52
+    }
+   }
+  }
+ }
+}

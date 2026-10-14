@@ -1,9 +1,9 @@
 // Clinical-standard evidence (D-021): CAD against the guideline pretest score (updated Diamond–Forrester), calibration
 // beyond AUC, and subgroup performance — the reporting gaps an umbrella review of cardiovascular AI flags. Static,
 // precomputed from the frozen out-of-fold predictions (scripts/clinical_evaluation.py); works offline.
-import { useQuery } from "@tanstack/react-query";
 import type { TargetId } from "../../api/client";
 import { SHORT } from "../wording";
+import { EvidenceIdentityNote, useBoundEvidence } from "./boundEvidence";
 
 interface Compare { auc_new: number; auc_old: number; delta_auc: number; delta_auc_ci95: number[]; nri: number; idi: number }
 interface Cal { brier: number; calibration_in_the_large: number; ece: number }
@@ -22,18 +22,14 @@ const f3 = (v: number) => v.toFixed(3);
 const ci = (c: number[] | undefined) => (c ? `[${f3(c[0]!)}, ${f3(c[1]!)}]` : "");
 
 export function ClinicalBenchmark({ target }: { target: TargetId }) {
-  const q = useQuery({
-    queryKey: ["clinical-evaluation"], staleTime: Infinity, retry: false,
-    queryFn: async () => {
-      const r = await fetch("/evidence/clinical_evaluation.json");
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return (await r.json()) as ClinicalEvaluation;
-    },
-  });
-  if (!q.data) return null;
-  const cb = q.data.clinical_baseline;
-  const rows = Object.entries(q.data.subgroups[target]);
+  const ev = useBoundEvidence<ClinicalEvaluation>("clinical_evaluation");
+  if (ev.error) return <p className="text-sm text-slate-600">Clinical evaluation unavailable.</p>;
+  if (!ev.data?.clinical_baseline || !ev.data.subgroups?.[target]) return null;
+  const cb = ev.data.clinical_baseline;
+  const rows = Object.entries(ev.data.subgroups[target]);
   return (
+    <div className="space-y-3">
+    <EvidenceIdentityNote identity={ev.identity} activeModel={ev.activeModel} mock={ev.mock} current={ev.current} />
     <div className="grid gap-4 lg:grid-cols-[1fr_1fr]" data-testid="clinical-benchmark">
       <section className="rounded-lg border border-slate-200 bg-white p-3" aria-label="Versus the guideline pretest score">
         <h2 className="text-sm font-semibold text-slate-900">CAD versus the guideline pretest score</h2>
@@ -116,6 +112,7 @@ export function ClinicalBenchmark({ target }: { target: TargetId }) {
           </tbody>
         </table>
       </section>
+    </div>
     </div>
   );
 }

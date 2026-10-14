@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TARGET_IDS, api, type DisplayAnalysis, type Meta, type TargetId, type TargetPrediction } from "../api/client";
 import { vesselColor, type ColorTransfer } from "../three/colors";
 import { useStore } from "../store/useStore";
-import { CONFIDENCE_LABEL, REASON_TEXT, SHORT, TOOLTIPS, pct, predictionText, probPct, probabilityLabel, subtitle } from "./wording";
+import { CONFIDENCE_LABEL, REASON_SHORT, REASON_TEXT, SHORT, TOOLTIPS, pct, predictionText, probPct, probabilityLabel, subtitle } from "./wording";
 
 function ConfidenceBlock({ p }: { p: TargetPrediction }) {
   if (p.model_confidence === "high") {
@@ -29,7 +29,8 @@ function ConfidenceBlock({ p }: { p: TargetPrediction }) {
         {CONFIDENCE_LABEL.low}
       </span>
       <p className="mt-1 text-slate-600">
-        Outside the validated high-confidence ranges, so no extra reliability figure is quoted. Reason:{" "}
+        Outside the ranges that met the pre-registered target in internal evaluation, so no range-specific PPV/NPV
+        is quoted. Reason:{" "}
         {p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ")}.
       </p>
     </div>
@@ -61,8 +62,8 @@ function StabilityBar({ p }: { p: TargetPrediction }) {
 }
 
 const reasonsText = (p: TargetPrediction) => p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ");
-// Reasons that come from this patient's inputs stay visible when collapsed: the user can act on them.
-const INPUT_REASONS = new Set(["unknown_input", "atypical_profile"]);
+// Every downgrade reason stays visible when collapsed (audit R12): input problems, instability, a missing qualified
+// range and missing evidence are different things, and the reader should not have to open each card to tell.
 
 /** One line per target; the selected card expands to its stability and confidence detail (progressive disclosure). */
 function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; transfer: ColorTransfer }) {
@@ -70,14 +71,14 @@ function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; 
   const selectTarget = useStore((s) => s.selectTarget);
   const color = vesselColor(transfer, p.probability, p.operating_threshold, p.model_confidence === "low");
   const low = p.model_confidence === "low";
-  const actionable = low ? p.model_confidence_reasons.filter((r) => INPUT_REASONS.has(r)) : [];
-  // How good the model is, beside the tier: a validated range quotes its own measured PPV/NPV, a standard prediction
-  // the target model's out-of-sample ROC-AUC (both from validation, never from this patient).
+  const reasons = low ? p.model_confidence_reasons.map((r) => REASON_SHORT[r] ?? r) : [];
+  // How the model did, beside the tier: a high-support range quotes its own PPV/NPV from internal evaluation, any other
+  // prediction the target model's out-of-sample ROC-AUC. Both are model-level figures, never this patient's.
   const evaluation = useQuery({ queryKey: ["evaluation"], queryFn: api.evaluation, staleTime: Infinity });
   const auc = evaluation.data?.data.table1.find((r) => r.target === target && r.model === "nested_cv_selected")?.metrics.roc_auc?.mean;
   const ev = p.evaluation_context;
-  const tested = !low && ev ? `${ev.metric.toUpperCase()} ${pct(ev.value)} in this range in testing`
-    : auc != null ? `${SHORT[target]} model ROC-AUC ${auc.toFixed(2)} in testing` : null;
+  const tested = !low && ev ? `range ${ev.metric.toUpperCase()} ${pct(ev.value)} in internal evaluation`
+    : auc != null ? `${SHORT[target]} model ROC-AUC ${auc.toFixed(2)} in internal evaluation` : null;
   return (
     <button
       type="button"
@@ -111,8 +112,8 @@ function Card({ target, p, transfer }: { target: TargetId; p: TargetPrediction; 
             {CONFIDENCE_LABEL[p.model_confidence]}
           </span>
           {tested && <span className="ml-1.5 text-slate-600" data-testid={`tested-${target}`}>{tested}</span>}
-          {actionable.length > 0 && (
-            <span className="ml-1.5 text-slate-700">{actionable.map((r) => REASON_TEXT[r] ?? r).join("; ")}</span>
+          {reasons.length > 0 && (
+            <span className="ml-1.5 text-slate-700" data-testid={`reasons-${target}`}>{reasons.join(" · ")}</span>
           )}
         </p>
       )}
@@ -135,16 +136,16 @@ export function Summary({ analysis, testId = "verdict-summary" }: { analysis: Di
   const preds = TARGET_IDS.flatMap((t) => (analysis.targets[t] ? [[t, analysis.targets[t]!] as const] : []));
   const cad = analysis.targets.cad;
   const stenosed = preds.filter(([t, p]) => t !== "cad" && p.predicted_class === "positive").map(([t]) => SHORT[t]);
-  const validated = preds.filter(([, p]) => p.model_confidence === "high").map(([t]) => SHORT[t]);
+  const supported = preds.filter(([, p]) => p.model_confidence === "high").map(([t]) => SHORT[t]);
   const cadText = cad ? (cad.predicted_class === "positive" ? "CAD predicted" : "No CAD predicted") : "";
   const vesselText = stenosed.length ? `stenosis predicted in ${stenosed.join(", ")}` : "no vessel stenosis predicted";
-  const confidenceText = validated.length === preds.length ? "All predictions: validated high confidence"
-    : validated.length === 0 ? `All ${preds.length} predictions: standard confidence`
-      : `Validated high confidence: ${validated.join(", ")} · standard for the rest`;
+  const confidenceText = supported.length === preds.length ? "All predictions: high support in internal evaluation"
+    : supported.length === 0 ? `All ${preds.length} predictions: outside the qualified ranges`
+      : `High support in internal evaluation: ${supported.join(", ")} · outside the qualified ranges for the rest`;
   return (
     <div className="rounded-lg bg-slate-50 p-3" data-testid={testId}>
       <p className="text-base font-bold text-slate-900" title={TOOLTIPS.independence}>{cadText} · {vesselText}</p>
-      <p className={`mt-0.5 text-sm font-semibold ${validated.length ? "text-emerald-800" : "text-slate-700"}`} title={TOOLTIPS.confidence}>
+      <p className={`mt-0.5 text-sm font-semibold ${supported.length ? "text-emerald-800" : "text-slate-700"}`} title={TOOLTIPS.confidence}>
         {confidenceText}
       </p>
     </div>

@@ -67,7 +67,8 @@ export function AnatomyPage({ meta }: { meta: Meta }) {
           <h2 className="text-sm font-bold uppercase tracking-wide text-slate-600">When a case is open</h2>
           <p>Each artery is tinted by its prediction: warm colours for stenosis predicted, cool for none. The deeper
             the colour, the further the probability is from the decision threshold.</p>
-          <p>Validated high-confidence predictions are full colour; standard ones are lighter with faint stripes.</p>
+          <p>Predictions with high support in internal evaluation are full colour; those outside the qualified ranges are
+            lighter with faint stripes.</p>
         </div>
         <button type="button" onClick={() => useStore.getState().setPage("library")} data-testid="anatomy-to-library"
                 className="w-full rounded-lg bg-slate-900 py-2 text-sm font-bold text-white hover:bg-slate-700">

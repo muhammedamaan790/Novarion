@@ -15,12 +15,12 @@ const SOURCE_LABEL = { dataset: "Dataset (OOF)", manual: "Manual entry", import:
 
 function defaultLimitations(a: DisplayAnalysis): string[] {
   const out: string[] = [];
-  if (Object.values(a.targets).some((t) => t?.model_confidence === "low")) out.push("Standard confidence (outside validated ranges)");
+  if (Object.values(a.targets).some((t) => t?.model_confidence === "low")) out.push("Outside qualified confidence range");
   if (a.quality.atypical_profile.flag) out.push("Atypical profile");
   if ((a.quality.unknown_inputs ?? []).length) out.push("Unknown inputs (imputed, not measured)");
   return out;
 }
-const ALL_LIMITATIONS = ["Standard confidence (outside validated ranges)", "Atypical profile", "Unknown inputs (imputed, not measured)",
+const ALL_LIMITATIONS = ["Outside qualified confidence range", "Atypical profile", "Unknown inputs (imputed, not measured)",
   "Predicted-class conflict between targets", "Derived from a training record"];
 const STATUS_STYLE = { "Unreviewed": "bg-amber-100 text-amber-900", "Reviewed": "bg-emerald-100 text-emerald-800",
   "Outcome recorded": "bg-sky-100 text-sky-900" } as const;

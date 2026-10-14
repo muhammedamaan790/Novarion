@@ -54,7 +54,11 @@ def summarize_case(p: dict, rule: str, focus: str) -> dict:
 
 def main() -> None:
     patients = load_patients()
-    report: dict = {"scope": "pooled OOF predictions of the prespecified outer repeat (each patient exactly once)",
+    index = json.loads((bundle_dir() / "demo_bundle" / "index.json").read_text(encoding="utf-8"))["index"]
+    report: dict = {"scope": "pooled OOF predictions of the prespecified outer repeat (each patient exactly once), "
+                             "with the model confidence AS DISPLAYED (after every display gate)",
+                    # Bound to the bundle it was computed from (audit R08): the report refuses a mismatch.
+                    "model_version": index["model_version"], "artifact_manifest_sha256": index["artifact_manifest_sha256"],
                     "targets": {}, "representative_cases": []}
     md = ["# NOVARION error analysis", "",
           ("Scope: **pooled OOF (prespecified repeat)** — every patient predicted by a model that never saw them. "
@@ -92,10 +96,13 @@ def main() -> None:
 
     cad = lambda p: p["bundle"]["targets"]["cad"]
     rules = [
-        ("Correct, HIGH confidence (CAD): lowest id with high_positive and CAD label = 1",
-         lambda p: cad(p)["model_confidence_region"] == "high_positive" and p["truth"]["cad"] == 1, "cad"),
-        ("Error in the high-positive region (CAD): lowest id with high_positive and CAD label = 0",
-         lambda p: cad(p)["model_confidence_region"] == "high_positive" and p["truth"]["cad"] == 0, "cad"),
+        # Displayed HIGH, not merely inside the region: a gate (atypical, unstable) can downgrade a region case (audit R08).
+        ("Correct, shown with HIGH confidence (CAD): lowest id displayed HIGH positive with CAD label = 1",
+         lambda p: cad(p)["model_confidence"] == "high" and cad(p)["predicted_class"] == "positive"
+         and p["truth"]["cad"] == 1, "cad"),
+        ("Error shown with HIGH confidence (CAD): lowest id displayed HIGH positive with CAD label = 0",
+         lambda p: cad(p)["model_confidence"] == "high" and cad(p)["predicted_class"] == "positive"
+         and p["truth"]["cad"] == 0, "cad"),
         ("Near the operating threshold (LAD): smallest |p − t_op|", None, "lad"),
         ("Atypical profile: lowest id with the atypical flag", lambda p: p["bundle"]["quality"]["atypical_profile"]["flag"], "cad"),
     ]
@@ -126,8 +133,8 @@ def main() -> None:
         md += ["", f"Atypical profile: {'yes' if case['atypical']['flag'] else 'no'} "
                    f"(distance percentile {case['atypical']['distance_percentile']}). "
                    f"Top {SHORT[focus]} model contributions: " + "; ".join(case["top_contributions"]) + ".", ""]
-    (ROOT / "results" / "error_analysis.json").write_text(json.dumps(report, indent=1), encoding="utf-8")
-    (ROOT / "results" / "error_analysis.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (ROOT / "results" / "error_analysis.json").write_text(json.dumps(report, indent=1), encoding="utf-8", newline="\n")
+    (ROOT / "results" / "error_analysis.md").write_text("\n".join(md) + "\n", encoding="utf-8", newline="\n")
     print("results/error_analysis.md written")
     sys.stdout.flush()
 

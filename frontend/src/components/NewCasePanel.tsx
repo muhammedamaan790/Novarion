@@ -54,7 +54,7 @@ function Field({ f, value, onChange, idPrefix }: {
           {f.allow_unknown && (
             <button
               type="button"
-              title="Mark as UNKNOWN (imputed, forces standard confidence)"
+              title="Mark as UNKNOWN (imputed, never high support)"
               aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
               aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}

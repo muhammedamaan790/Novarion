@@ -6,6 +6,8 @@ test("Model Evidence compares CAD with the guideline pretest score and shows sub
   await page.getByTestId("evidence-section-clinical").click();
   const panel = page.getByTestId("clinical-benchmark");
   await expect(panel).toContainText("CAD versus the guideline pretest score", { timeout: 30_000 });
+  // audit R09: evidence for model 1.0.2 is labelled historical when the app is not serving that model (the mock)
+  await expect(page.getByTestId("evidence-identity-mismatch")).toHaveCount(process.env.E2E_BACKEND === "real" ? 0 : 1);
   await expect(panel).toContainText("Diamond–Forrester (published)");
   await expect(panel).toContainText("does not recommend tests or treatment");
   await page.getByTestId("evidence-lcx").click();

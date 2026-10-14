@@ -28,8 +28,9 @@ test("panel selection drives the 3D view, the cards and the Why panel", async ({
   await expect(page.getByText("OOF VALIDATION")).toBeVisible();
   for (const t of ["cad", "lad", "lcx", "rca"]) await expect(page.getByTestId(`card-${t}`)).toBeVisible();
   // each line shows its tier and how the model did in testing (D-024)
-  await expect(page.getByTestId("card-lad")).toContainText(/VALIDATED HIGH CONFIDENCE|STANDARD CONFIDENCE/);
-  if (REAL) await expect(page.getByTestId("card-lad")).toContainText(/in testing/); // the mock has no validated model row
+  await expect(page.getByTestId("card-lad")).toContainText(/HIGH SUPPORT · INTERNAL EVALUATION|OUTSIDE QUALIFIED RANGE/);
+  if (REAL) await expect(page.getByTestId("card-lad")).toContainText(/in internal evaluation/); // the mock has no selected-model row
+  if (REAL) await expect(page.getByTestId("reasons-lad")).toContainText("no qualified range for this target"); // R12: visible
   await page.waitForTimeout(800);
   await page.screenshot({ path: `${SHOTS}/1-overview.png` });
 
@@ -143,6 +144,11 @@ test("Model Evidence page shows scoped tables and figures for each target", asyn
   await expect(page.getByText(/outer-fold mean ± SD/).first()).toBeVisible();
   await page.getByTestId("evidence-section-confidence").click();
   await expect(page.getByText(/pooled OOF \(prespecified repeat\)/).first()).toBeVisible();
+  // audit R08: the two scopes are separate tables; the displayed one is bound to its model (R09)
+  await expect(page.getByTestId("tiers-displayed")).toContainText("44.6%");
+  await expect(page.getByTestId("tiers-displayed")).toContainText("98.5%");
+  if (REAL) await expect(page.getByTestId("tiers-threshold")).toContainText("61.7%"); // the mock serves its own Table 2
+  await expect(page.getByTestId("evidence-identity-mismatch")).toHaveCount(REAL ? 0 : 1); // the mock is not model 1.0.2
   await page.getByTestId("evidence-lcx").click();
   await page.getByTestId("evidence-section-performance").click();
   await expect(page.getByText("Table 1 · official metrics · LCX")).toBeVisible();
