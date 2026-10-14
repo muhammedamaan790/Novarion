@@ -4043,7 +4043,9 @@
               "candidate",
               "promote",
               "reject",
-              "rollback"
+              "rollback",
+              "intent",
+              "aborted"
             ],
             "title": "Event"
           },

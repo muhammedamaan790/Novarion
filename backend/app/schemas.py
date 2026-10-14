@@ -887,7 +887,9 @@ class LifecycleEvent(Strict):
     """One lifecycle-log entry as shown in the Model Center (the actor's name stays in the local log only)."""
     seq: StrictInt = Field(ge=0)
     timestamp: str
-    event: Literal["verify_outcomes", "candidate", "promote", "reject", "rollback"]
+    # Every event the lifecycle journal writes (novarion_ml.lifecycle.log.EVENTS; a test keeps the two equal): an
+    # "intent" precedes each registry change and is closed by the operation's own event or by "aborted" (audit N03).
+    event: Literal["verify_outcomes", "candidate", "promote", "reject", "rollback", "intent", "aborted"]
     summary: str
     entry_hash: Sha256
 

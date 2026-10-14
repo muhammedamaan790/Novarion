@@ -1072,7 +1072,7 @@ export interface components {
              * Event
              * @enum {string}
              */
-            event: "verify_outcomes" | "candidate" | "promote" | "reject" | "rollback";
+            event: "verify_outcomes" | "candidate" | "promote" | "reject" | "rollback" | "intent" | "aborted";
             /** Summary */
             summary: string;
             /** Entry Hash */

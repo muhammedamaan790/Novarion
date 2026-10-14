@@ -120,19 +120,42 @@ class UnavailableService(InferenceService):
 
 
 # ------------------------------------------------------------------------------------------------ shared logic
+def _operation_text(plan: dict[str, Any]) -> str:
+    """What an intent planned, in words (plan written by novarion_ml.lifecycle.promote._apply)."""
+    op = plan.get("operation")
+    if op == "promote":
+        return f"promotion of v{plan.get('production')} (production was v{plan.get('previous_production')})"
+    if op == "reject":
+        return f"rejection of candidate v{plan.get('candidate')}"
+    if op == "rollback":
+        return f"rollback to v{plan.get('production')} (production was v{plan.get('previous_production')})"
+    return f"{op} operation"
+
+
 def _event_summary(e: dict[str, Any]) -> str:
+    """One line per journal event. Every event type is spelled out: an unknown one is an error, never a guess."""
     d = e["details"]
-    if e["event"] == "verify_outcomes":
+    event = e["event"]
+    recovered = " (recorded on recovery after an interruption)" if d.get("recovered") else ""
+    if event == "verify_outcomes":
         c = d.get("counts", {})
         return (f"Steward verification: {c.get('verified', 0)} verified, {c.get('rejected', 0)} rejected, "
                 f"{c.get('conflicted', 0)} conflicted, {c.get('pending_no_attestation', 0)} left pending")
-    if e["event"] == "candidate":
+    if event == "candidate":
         return f"Candidate v{d.get('candidate')} gated against production v{d.get('champion')}: {d.get('gate_status')}"
-    if e["event"] == "promote":
-        return f"v{d.get('candidate')} promoted to production by a human approver (previous v{d.get('previous_production')})"
-    if e["event"] == "reject":
-        return f"Candidate v{d.get('candidate')} rejected by a human reviewer (gate {d.get('gate_status')})"
-    return f"Production restored to v{d.get('restored')} (from v{d.get('previous_production')})"
+    if event == "promote":
+        return (f"v{d.get('candidate')} promoted to production by a human approver "
+                f"(previous v{d.get('previous_production')}){recovered}")
+    if event == "reject":
+        return f"Candidate v{d.get('candidate')} rejected by a human reviewer (gate {d.get('gate_status')}){recovered}"
+    if event == "rollback":
+        return f"Production restored to v{d.get('restored')} (from v{d.get('previous_production')}){recovered}"
+    if event == "intent":
+        return f"Started: {_operation_text(d)}; a later entry records whether it completed"
+    if event == "aborted":
+        return (f"Aborted: {d.get('operation')} started in entry #{d.get('intent_seq')} ({d.get('reason')}); "
+                "the registry did not change")
+    raise ValueError(f"unknown lifecycle event {event!r}")
 
 
 def lifecycle_view(registry_dir: Path) -> dict[str, Any]:

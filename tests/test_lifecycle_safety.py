@@ -39,7 +39,8 @@ def world(tmp_path, monkeypatch):
         {"version": "1.1.0", "status": "candidate", "path": "candidates/1.1.0", "gate_report_sha256": gate_sha,
          "artifact_manifest_sha256": gate_sha}]})
     log = LifecycleLog(root / "registry" / "lifecycle_log.jsonl")
-    log.append("candidate", "steward", {"candidate": "1.1.0", "gate_report_sha256": gate_sha})
+    log.append("candidate", "steward", {"candidate": "1.1.0", "gate_status": "PASS", "gate_report_sha256": gate_sha,
+                                        "champion": "1.0.0"})  # as scripts/lifecycle.py writes it
 
     def tripwire(*_, **__):
         raise AssertionError("refit reached: the check must come first")
@@ -156,3 +157,61 @@ def test_an_interruption_before_the_registry_write_is_recorded_as_aborted(world)
                                       "completion": {"restored": "0.9.0"}})  # the process died right after this
     assert P.reconcile(log, registry_file, "next-operator") == "rollback recorded as aborted (recovered)"
     assert P.read_registry(registry_file)["production_version"] == "1.0.0"
+
+
+# ------------------------------------------------------------------- audit N03: journal events reach the Model Center
+def _view_events(registry_file):
+    from app.schemas import LifecycleEvent
+    from app.service import lifecycle_view
+
+    view = lifecycle_view(registry_file.parent)
+    return [LifecycleEvent(**e) for e in view["lifecycle_events"]]  # what /models validates
+
+
+def test_every_journal_event_is_an_api_event():
+    import typing
+
+    from app.schemas import LifecycleEvent
+    from novarion_ml.lifecycle.log import EVENTS
+
+    api_events = set(typing.get_args(LifecycleEvent.model_fields["event"].annotation))
+    assert api_events == set(EVENTS)  # the log and the API contract can never drift apart again
+
+
+def test_intent_completion_and_abort_reach_the_model_center_with_accurate_summaries(world, monkeypatch):
+    root, registry_file, log = world
+    rollback(root, registry_file, log)  # intent → rollback
+
+    def broken_write(*_):
+        raise OSError("disk full")
+
+    monkeypatch.setattr(P, "write_registry", broken_write)
+    with pytest.raises(OSError):
+        P.rollback(root=root, registry_file=registry_file, log=log, version="1.0.0", actor="approver",
+                   verify=lambda path: ({}, "a" * 64, {}))  # intent → aborted
+    events = _view_events(registry_file)  # newest first
+    kinds = [e.event for e in events]
+    assert kinds[:4] == ["aborted", "intent", "rollback", "intent"]
+    text = {e.seq: e.summary for e in events}
+    summaries = " | ".join(text.values())
+    assert "vNone" not in summaries
+    assert any("Started: rollback to v0.9.0" in s for s in text.values())
+    assert any(s.startswith("Production restored to v0.9.0 (from v1.0.0)") for s in text.values())
+    assert any(s.startswith("Aborted: rollback") and "registry write failed" in s for s in text.values())
+
+
+def test_a_recovered_completion_says_it_was_recovered(world, monkeypatch):
+    root, registry_file, log = world
+    real_append = LifecycleLog.append
+
+    def fail_on_completion(self, event, actor, details):
+        if event == "rollback":
+            raise OSError("log volume full")
+        return real_append(self, event, actor, details)
+
+    monkeypatch.setattr(LifecycleLog, "append", fail_on_completion)
+    with pytest.raises(P.LifecycleIncomplete):
+        rollback(root, registry_file, log)
+    monkeypatch.setattr(LifecycleLog, "append", real_append)
+    P.reconcile(log, registry_file, "next-operator")
+    assert "recorded on recovery after an interruption" in _view_events(registry_file)[0].summary
