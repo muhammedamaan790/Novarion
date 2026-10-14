@@ -70,11 +70,15 @@ test("clicking a vessel in the 3D canvas selects the same target (reverse link)"
   await openPatient(page, "ZAS-0006");
   const canvas = page.locator("canvas");
   await expect(canvas).toBeVisible(FIRST_LOAD); // the 3D view loads on demand
-  const box = (await canvas.boundingBox())!;
   const tooltip = page.getByRole("tooltip");
-  // ...and the heart model after it: wait until the canvas centre answers a hover before sweeping
+  // ...then the heart model, while the canvas settles to its final size: re-measure on every try and wait until the
+  // centre answers a hover (a move to the same spot fires no pointer event, so nudge by a pixel each try)
+  let box = (await canvas.boundingBox())!;
+  let nudge = 0;
   await expect.poll(async () => {
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    box = (await canvas.boundingBox())!;
+    nudge = 1 - nudge;
+    await page.mouse.move(box.x + box.width / 2 + nudge, box.y + box.height / 2);
     return tooltip.count();
   }, FIRST_LOAD).toBeGreaterThan(0);
   // Sweep the canvas until the hover tooltip reports a vessel, then click exactly there.
