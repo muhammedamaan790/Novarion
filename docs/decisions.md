@@ -735,3 +735,24 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Verification:** a new E2E flow checks the landing content, both Sign in buttons, Back, the unchanged sign-in
   page and that nothing loads from another origin; the axe test covers the landing page; the sign-in, sign-out,
   expired-session and per-account flows go through it. 71/71 E2E on the mock and on real Docker.
+
+## D-029 — Public deployment on a Hugging Face Docker Space
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user asked to deploy NOVARION publicly for judging. Options offered: a Hugging Face Space, Render, or
+  a temporary tunnel from the laptop. The user chose the Space, a judge account (not admin/admin) and the green hero.
+- **Decision:**
+  - One container (a Space runs one): `deploy/hf-space/Dockerfile` builds the frontend and runs nginx on :7860 in
+    front of uvicorn on the loopback, as the compose stack does. It runs as uid 1000 with every writable path in
+    /tmp. Hosted mode (`NOVARION_RUN_MODE=live`): no in-app Promote. Secure session cookie.
+  - Only the production bundle (v1.0.2) is copied in. A public Space's files can be downloaded, so this also publishes
+    the model bundle (audit R01); the user accepted that when choosing the Space.
+  - Accounts never enter the Space files: `start.sh` writes them from the `NOVARION_USERS_JSON` Space secret (salted
+    scrypt hashes). The judge account has a random 16-character password, kept outside the repo.
+  - The rate-limit identity is the last X-Forwarded-For entry, the one the Space's edge proxy appends.
+  - Judges should open the direct `*.hf.space` address: the session cookie is SameSite=Strict, so sign-in does not
+    work inside the iframe on the huggingface.co Space page.
+  - `scripts/deploy_space.py` stages exactly these files and uploads them.
+- **Verification:** the staged image built and ran locally: judge sign-in and sign-out through nginx, and the full
+  browser suite (71/71, real model) against it with sign-in off.

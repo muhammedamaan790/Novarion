@@ -27,6 +27,10 @@ learning loop lets verified outcomes reach a model update only through a validat
 docker compose up -d --build        # → http://localhost:8080   (API at :8080/api/v1, READY in ~15 s)
 ```
 
+**Public demo (Hugging Face Space):** `uv run python scripts/deploy_space.py upload USER/SPACE --users USERS_JSON`
+builds a single-container Space from `deploy/hf-space/` with the production model; accounts go into a Space secret,
+never into its files (D-029).
+
 **Development:**
 
 ```bash
