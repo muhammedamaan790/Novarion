@@ -812,3 +812,35 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Verification:** a new E2E flow (panel position and content, nothing listed for a blank form, dismiss, go to the
   first required field, the cursor); 73/73 E2E on the mock and on real Docker.
 
+## D-033 — Usability fixes from a live walk-through; a smoother 3D heart
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user walked through the hosted app and reported: open-case tabs that did not update, a cramped New
+  case page, an odd sodium value, a 3D view that sometimes went blank, unclear contribution bars, a chart row whose
+  click did nothing visible, and a laggy heart.
+- **Decision:**
+  - **Open-case tabs:** a new case's tab shows who it is once it has a prediction ("from ZAS-0002 · 67 y · female ·
+    unsaved", or the typed age and sex), not always "unsaved".
+  - **New case page:** the draft-recovery banner is one line, the patient picker and Import share a row, the sample
+    links sit by the title, the duplicate "final production model" badge is gone, and each field group is a card.
+  - **Sodium 156 mEq/L** is the dataset's own value for ZAS-0002 (the cohort maximum; median 141), not a display error.
+    What read oddly was "P100 of CAD-neg": comparisons now read in words ("the highest among patients without CAD",
+    "higher than 97% of …", "13% of patients with CAD have this value").
+  - **Why tab:** contributions (measurements and input groups) are defined progress bars: a full track filled in
+    proportion to the largest effect, coloured and labelled "↑ raises" / "↓ lowers". The strength word moves to a
+    tooltip (it read "strong" on every top-10 row).
+  - **Model evidence:** clicking (or Enter on) a row of the ROC-AUC chart opens that target's Performance tab; rows
+    highlight on hover. The chart is a group of buttons, not an image (axe: nested-interactive).
+  - **Blank 3D view:** the scene renders on demand, so anything that cleared the canvas without a scene change left
+    it blank with the HTML labels still in place (most likely the browser discarding a background tab's canvas). It
+    now redraws when the tab is shown again, the window regains focus or the canvas resizes. An E2E flow clears the
+    canvas and checks the heart returns; without the fix it stays blank.
+  - **Lag:** measured on this laptop's Iris Xe GPU while dragging. With the translucent body context on, 12-19% of
+    frames were slow; with it off, almost none. Fixes: no hover updates while a button is held (each re-rendered the
+    view, the largest gain), Lambert shading for the body shell, 1x resolution while the camera moves (full sharpness
+    250 ms after it stops), and less drag smoothing (0.125 → 0.06 s). Slow frames with the body on: 3-9%.
+  - **Not built:** a "precautions" tab with advice for the patient. The app's stated scope excludes recommendations,
+    so it awaits the user's decision on a narrower, educational version.
+- **Verification:** 75/75 E2E on the mock and on real Docker; 34 unit tests.
+

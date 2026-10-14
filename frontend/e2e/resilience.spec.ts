@@ -88,6 +88,41 @@ test("WebGL context lost: an explanatory overlay, then the 3D view can be restor
   await expect(page.locator("canvas")).toBeVisible();
 });
 
+test("a 3D view whose drawing was discarded (background tab) is redrawn when the tab is shown again", async ({ page }) => {
+  await page.goto("/?dataset=ZAS-0003");
+  await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD);
+  const canvas = page.locator("canvas");
+  await expect(canvas).toBeVisible(FIRST_LOAD);
+  // share of the canvas that is neither the scene background nor white: the heart (decoded in the page, no image library)
+  const drawn = async () => page.evaluate(async (b64) => {
+    const img = new Image();
+    img.src = `data:image/png;base64,${b64}`;
+    await img.decode();
+    const c = document.createElement("canvas");
+    c.width = img.width; c.height = img.height;
+    const ctx = c.getContext("2d")!;
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let n = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const bg = Math.abs(d[i] - 0xf4) + Math.abs(d[i + 1] - 0xf5) + Math.abs(d[i + 2] - 0xf7) <= 30;
+      if (!bg && !(d[i] > 250 && d[i + 1] > 250 && d[i + 2] > 250)) n++;
+    }
+    return n / (c.width * c.height);
+  }, (await canvas.screenshot()).toString("base64"));
+  await expect.poll(drawn, { timeout: 10_000 }).toBeGreaterThan(0.15);
+  await page.waitForTimeout(2_500); // the camera has settled: nothing redraws on its own any more
+  await page.evaluate(() => { // what the browser does to a background tab's canvas under memory pressure
+    const c = document.querySelector("canvas")!;
+    const gl = (c.getContext("webgl2") ?? c.getContext("webgl")) as WebGLRenderingContext;
+    gl.clearColor(1, 1, 1, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  });
+  await expect.poll(drawn).toBeLessThan(0.05); // blank, only the HTML labels remain
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await expect.poll(drawn, { timeout: 5_000 }).toBeGreaterThan(0.15); // the heart is back
+});
+
 test("accessibility: the 2D fallback (no WebGL, e.g. a GPU-less CI runner) has no serious or critical axe violations",
   async ({ page }) => {
     await page.addInitScript(() => {

@@ -212,10 +212,10 @@ function Forest({ rows, selected, onSelect }: {
       <figcaption className="mb-1">
         <span className="block text-sm font-semibold text-slate-900">ROC-AUC by target</span>
         <span className="block text-[11px] text-slate-500">
-          outer-fold mean ± SD (25 outer folds, nested CV) · 0.5 = no ranking ability · click a row to inspect it
+          outer-fold mean ± SD (25 outer folds, nested CV) · 0.5 = no ranking ability · click a row to open its full performance
         </span>
       </figcaption>
-      <svg viewBox={`0 0 ${W} ${rows.length * rowH + 26}`} className="w-full" role="img"
+      <svg viewBox={`0 0 ${W} ${rows.length * rowH + 26}`} className="w-full" role="group" // its rows are buttons
            aria-label="ROC-AUC by target, outer-fold mean and standard deviation">
         {[0.5, 0.6, 0.7, 0.8, 0.9, 1].map((t) => (
           <g key={t}>
@@ -227,8 +227,11 @@ function Forest({ rows, selected, onSelect }: {
           const cy = 4 + i * rowH + rowH / 2;
           const active = r.target === selected;
           return (
-            <g key={r.target} onClick={() => onSelect(r.target)} className="cursor-pointer">
-              <rect x={0} y={cy - rowH / 2} width={W} height={rowH} fill={active ? "#f1f5f9" : "transparent"} />
+            <g key={r.target} onClick={() => onSelect(r.target)} className="group cursor-pointer" data-testid={`forest-row-${r.target}`}
+               role="button" tabIndex={0} aria-label={`Open the ${SHORT[r.target]} performance`}
+               onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(r.target); } }}>
+              <rect x={0} y={cy - rowH / 2} width={W} height={rowH}
+                    className={active ? "fill-slate-100" : "fill-transparent group-hover:fill-slate-50"} />
               <text x={8} y={cy + 4} className={`text-[12px] ${active ? "fill-slate-900 font-semibold" : "fill-slate-700"}`}>
                 {SHORT[r.target]}
               </text>
@@ -321,7 +324,9 @@ export function EvidencePage() {
               );
             })}
           </div>
-          <div className="max-w-3xl"><Forest rows={forest} selected={target} onSelect={setTarget} /></div>
+          <div className="max-w-3xl">
+            <Forest rows={forest} selected={target} onSelect={(t) => { setTarget(t); setSection("performance"); }} />
+          </div>
         </div>
       )}
 

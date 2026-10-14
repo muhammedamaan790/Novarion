@@ -11,16 +11,21 @@ export const GROUP_LABEL: Record<string, string> = {
   ecg: "ECG", labs: "Labs", echo: "Echo",
 };
 
-function Bar({ value, max }: { value: number; max: number }) {
-  const width = max === 0 ? 0 : (Math.abs(value) / max) * 50;
-  const up = value > 0;
+/** The patient's value against the cohort, in words: where it ranks (numbers) or how common it is (categories), among
+ *  the patients without and with the target. */
+/** One measurement's effect as a defined progress bar: a full track, filled in proportion to the largest effect,
+ *  coloured and labelled by direction (never colour alone). */
+function EffectBar({ c, max }: { c: { contribution: number; strength: string }; max: number }) {
+  const up = c.contribution > 0;
+  const width = max === 0 ? 0 : Math.max(2, (Math.abs(c.contribution) / max) * 100);
   return (
-    <div className="relative h-2.5 w-full rounded-sm bg-slate-100" aria-hidden>
-      <div className="absolute inset-y-0 left-1/2 w-px bg-slate-300" />
-      <div
-        className={`absolute inset-y-0 ${up ? "bg-amber-600" : "bg-sky-700"}`}
-        style={up ? { left: "50%", width: `${width}%` } : { right: "50%", width: `${width}%` }}
-      />
+    <div className="flex items-center gap-2" title={`${c.strength} effect (${c.contribution >= 0 ? "+" : ""}${c.contribution.toFixed(2)} calibrated log-odds)`}>
+      <div className="relative h-3 flex-1 overflow-hidden rounded-full bg-slate-200" aria-hidden>
+        <div className={`h-full rounded-full ${up ? "bg-amber-600" : "bg-sky-700"}`} style={{ width: `${width}%` }} />
+      </div>
+      <span className={`w-16 shrink-0 text-[11px] font-semibold ${up ? "text-amber-800" : "text-sky-800"}`}>
+        {up ? "↑ raises" : c.contribution < 0 ? "↓ lowers" : "no effect"}
+      </span>
     </div>
   );
 }
@@ -28,13 +33,17 @@ function Bar({ value, max }: { value: number; max: number }) {
 function comparisonText(c: Contribution, target: TargetId): string {
   const cmp = c.cohort_comparison;
   if (!cmp) return c.value_status === "imputed" ? "imputed — no comparison" : "—";
-  const t = SHORT[target];
+  const condition = target === "cad" ? "CAD" : `${SHORT[target]} stenosis`;
   const side = (name: "negative" | "positive") => {
     const s = cmp[name];
-    const label = `${t}-${name === "negative" ? "neg" : "pos"}`;
-    if (s.status !== "ok") return `${label}: insufficient evidence (n = ${s.n})`;
-    if (cmp.type === "percentile") return `P${Math.round(s.percentile ?? 0)} of ${label} (n = ${s.n})`;
-    return `${pct(s.rate ?? 0)} of ${label} share this value (n = ${s.n})`;
+    const who = `${name === "negative" ? "without" : "with"} ${condition} (n = ${s.n})`;
+    if (s.status !== "ok") return `too few patients ${who} to compare`;
+    if (cmp.type === "percentile") {
+      const p = Math.round(s.percentile ?? 0);
+      return p >= 100 ? `the highest among patients ${who}` : p <= 0 ? `the lowest among patients ${who}`
+        : p >= 50 ? `higher than ${p}% of patients ${who}` : `lower than ${100 - p}% of patients ${who}`;
+    }
+    return `${pct(s.rate ?? 0)} of patients ${who} have this value`;
   };
   return `${side("negative")} · ${side("positive")}`;
 }
@@ -72,10 +81,9 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
         <h3 className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">By input group</h3>
         <ul className="space-y-1">
           {groups.map(([g, stat]) => (
-            <li key={g} className="grid grid-cols-[8.5rem_1fr_4.5rem] items-center gap-2 text-xs">
+            <li key={g} className="grid grid-cols-[8.5rem_1fr] items-center gap-2 text-xs">
               <span className="truncate text-slate-700">{GROUP_LABEL[g] ?? g}</span>
-              <Bar value={stat.contribution} max={groupMax} />
-              <span className="text-right text-slate-500">{stat.strength}</span>
+              <EffectBar c={stat} max={groupMax} />
             </li>
           ))}
         </ul>
@@ -94,7 +102,7 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
             <tr>
               <th className="py-1 font-medium">Measurement</th>
               <th className="py-1 font-medium">Value</th>
-              <th className="w-24 py-1 font-medium">Contribution</th>
+              <th className="w-64 py-1 font-medium">Effect on the {SHORT[target]} estimate</th>
               <th className="py-1 text-right font-medium">Share</th>
             </tr>
           </thead>
@@ -112,8 +120,7 @@ export function WhyPanel({ analysis, target }: { analysis: DisplayAnalysis; targ
                   )}
                 </td>
                 <td className="py-1.5 pr-2">
-                  <Bar value={c.contribution} max={max} />
-                  <span className="text-[10px] text-slate-500">{c.strength}</span>
+                  <EffectBar c={c} max={max} />
                 </td>
                 <td className="py-1 text-right tabular-nums text-slate-600">
                   {c.relative_share == null ? "—" : `${Math.round(c.relative_share * 100)}%`}

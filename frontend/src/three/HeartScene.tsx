@@ -1,7 +1,7 @@
 // The 3D heart (plan §9). One store drives everything: a 3D click and a panel click both call selectTarget().
 import { CameraControls, useGLTF } from "@react-three/drei";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import type { DisplayAnalysis, Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
@@ -165,10 +165,12 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
         const mesh = o as THREE.Mesh;
         const context = map.context_nodes?.[name];
         if (context) {
-          // Glass-like body context: transparent, both faces, drawn after the heart, invisible to the pointer.
-          mesh.material = new THREE.MeshStandardMaterial({
+          // Glass-like body context: transparent, both faces, drawn after the heart, invisible to the pointer. Lambert
+          // shading: the faint shell covers most of the view twice, and physically based shading there halved the frame
+          // rate on integrated graphics while dragging (D-033); at this opacity the look is the same.
+          mesh.material = new THREE.MeshLambertMaterial({
             color: new THREE.Color().setRGB(...oklchToLinearSrgb(context.color_oklch), THREE.LinearSRGBColorSpace),
-            transparent: true, opacity: context.opacity, depthWrite: false, side: THREE.DoubleSide, roughness: 0.4,
+            transparent: true, opacity: context.opacity, depthWrite: false, side: THREE.DoubleSide,
           });
           mesh.renderOrder = name === "torso_shell" ? 3 : 2;
           mesh.raycast = () => undefined;
@@ -305,6 +307,8 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
 
   const onMove = (e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
+    // No tooltips mid-drag: each hover update re-renders the view, on every pointer move (D-033).
+    if (e.nativeEvent.buttons) { if (sceneState.hover) sceneState.setHover(null); return; }
     const name = nodeName(e.object);
     const host = (e.nativeEvent.target as HTMLElement).getBoundingClientRect();
     if (name) sceneState.setHover({ node: name, x: e.nativeEvent.clientX - host.left, y: e.nativeEvent.clientY - host.top });
@@ -315,7 +319,7 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
   );
 }
 
-function CameraRig({ map, sceneState }: { map: AnatomyMap; sceneState: SceneState }) {
+function CameraRig({ map, sceneState, onMoving }: { map: AnatomyMap; sceneState: SceneState; onMoving: (moving: boolean) => void }) {
   const controls = useRef<CameraControls>(null);
   const selectedTarget = sceneState.selected;
   const viewPreset = sceneState.viewPreset;
@@ -334,7 +338,71 @@ function CameraRig({ map, sceneState }: { map: AnatomyMap; sceneState: SceneStat
     void controls.current.setLookAt(position.x, position.y, position.z, target.x, target.y, target.z, !prefersReducedMotion());
   }, [presetName, map, aspect]);
 
-  return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={12} smoothTime={0.45} />;
+  // Smooth on integrated graphics (D-033): while the camera moves (a drag or a fly-to) the scene renders at 1x, and
+  // at full sharpness again 250 ms after its last movement. Fill rate, not geometry, was the limit: the translucent
+  // body shell covers most of the view twice. The resolution is Canvas state (HeartScene), not setDpr: the Canvas
+  // re-applies its dpr prop on every render (e.g. on hover), which undid a direct setDpr.
+  const canvas = useThree((s) => s.gl.domElement);
+  useEffect(() => {
+    const c = controls.current;
+    if (!c) return;
+    let low = false;
+    let held = false; // a pointer is down on the canvas: stay low for the whole drag
+    let timer = 0;
+    const restoreSoon = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        if (held || !low) return;
+        low = false;
+        onMoving(false);
+      }, 250);
+    };
+    const onUpdate = () => {
+      if (!low) { low = true; onMoving(true); }
+      restoreSoon();
+    };
+    const onDown = () => { held = true; };
+    const onUp = () => { if (held) { held = false; restoreSoon(); } };
+    c.addEventListener("update", onUpdate);
+    canvas.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      window.clearTimeout(timer);
+      c.removeEventListener("update", onUpdate);
+      canvas.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [onMoving, canvas]);
+
+  // draggingSmoothTime: how far the camera trails the pointer while dragging (library default 0.125 s felt laggy).
+  return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={12} smoothTime={0.45}
+                         draggingSmoothTime={0.06} />;
+}
+
+/** The scene renders on demand only, so anything that clears the canvas without a scene change would leave it blank
+ *  (labels, which are HTML, stay): a resize, or the browser discarding a background tab's canvas under memory
+ *  pressure. Redraw whenever the tab is shown again, the window regains focus or the canvas changes size. */
+function RedrawOnReveal() {
+  const invalidate = useThree((s) => s.invalidate);
+  const canvas = useThree((s) => s.gl.domElement);
+  useEffect(() => {
+    const redraw = () => { invalidate(); requestAnimationFrame(() => invalidate()); };
+    const observer = new ResizeObserver(redraw);
+    observer.observe(canvas);
+    const onVisible = () => { if (!document.hidden) redraw(); };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", redraw);
+    window.addEventListener("pageshow", redraw);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", redraw);
+      window.removeEventListener("pageshow", redraw);
+    };
+  }, [invalidate, canvas]);
+  return null;
 }
 
 export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneState }: {
@@ -342,12 +410,13 @@ export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneSta
 }) {
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const overview = map.camera_presets.overview!;
+  const [moving, setMoving] = useState(false); // lower resolution while the camera moves (CameraRig)
   return (
     <SceneBoundary>
     <Canvas
       fallback={<SceneFallback />}
       frameloop="demand"
-      dpr={[1, 1.5]}
+      dpr={moving ? 1 : [1, 1.5]}
       camera={{ position: overview.position as [number, number, number], fov: overview.fov, near: 0.01, far: 50 }}
       gl={{ antialias: true }} // no global preserveDrawingBuffer: snapshots use their own render target
       onPointerMissed={() => sceneState.select(null)}
@@ -368,7 +437,8 @@ export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneSta
       <Suspense fallback={null}>
         <HeartModel map={map} analysis={analysis} placeLabel={placeLabel} sceneState={sceneState} />
       </Suspense>
-      <CameraRig map={map} sceneState={sceneState} />
+      <CameraRig map={map} sceneState={sceneState} onMoving={setMoving} />
+      <RedrawOnReveal />
     </Canvas>
     </SceneBoundary>
   );

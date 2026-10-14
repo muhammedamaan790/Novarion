@@ -216,3 +216,15 @@ test("compare works for a transient new case (explanations fetched pinned)", asy
   await page.keyboard.press("c");
   await expect(page.getByTestId("compare-panel")).toContainText("Compare all targets", { timeout: 15_000 });
 });
+
+test("Model evidence: clicking a target's row in the ROC-AUC chart opens that target's performance", async ({ page }) => {
+  await page.goto("/");
+  await page.getByTestId("page-evidence").click();
+  await page.getByTestId("forest-row-lcx").click();
+  await expect(page.getByTestId("evidence-section-performance")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByText(/official metrics · LCX/)).toBeVisible();
+  await page.getByTestId("evidence-section-summary").click();
+  await page.getByTestId("forest-row-rca").focus();
+  await page.keyboard.press("Enter"); // keyboard users can open it too
+  await expect(page.getByText(/official metrics · RCA/)).toBeVisible();
+});

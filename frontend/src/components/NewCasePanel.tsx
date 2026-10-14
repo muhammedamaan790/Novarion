@@ -8,7 +8,6 @@ import { clearDraft, loadDraft, scheduleDraft } from "../cases/caseStore";
 import type { DraftRecord } from "../cases/db";
 import { readCaseFile, type ImportedRow, type ImportReport, type UnitStatus } from "../cases/importCase";
 import { type CaseSlice, useStore, workspaceAnalysis } from "../store/useStore";
-import { MODE_BADGE } from "./wording";
 
 type Feature = Meta["features"][number];
 const UNKNOWN = "__UNKNOWN__";
@@ -317,14 +316,18 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
       <div className="flex items-center justify-between"
            title="De-identified or synthetic values only. Every field needs a value or an explicit UNKNOWN (where allowed). BMI and obesity are computed.">
         <h2 className="text-sm font-bold text-slate-900">Patient data <span className="font-normal text-slate-500">ⓘ</span></h2>
-        <span className="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-emerald-800">
-          {MODE_BADGE.final_model}
+        <span className="text-[11px] text-slate-500">
+          sample files:{" "}
+          <a className="underline" href="/samples/novarion_case_template.csv" download>template</a>{" · "}
+          <a className="underline" href="/samples/dataset_patient_ZAS-0003.csv" download>dataset patient</a>{" · "}
+          <a className="underline" href="/samples/synthetic_case.json" download>synthetic</a>
         </span>
       </div>
       {recoverable && (
-        <div className="rounded border border-sky-300 bg-sky-50 p-2 text-[11px] text-sky-900" data-testid="draft-recovery">
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-sky-300 bg-sky-50 px-2 py-1 text-[11px] text-sky-900"
+             data-testid="draft-recovery">
           <p>Recover unsaved draft from {recoverable.saved_at.replace("T", " ").replace("Z", " UTC")}?</p>
-          <div className="mt-1 flex gap-1">
+          <div className="flex gap-1">
             <button type="button" onClick={recover} data-testid="draft-recover"
                     className="rounded bg-sky-800 px-2 py-0.5 font-semibold text-white">Recover</button>
             <button type="button" onClick={discard} data-testid="draft-discard"
@@ -332,9 +335,10 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
           </div>
         </div>
       )}
+      <div className="flex items-center gap-2">
       <select
         aria-label="Prefill from a dataset patient"
-        className="rounded border border-slate-200 px-1.5 py-1 text-xs"
+        className="min-w-0 flex-1 rounded border border-slate-200 px-1.5 py-1 text-xs"
         value={prefillId}
         onChange={(e) => void prefill(e.target.value)}
       >
@@ -345,19 +349,12 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
           </option>
         ))}
       </select>
-      <div className="flex items-center gap-2 text-[11px]">
         <button type="button" onClick={() => fileInput.current?.click()} data-testid="import-button"
-                className="rounded bg-slate-900 px-2 py-1 font-semibold text-white hover:bg-slate-700">
+                className="shrink-0 rounded bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white hover:bg-slate-700">
           Import CSV / JSON…
         </button>
         <input ref={fileInput} type="file" accept=".csv,.json,text/csv,application/json" className="hidden"
                data-testid="import-file" onChange={(e) => void onFile(e.target.files?.[0])} />
-        <span className="text-slate-500">
-          samples:{" "}
-          <a className="underline" href="/samples/novarion_case_template.csv" download>template</a>{" · "}
-          <a className="underline" href="/samples/dataset_patient_ZAS-0003.csv" download>dataset patient</a>{" · "}
-          <a className="underline" href="/samples/synthetic_case.json" download>synthetic</a>
-        </span>
       </div>
       {report && (
         <div className="rounded border border-slate-200 p-2 text-[11px] text-slate-700" data-testid="import-report">
@@ -445,8 +442,8 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
 
       <form className="min-h-0 flex-1 space-y-3 overflow-auto pr-1" onSubmit={(e) => e.preventDefault()}>
         {groups.map(([group, fs]) => (
-          <fieldset key={group}>
-            <legend className="mb-1 text-xs font-bold uppercase tracking-wider text-slate-600">
+          <fieldset key={group} className="rounded-lg border border-slate-200 px-3 pb-2 pt-1">
+            <legend className="px-1 text-xs font-bold uppercase tracking-wider text-slate-600">
               {GROUP_LABEL[group] ?? group}
             </legend>
             <div className="grid grid-cols-1 gap-x-10 gap-y-1 xl:grid-cols-2">

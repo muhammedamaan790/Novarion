@@ -13,6 +13,8 @@ test("value problems show in a bottom-right panel; missing values are counted, n
 
   await page.getByLabel("Prefill from a dataset patient").selectOption("ZAS-0003");
   await expect(page.getByTestId("case-status")).toContainText("Prediction up to date", { timeout: 30_000 });
+  // the open-case tab says who this is (it used to stay "unsaved" whatever the form held)
+  await expect(page.getByTestId("ws-tab-New case 1")).toContainText(/from ZAS-0003 · \d+ y · (male|female) · unsaved/);
   await page.getByTestId("field-ejection_fraction").fill("120"); // outside the hard range 5-90
   const panel = page.getByTestId("case-issues");
   await expect(panel).toBeVisible();

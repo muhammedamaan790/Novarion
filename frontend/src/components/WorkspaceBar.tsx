@@ -17,6 +17,7 @@ export function WorkspaceBar() {
   const workspaces = useStore((s) => s.workspaces);
   const activeId = useStore((s) => s.activeId);
   const activeCaseRef = useStore((s) => s.caseRef);
+  const activePending = useStore((s) => s.pendingCase);
   const onWorkspace = useStore((s) => s.page === "workspace");
   const patients = useQuery({ queryKey: ["patients"], queryFn: api.patients, enabled: workspaces.length > 0 });
   const [query, setQuery] = useState("");
@@ -29,7 +30,19 @@ export function WorkspaceBar() {
   };
   const detailOf = (w: WorkspaceEntry) => {
     const p = w.kind === "dataset" ? byId.get(w.key) : undefined;
-    return p ? `${p.age} y · ${p.sex}` : w.kind === "new" ? "unsaved" : "";
+    if (p) return `${p.age} y · ${p.sex}`;
+    if (w.kind !== "new") return "";
+    // A new case says who it is as soon as it has a prediction: the dataset patient it was filled from, or the
+    // typed age and sex; "unsaved" until it is saved.
+    const pending = w.id === activeId ? activePending : w.snap.pendingCase;
+    const ref = w.id === activeId ? activeCaseRef : w.snap.caseRef;
+    if (!pending) return ref ? "" : "unsaved";
+    const age = pending.inputs.age;
+    const sex = pending.inputs.sex === 1 || pending.inputs.sex === "1" || pending.inputs.sex === "male" ? "male"
+      : pending.inputs.sex === 0 || pending.inputs.sex === "0" || pending.inputs.sex === "female" ? "female" : null;
+    const who = [age != null ? `${age} y` : null, sex].filter(Boolean).join(" · ");
+    const from = pending.datasetRecordId != null ? `from ZAS-${String(pending.datasetRecordId + 1).padStart(4, "0")}` : null;
+    return [from, who, ref ? null : "unsaved"].filter(Boolean).join(" · ");
   };
   const haystack = (w: WorkspaceEntry) => {
     const p = w.kind === "dataset" ? byId.get(w.key) : undefined;
