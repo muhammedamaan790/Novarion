@@ -94,7 +94,7 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 64 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+- Browser E2E: 70 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
   accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -176,18 +176,23 @@ make docker-e2e                                  # the same E2E flows against th
 
 ## Status
 
-**Release v1.0.4 (frozen; `release_manifest.json`, git tag `v1.0.4`), serving model v1.0.2.** Built:
+**Release v1.0.5 (frozen; `release_manifest.json`, git tag `v1.0.5`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (64/64 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (70/70 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 **New since release v1.0.2 (the model is unchanged):** a sign-in page with
 real accounts, a home screen with one NEW CASE button, a tabbed interface (each case: Result · Why · Patient data · What-if; Model evidence: Summary ·
 Performance · Confidence tiers · Curves · vs guideline score) (D-022), and one workspace per open patient with a
 search bar (D-023) in v1.0.3; in v1.0.4, confidence shown as "validated high" or "standard" with the model's tested
-accuracy beside each prediction (D-024), and a 3D heart page with the anatomy alone (D-025). Verified: 198 Python tests, 24 unit tests and 64 browser flows, against the mock and against the
-rebuilt Docker stack with the real model.
+accuracy beside each prediction (D-024), and a 3D heart page with the anatomy alone (D-025). In v1.0.5: the fixes
+from an external audit (D-026: wrong-workspace saves, per-account local storage, offline file integrity anchored to
+the release, model-bound evidence and both confidence scopes, safer promotion/rollback/rebuilds, narrower claims;
+confidence now reads "high support · internal evaluation" / "outside qualified range"), a 4x smaller first download
+(the 3D view and PDF code load on demand), and a landing section on the home page (D-027). Verified: 221 Python tests,
+34 unit tests and 70 browser flows, against the mock and against the rebuilt Docker stack with the real model.
+Still not published: the trained model bundle (audit R01); a fresh clone needs `make reproduce` for real predictions.
 
 Still open, for the team:
 - the second-machine run;
@@ -196,7 +201,7 @@ Still open, for the team:
 - a public hosted URL, if the submission requires one.
 
 Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
-(v1.0.5 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
+(v1.0.6 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
 
 ## Data and credits
 
