@@ -1,0 +1,25 @@
+{
+ "target": "lcx",
+ "selected": "xgboost[max_depth=2,n_estimators=100]|fs=full|cw=none",
+ "family": "xgboost",
+ "best_inner_auc": 0.7608891500195849,
+ "se_best": 0.028902494541574578,
+ "n_eligible": 11,
+ "guard_log": [],
+ "platt": {
+  "method": "platt",
+  "a": 0.938859336093532,
+  "b": 0.06597399079382728,
+  "space": "raw_logit"
+ },
+ "thresholds": {
+  "t_op": 0.34819885393339794,
+  "t_neg": null,
+  "t_pos": null,
+  "qualification_negative": null,
+  "qualification_positive": null,
+  "selection_rule": "t_op=Youden J; t_neg/t_pos=Wilson-95% LB of NPV/PPV >= target with n >= n_min"
+ },
+ "cache_key": "af8e5ccbf059b0e3da4974826f058af0e5389879f4c6e056cfef6ec70d4bf191",
+ "seconds": 684.8107708999887
+}

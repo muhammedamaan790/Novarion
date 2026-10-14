@@ -1,0 +1,19 @@
+{
+ "method": "tertiles of |calibrated contribution| over the OOF population (eval repeat), numpy linear interpolation",
+ "cad": {
+  "q1": 0.002458941338107082,
+  "q2": 0.08694605112056474
+ },
+ "lad": {
+  "q1": 0.0,
+  "q2": 0.03983571999213695
+ },
+ "lcx": {
+  "q1": 0.0,
+  "q2": 0.021532479029803372
+ },
+ "rca": {
+  "q1": 0.0,
+  "q2": 0.021630071603439563
+ }
+}

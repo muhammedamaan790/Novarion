@@ -1,0 +1,14 @@
+{
+ "t_op": 0.6007174398202535,
+ "t_neg": null,
+ "t_pos": 0.8492339590193219,
+ "qualification_negative": null,
+ "qualification_positive": {
+  "metric": "ppv",
+  "target": 0.9,
+  "lower_bound": 0.9007560955638818,
+  "n": 127,
+  "value": 0.952755905511811
+ },
+ "selection_rule": "t_op=Youden J; t_neg/t_pos=Wilson-95% LB of NPV/PPV >= target with n >= n_min"
+}

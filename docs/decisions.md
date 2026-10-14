@@ -743,7 +743,7 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Context:** The user asked to deploy NOVARION publicly for judging. Options offered: a Hugging Face Space, Render, or
   a temporary tunnel from the laptop. The user chose the Space, a judge account (not admin/admin) and the green hero.
 - **Decision:**
-  - One container (a Space runs one): `deploy/hf-space/Dockerfile` builds the frontend and runs nginx on :7860 in
+  - One container (a Space runs one): `deploy/hosted/Dockerfile` builds the frontend and runs nginx on :7860 in
     front of uvicorn on the loopback, as the compose stack does. It runs as uid 1000 with every writable path in
     /tmp. Hosted mode (`NOVARION_RUN_MODE=live`): no in-app Promote. Secure session cookie.
   - Only the production bundle (v1.0.2) is copied in. A public Space's files can be downloaded, so this also publishes
@@ -756,3 +756,21 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   - `scripts/deploy_space.py` stages exactly these files and uploads them.
 - **Verification:** the staged image built and ran locally: judge sign-in and sign-out through nginx, and the full
   browser suite (71/71, real model) against it with sign-in off.
+
+## D-030 — Render instead of Hugging Face; the model bundle is published
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** Hugging Face now requires a PRO subscription for Docker Spaces (the upload was refused with 402 before
+  anything was created). Vercel cannot run the backend (its libraries are 732 MB; sessions are in memory). The user
+  chose Render's free plan and explicitly approved publishing the trained model so Render can build from the public
+  repository (audit R01).
+- **Decision:**
+  - `deploy/hf-space/` becomes `deploy/hosted/` (the same single-container image serves both hosts). `render.yaml`
+    is a Blueprint for one free Docker web service: port 7860, health check `/api/v1/health/ready`, the judge
+    accounts asked for as the `NOVARION_USERS_JSON` secret, no auto-deploy (judges see what was deployed on purpose).
+  - The production bundle v1.0.2 is committed as `deploy/hosted/model/`, byte-identical to `artifacts/models/v1.0.2`
+    and marked `-text` so git never alters it; the API verifies every hash against the registry at start-up.
+    `artifacts/` stays untracked, so CI's bundle-dependent tests are unchanged.
+- **Measured on the free plan's limits locally (0.1 CPU, 512 MB):** 148 MB in use; ready about 4 minutes after a
+  cold start; `/predict` 0.6 s, `/analyze/full` 1.5 s.

@@ -1,0 +1,31 @@
+{
+ "target": "cad",
+ "selected": "lr[penalty=l2,C=0.01]|fs=redundancy_reduced|cw=balanced",
+ "family": "lr",
+ "best_inner_auc": 0.9409989083723694,
+ "se_best": 0.009255361752034806,
+ "n_eligible": 11,
+ "guard_log": [],
+ "platt": {
+  "method": "platt",
+  "a": 2.52059498529913,
+  "b": 0.91241183007266,
+  "space": "raw_logit"
+ },
+ "thresholds": {
+  "t_op": 0.6952168951230195,
+  "t_neg": null,
+  "t_pos": 0.6952168951230195,
+  "qualification_negative": null,
+  "qualification_positive": {
+   "metric": "ppv",
+   "target": 0.9,
+   "lower_bound": 0.9051352265882169,
+   "n": 202,
+   "value": 0.9455445544554455
+  },
+  "selection_rule": "t_op=Youden J; t_neg/t_pos=Wilson-95% LB of NPV/PPV >= target with n >= n_min"
+ },
+ "cache_key": "af8e5ccbf059b0e3da4974826f058af0e5389879f4c6e056cfef6ec70d4bf191",
+ "seconds": 710.4305976000614
+}

@@ -1,0 +1,3731 @@
+{
+ "index": {
+  "bundle_schema_version": "1.0.0",
+  "frontend_compatibility_range": ">=0.1.0 <1.0.0",
+  "model_version": "1.0.2",
+  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66",
+  "patients": [
+   {
+    "patient_id": "ZAS-0001",
+    "dataset_record_id": 0,
+    "expected_input_sha256": "938da54c7f07e2690f38909b07e851671b2addb1fe1d85095547e8f0e640e8f0",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0002",
+    "dataset_record_id": 1,
+    "expected_input_sha256": "5fd0b98d8500cf90b0eba14cf8d272db1241230a26fdf8aeb1f31e8e8217202c",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0003",
+    "dataset_record_id": 2,
+    "expected_input_sha256": "18b6355b81bf62427e2276c1549ec959060c61696643d7600a11583d849b587d",
+    "age": 54,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0004",
+    "dataset_record_id": 3,
+    "expected_input_sha256": "7beaa7d3dac5155df4e371ce4d0d406c0beb149f41b5e99dee62019a9db54d9f",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0005",
+    "dataset_record_id": 4,
+    "expected_input_sha256": "b7764cf38f3f603ee50093622a7d28e13ae2520ea70a2cd68e46fe6b2497571b",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0006",
+    "dataset_record_id": 5,
+    "expected_input_sha256": "883d8cc95b777f44d13973005fcc80e828f5d2e05de2d77ddbd56e02f032b397",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0007",
+    "dataset_record_id": 6,
+    "expected_input_sha256": "34390430865938f8608db47366a4bf7448aa2ca5e0bb60cef9d5b6d35910a827",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0008",
+    "dataset_record_id": 7,
+    "expected_input_sha256": "06c1d90f375200e47ebd5b46836f57d7f508e03bef63198b896e1344691e9fe4",
+    "age": 72,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0009",
+    "dataset_record_id": 8,
+    "expected_input_sha256": "a0ebf48d0622e263eb49a4e547de82afeeeff1596bc980b62583f110571c465b",
+    "age": 58,
+    "sex": "female",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0010",
+    "dataset_record_id": 9,
+    "expected_input_sha256": "35655e704d57b1e1e094563e3bfc32261b43dc6fcb06e5634586f4cf5daeada9",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0011",
+    "dataset_record_id": 10,
+    "expected_input_sha256": "e695303ddd64f473518949663e60ae37705c64c1b88c2b28e71a54e142cf4471",
+    "age": 58,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0012",
+    "dataset_record_id": 11,
+    "expected_input_sha256": "4d69fe3b1a14b28a913492028172907cea73957cbbc6ef6f4c19bf7e44b913cb",
+    "age": 80,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0013",
+    "dataset_record_id": 12,
+    "expected_input_sha256": "4793c78a72510c505939cbada9fbcf62b3893b4f06a4895e39263cdbb61aa2c3",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0014",
+    "dataset_record_id": 13,
+    "expected_input_sha256": "e4f41dd6c9cb45f3248d4c39e6949c20f330f317527484f2505bb5e277de2fe6",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0015",
+    "dataset_record_id": 14,
+    "expected_input_sha256": "d4ebff8e2dea37e369cdc04de9d02aa9463be9ec9f65dbfb3e3002b70af9f770",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0016",
+    "dataset_record_id": 15,
+    "expected_input_sha256": "6f87068f3a61be5518e844029cce1def20a5aacb7e9bae01930978f18cee14ef",
+    "age": 59,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0017",
+    "dataset_record_id": 16,
+    "expected_input_sha256": "b82d6726aef30921bcd5e146c76cc00d0e032fa3cda38305894e8ad142abcd9d",
+    "age": 41,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0018",
+    "dataset_record_id": 17,
+    "expected_input_sha256": "bd5e74d46c967f410827bd5104746b15e495c82be0278ff48320b53698802d81",
+    "age": 68,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0019",
+    "dataset_record_id": 18,
+    "expected_input_sha256": "1e9a334f323ad908b6a1316313e755824a5ef21a7c97758e347405b6d056fe19",
+    "age": 60,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0020",
+    "dataset_record_id": 19,
+    "expected_input_sha256": "3e81008fca0e043bae7ddb0e976661e6e4fb6a015e5f4b40a7aed03bfa39d69b",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0021",
+    "dataset_record_id": 20,
+    "expected_input_sha256": "7f5b828dc30b97c2ab3566a94e112fa4e99ce130018a1ce93184c40e6349d701",
+    "age": 47,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0022",
+    "dataset_record_id": 21,
+    "expected_input_sha256": "6060f5cf97bcd158b4151fcdfc38a5e6c0d47c8b88e6ddafeccf071f17923ef9",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0023",
+    "dataset_record_id": 22,
+    "expected_input_sha256": "fc842323b408ff4920c16a80f612a54d173087f846d233c3c1b6faf76fe91a18",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0024",
+    "dataset_record_id": 23,
+    "expected_input_sha256": "dd6f24f418958750e2e23ef1756de9c9d259be42b59f37d87d6754a12db26b1a",
+    "age": 72,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0025",
+    "dataset_record_id": 24,
+    "expected_input_sha256": "313be2369d412f7f341c60b5a1650871a3b2d77c4b18d3c5e7a77af61cf52d10",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0026",
+    "dataset_record_id": 25,
+    "expected_input_sha256": "780a6a2379fb20244bca6f7c8db7264e3485eae1a2f6bf30228e10efa64eacf2",
+    "age": 65,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0027",
+    "dataset_record_id": 26,
+    "expected_input_sha256": "4c573d88f2eb676a874b81a60acdc2047ec9ec65e48f3192c587b2de4721f81f",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0028",
+    "dataset_record_id": 27,
+    "expected_input_sha256": "15fe64ebe7b15d50aaced10e1550ad21534ef4d6e05af30d045a3c566c388ec8",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0029",
+    "dataset_record_id": 28,
+    "expected_input_sha256": "83779d1a52e1db4edb30215ab5ba4603ff6726b952847bb366cf6cf5f862ed0f",
+    "age": 80,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0030",
+    "dataset_record_id": 29,
+    "expected_input_sha256": "f1bb1d55a3f4fca4882eb90f9d053491d549f7975fe0f4d9bc6bc1e780fae7bd",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0031",
+    "dataset_record_id": 30,
+    "expected_input_sha256": "5ea352717b80e0bb588d4919fff2ae136fdd5e350602e19fd0c1c742a5344d1a",
+    "age": 59,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0032",
+    "dataset_record_id": 31,
+    "expected_input_sha256": "8547a1cb21b71ac08b677231dfbd42a2d4a28c5a2c1c6f2e0c57d416a7e597a0",
+    "age": 52,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0033",
+    "dataset_record_id": 32,
+    "expected_input_sha256": "abb562e783b6bc222527a9d58708fc5687c44b15337f13e1ea9c3cf832b25346",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0034",
+    "dataset_record_id": 33,
+    "expected_input_sha256": "b97dfc691b2543eb182a4853f2a21570ab151c312c4d1a84bb0dbb56d5cdf490",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0035",
+    "dataset_record_id": 34,
+    "expected_input_sha256": "dd84bd91897c19f47f168594def703bdd7187e04c2065d99caaa35715cb6846b",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0036",
+    "dataset_record_id": 35,
+    "expected_input_sha256": "93a2451663e42931e77ee785a5d2c2dd6b8c0fdeed3506c8d436f6851057964e",
+    "age": 47,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0037",
+    "dataset_record_id": 36,
+    "expected_input_sha256": "7551d461a4f7aa064ecdbc5c00b293c711a72ca12f35043261769cb9c38f48c9",
+    "age": 69,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0038",
+    "dataset_record_id": 37,
+    "expected_input_sha256": "5b9f29bb5ed57d151bb57901f1057e8828043075fd167cd6cc3d5d7d6728f2a3",
+    "age": 54,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0039",
+    "dataset_record_id": 38,
+    "expected_input_sha256": "ba1b6cb56be5ede64d1991884f5c30145273a43b5f8208661143ed5682b8cff0",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0040",
+    "dataset_record_id": 39,
+    "expected_input_sha256": "6c19cdaedd9da39412cc370b374cc05cc176edca081bddf268684f0fc8a863db",
+    "age": 46,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0041",
+    "dataset_record_id": 40,
+    "expected_input_sha256": "a24a970d33c07e845c85f73f455ea362b89be71320d3391d5fcc351bd4f24ae1",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0042",
+    "dataset_record_id": 41,
+    "expected_input_sha256": "f95fc491513f09d9a6ebbd44001ada00e37b0e5736af4db4e961ed542af48885",
+    "age": 40,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0043",
+    "dataset_record_id": 42,
+    "expected_input_sha256": "be0deea55bf5a57224f97636a724112a98ec98c2a2ddeaf417f8eee577614cdc",
+    "age": 43,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0044",
+    "dataset_record_id": 43,
+    "expected_input_sha256": "755b6616f2db21eaa9ec5202ce2745c4d8510a8003b158236e341ece2f862585",
+    "age": 60,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0045",
+    "dataset_record_id": 44,
+    "expected_input_sha256": "1a413409050ccecd59e53684aa860bd6eedb147f8c2fd53ed381dfcad0fb0344",
+    "age": 73,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0046",
+    "dataset_record_id": 45,
+    "expected_input_sha256": "c9f9cc7c56f18bd8e799282d717cb8002c326997b355c6390e43fd3de93f1361",
+    "age": 51,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0047",
+    "dataset_record_id": 46,
+    "expected_input_sha256": "1d027a1064b2461daf8b3a72e2de3e196175f95f89ac80f6cc349ce0e3143764",
+    "age": 57,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0048",
+    "dataset_record_id": 47,
+    "expected_input_sha256": "1580415351c5321fee1dc8bf1f0fa2e5c69b6615cab8b32552b598f24b8e88d7",
+    "age": 68,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0049",
+    "dataset_record_id": 48,
+    "expected_input_sha256": "ace61eb1030e0aee643c83299c2117c2525e39fb4f2eab86791d238d9d829517",
+    "age": 53,
+    "sex": "female",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0050",
+    "dataset_record_id": 49,
+    "expected_input_sha256": "e10bf4625b14dbc582f3dac6bda0d43393891c626dbdcfc929555d37efdb531f",
+    "age": 61,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0051",
+    "dataset_record_id": 50,
+    "expected_input_sha256": "40389099547cd925d7a7e1e273fcdbaba86b76d1e286ae7b470f46800e02853d",
+    "age": 73,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0052",
+    "dataset_record_id": 51,
+    "expected_input_sha256": "a3e51426ebbd5c28740866f316011b450832b577c85ab1eec5b013c3faf059d0",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0053",
+    "dataset_record_id": 52,
+    "expected_input_sha256": "dbfca6dedc58e2decabbb42a62ba79c657528f331b24b092cced0e7722c8a1ee",
+    "age": 73,
+    "sex": "female",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0054",
+    "dataset_record_id": 53,
+    "expected_input_sha256": "08a374f0d0c05090c2bbe3bcf7063d5f39e558e0d04b7237ddad485b2bc42a89",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0055",
+    "dataset_record_id": 54,
+    "expected_input_sha256": "0fb3f1b850e9742d71f1418df4533ff8c424f030dd4e7829b4259b70e424d7a6",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0056",
+    "dataset_record_id": 55,
+    "expected_input_sha256": "704506508ed9b7f32762b10c9f21379786e6af171a34c31984bc6fbf6583952e",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0057",
+    "dataset_record_id": 56,
+    "expected_input_sha256": "0666fe703d04234328cc7bce89713ff3238f366ec09c1909e22a18171ee75ed6",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0058",
+    "dataset_record_id": 57,
+    "expected_input_sha256": "47364dc2165a97554caaedd9245a1f921d6efef9b95ed6603b9a97c7651005be",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0059",
+    "dataset_record_id": 58,
+    "expected_input_sha256": "974bda83a8cd3232275fd9bf899193f1922be48467f9ca846104ab2c43e42537",
+    "age": 81,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0060",
+    "dataset_record_id": 59,
+    "expected_input_sha256": "038f8a8d0d2c64d9b41c38a27a44ffd0c8f6950480ed2b1ec3b6d56c435bbfd9",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0061",
+    "dataset_record_id": 60,
+    "expected_input_sha256": "c10dd826af28a219a10a93c2e211c510c5631c57134e7393d394e8fdde747243",
+    "age": 47,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0062",
+    "dataset_record_id": 61,
+    "expected_input_sha256": "fc48ef82218860fd85fdda07a3416ee6ba65f71f60081c19399407f2433d88a4",
+    "age": 47,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0063",
+    "dataset_record_id": 62,
+    "expected_input_sha256": "38fd42f3a82cac4f6a108ce3a29337d25760a325086579016326528a9acba5e7",
+    "age": 41,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0064",
+    "dataset_record_id": 63,
+    "expected_input_sha256": "ed13933736d8b86e4ce00bdeb9dd9b8690927d08b773e68050287e76954f2cba",
+    "age": 68,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0065",
+    "dataset_record_id": 64,
+    "expected_input_sha256": "dbaf1a84630ab82fc273e11fb8728288241d8754d89d896c7ecf5c0cf85193d3",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0066",
+    "dataset_record_id": 65,
+    "expected_input_sha256": "0aa887976d1dd26e616059e11f9dacc6b06c0f9baf34df25c7d49e7dd8d42362",
+    "age": 53,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0067",
+    "dataset_record_id": 66,
+    "expected_input_sha256": "e719a261b424e26828b31b7a693f6b03e8b24a8add0f949e39b85d7e31468b14",
+    "age": 53,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0068",
+    "dataset_record_id": 67,
+    "expected_input_sha256": "e2d7225824c135ee93aeccb9b171d75238cc039ba1702e66cb56ffcef51ed21a",
+    "age": 30,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0069",
+    "dataset_record_id": 68,
+    "expected_input_sha256": "84c997cf950c712e1d41557f87f0ef98deb969010a24ad45cfedacb763a658a7",
+    "age": 47,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0070",
+    "dataset_record_id": 69,
+    "expected_input_sha256": "119618fe309fa46348bba897b276c2e978d94e817ba9080ec6d0f1ae752a7ff5",
+    "age": 80,
+    "sex": "female",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0071",
+    "dataset_record_id": 70,
+    "expected_input_sha256": "d6d8ca5006df29f6f09477f8a28fee36872847800610f842494002a356c6c896",
+    "age": 52,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0072",
+    "dataset_record_id": 71,
+    "expected_input_sha256": "7c912cc7e8ffbfe5335dbc4dad529b938a6c80b4b34950f8037b76ba1da3fedc",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0073",
+    "dataset_record_id": 72,
+    "expected_input_sha256": "7ade039abe9eef819a433efe08cc7bcdf38e8c682728dbcd56d249d81e170c42",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0074",
+    "dataset_record_id": 73,
+    "expected_input_sha256": "5c6a4a9e36efec21d49e861339e7ac6a60d47e904dae8d9c58a5e1eca8ba0d95",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0075",
+    "dataset_record_id": 74,
+    "expected_input_sha256": "ed4d414e8d093bfc7d6fea4b0b49ec362e9ca1b7718dd47d4a2cbf3e865f8a7c",
+    "age": 60,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0076",
+    "dataset_record_id": 75,
+    "expected_input_sha256": "faf11098ab95113289e7a4fee07eea648f88bafba12bfd5dc138bffc428249fd",
+    "age": 49,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0077",
+    "dataset_record_id": 76,
+    "expected_input_sha256": "540b97dad27efd88912f45ea5d907f64beabb8face2af8ab4d920b26a40d684c",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0078",
+    "dataset_record_id": 77,
+    "expected_input_sha256": "978a9156b5b7a54f7a6b8a237b7d487a455cec4333f78b14d024bbb5d74e6158",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0079",
+    "dataset_record_id": 78,
+    "expected_input_sha256": "33173a2c504e32ac07c2f0be7ae103936545b32a9e0747fa008a99de4eaf9d8b",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0080",
+    "dataset_record_id": 79,
+    "expected_input_sha256": "7e25948e9eb63c1e709cd5f453fdb60d89c595e42d476008779d65ed180b13d1",
+    "age": 52,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0081",
+    "dataset_record_id": 80,
+    "expected_input_sha256": "c88d8ba5853a4a29d77359f681af9c9b5b17cea1bab489d7d265eb3573745ed5",
+    "age": 65,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0082",
+    "dataset_record_id": 81,
+    "expected_input_sha256": "a83cf675702cd7cce3a51c555747ecae93ece090e957cecb06f6ec7a544fba16",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0083",
+    "dataset_record_id": 82,
+    "expected_input_sha256": "7abf43a79cfb11ac597d46c38f88693c121b51a7ef91e158dd6060256f4c3057",
+    "age": 86,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0084",
+    "dataset_record_id": 83,
+    "expected_input_sha256": "130e44afff4d21958dc5cdb1784ccec6996c0bd2eab935549d24ac0c891a701f",
+    "age": 57,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0085",
+    "dataset_record_id": 84,
+    "expected_input_sha256": "d217339ab77c6ead43fef00dd5ac1a301d14da750674645792b51d3c35a4b3df",
+    "age": 52,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0086",
+    "dataset_record_id": 85,
+    "expected_input_sha256": "f9b66ca94aef79faab8da355572925b74a0f4fe4125ded3d5f79a0aaccb75e6e",
+    "age": 59,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0087",
+    "dataset_record_id": 86,
+    "expected_input_sha256": "c1e55c222aed78b1cdc7dd9807aa439efdfff4d572b4cfd7425223d24b5baadf",
+    "age": 75,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0088",
+    "dataset_record_id": 87,
+    "expected_input_sha256": "f63711a2356496d6c62a42c50dd190add4bb972a907c34efe6022d964b492025",
+    "age": 81,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0089",
+    "dataset_record_id": 88,
+    "expected_input_sha256": "27188214117c39f9658357213cdf07eb68d220462940a392c65bd97176d6acfe",
+    "age": 71,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0090",
+    "dataset_record_id": 89,
+    "expected_input_sha256": "216cdcbcd5420bee710610c5473218a882abdcab3a71bad01d0c7cafa2563255",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0091",
+    "dataset_record_id": 90,
+    "expected_input_sha256": "163666b25c81b14e70807c906b754e54a35e2d81179d3e394c56da95d990a561",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0092",
+    "dataset_record_id": 91,
+    "expected_input_sha256": "161d2ab4805a86a4a251e7c27ef81354c91e6be951b045c9d67f818c6d4effcf",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0093",
+    "dataset_record_id": 92,
+    "expected_input_sha256": "a47efac45319f83b6fedcd55f73e0dddeb518676732e71909f95d2d3127fc6f3",
+    "age": 59,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0094",
+    "dataset_record_id": 93,
+    "expected_input_sha256": "f7da2e5b2514564c29b98345a4abfce651f7140938db1db48e6ab6607930abed",
+    "age": 65,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0095",
+    "dataset_record_id": 94,
+    "expected_input_sha256": "95fefeca3fd661c060b5bed78b40f36576d44bff726d28e4d0721704bb9accf4",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0096",
+    "dataset_record_id": 95,
+    "expected_input_sha256": "71c55d3fe67f9c564a0aa36546516b4af9b24760fc9ff0f33953f821b85ea5a6",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0097",
+    "dataset_record_id": 96,
+    "expected_input_sha256": "71291d20ad74063aba7cd38afcb13c2afbaa4125112b8019f247d98b62acf405",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0098",
+    "dataset_record_id": 97,
+    "expected_input_sha256": "399e785666ed9f2bdbb0d00803cffaeef83cc06d1495273fbf4400939beeef2f",
+    "age": 77,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0099",
+    "dataset_record_id": 98,
+    "expected_input_sha256": "f54850dd0589ab74b05bfb6cbedcdaf0ec5ff7701072870bffe9b80df700f904",
+    "age": 65,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0100",
+    "dataset_record_id": 99,
+    "expected_input_sha256": "b2341937b35ff9686691ad679819327bb8b586f72bda7be0f73ed2672951d032",
+    "age": 61,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0101",
+    "dataset_record_id": 100,
+    "expected_input_sha256": "7eb9328780ca8f2bf8156f400481dfc80b50a846482fc26f1d8a715ca7267089",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "current_smoker",
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0102",
+    "dataset_record_id": 101,
+    "expected_input_sha256": "5165ae9ae4f573a39b32b8c35133065750067494d61996a40f19ee321367e344",
+    "age": 75,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0103",
+    "dataset_record_id": 102,
+    "expected_input_sha256": "16d9479d5f77ad0c53fc4a3befd4ce7a52a7607c813c454f6e16740fd34bba3e",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0104",
+    "dataset_record_id": 103,
+    "expected_input_sha256": "f709a154d021ef68aba1c69d4fa94ad934c4457db8633a0c5d18f2b9964890f0",
+    "age": 60,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0105",
+    "dataset_record_id": 104,
+    "expected_input_sha256": "a09be400ee46df6463e869c82543d78f34c6ede8b6c2dd5d2ee0d6296484f2fe",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0106",
+    "dataset_record_id": 105,
+    "expected_input_sha256": "f21f5d8d4955efb0651a20cd1205bb9242059313049407ee853d859109f2cea6",
+    "age": 49,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0107",
+    "dataset_record_id": 106,
+    "expected_input_sha256": "a40ded7c815186e8e77361b65a0bf7ecf742feb2d72aa05da11bbb0cd574ee40",
+    "age": 69,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0108",
+    "dataset_record_id": 107,
+    "expected_input_sha256": "963829ed001ff80a72143942e04ad0066122ca35e6de3143ebd52f15eb38ecd2",
+    "age": 75,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0109",
+    "dataset_record_id": 108,
+    "expected_input_sha256": "8182609dc905d9300c07088250c701c1048a9493a6270309f3fecf796516098a",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0110",
+    "dataset_record_id": 109,
+    "expected_input_sha256": "aac94c384e89f0cff7da76d66b60775985f22004c0743ddfca3b2fbda32765f3",
+    "age": 64,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0111",
+    "dataset_record_id": 110,
+    "expected_input_sha256": "a36f0266499ea6b72e99a695fd0b69860ad7d412919536c17c8e2b376905ac05",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0112",
+    "dataset_record_id": 111,
+    "expected_input_sha256": "68b5c7c5f8802cff5d1ffc5dfc3b71169f3264989a6eef3fc6d81c89f2d7f168",
+    "age": 81,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0113",
+    "dataset_record_id": 112,
+    "expected_input_sha256": "1dff30ea6c7efb43606ffd0e2169ac71977b14ee3a51bf26911480450e1bdb1c",
+    "age": 65,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0114",
+    "dataset_record_id": 113,
+    "expected_input_sha256": "51a199938e73b4b69823c360ea9a92d3229176a4c6f0b7484582ebb349d40bba",
+    "age": 51,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0115",
+    "dataset_record_id": 114,
+    "expected_input_sha256": "15e119ab2dd2f6eb7ef85c698b218729fab36da2b4514f38d4d77f0fd3ce69d6",
+    "age": 59,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0116",
+    "dataset_record_id": 115,
+    "expected_input_sha256": "a79a224f6baa6408042930959dc7ad91ce832cd7738272bb02bfa064357a21a2",
+    "age": 59,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0117",
+    "dataset_record_id": 116,
+    "expected_input_sha256": "e3fdfd95d3cd014eb1bbdb797b299063b51846335e64bc1cee8edc90cccd28dc",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0118",
+    "dataset_record_id": 117,
+    "expected_input_sha256": "ac306cc6180cf7258c6ba01060a5f6b084eba99496a5e8dc7c68399dbf9c9a5e",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0119",
+    "dataset_record_id": 118,
+    "expected_input_sha256": "a317abb9de99c00919e4f9a24e250e3c4423e8dec204c826bb02c529d0e1cb91",
+    "age": 49,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0120",
+    "dataset_record_id": 119,
+    "expected_input_sha256": "e61d4e7e75f75280332f0c0903b4bbae7fbcc17f28e049d6b171b8940cf4851c",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0121",
+    "dataset_record_id": 120,
+    "expected_input_sha256": "a7c74195939bc74169b5f6cb5863a81374a80e561e4b1bc1a86dd8be75ad00a6",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0122",
+    "dataset_record_id": 121,
+    "expected_input_sha256": "64d2a59d9746731c18159b968d3950a96e5a7be8de8c97adcc5d01338711a3e4",
+    "age": 74,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0123",
+    "dataset_record_id": 122,
+    "expected_input_sha256": "66474b9153331c85f811e7a3152274edc6941f2651b9ac97adbf8ff4df158c42",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0124",
+    "dataset_record_id": 123,
+    "expected_input_sha256": "31c1d62386bde1686e17ab867229a4067406b088cf6a71fedd76ea091bbf05be",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0125",
+    "dataset_record_id": 124,
+    "expected_input_sha256": "0d7896b3c0f7d1711c542d9b20631ef7bcc975daca73711908c3bdb18c9c883a",
+    "age": 36,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0126",
+    "dataset_record_id": 125,
+    "expected_input_sha256": "cc05fe0bd664dddb73c1ce59f24e9700d68fe922965763619d0ac69b0a20838b",
+    "age": 52,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0127",
+    "dataset_record_id": 126,
+    "expected_input_sha256": "50a34178408b85b3c8d9319d0c95c5bf7e8246f5be7a2e1fab7e022b220808c1",
+    "age": 72,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0128",
+    "dataset_record_id": 127,
+    "expected_input_sha256": "9c9b92ff81d722b7319f08714528907060f0aa4763764e06f766a6f2b7dc35ea",
+    "age": 79,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0129",
+    "dataset_record_id": 128,
+    "expected_input_sha256": "e00665e87372965fe958f777c7f9c79a1853b36b38662c2a7144b449dbbec6fb",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0130",
+    "dataset_record_id": 129,
+    "expected_input_sha256": "49c8a190c46ef798480cb3710419b796700ccd5ce4f2f4bdf6e6ec68935eff7f",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0131",
+    "dataset_record_id": 130,
+    "expected_input_sha256": "362756f1614077962a4cf950ece10ff6029f626b5bb6da3944185983e37bb237",
+    "age": 45,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0132",
+    "dataset_record_id": 131,
+    "expected_input_sha256": "17c782fa3ae7c59b01681af76b64fa84d63b3d3f136c647aee9424d0b203f1d7",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0133",
+    "dataset_record_id": 132,
+    "expected_input_sha256": "991b10ab7aa0869a2f2831d1b7ccc97499e71e14acdf068333a5c509574570f3",
+    "age": 49,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0134",
+    "dataset_record_id": 133,
+    "expected_input_sha256": "9271f58b40b4ec289a873109cbeaf44df9183b2c4d31ecf2dc2c55202b012cb5",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0135",
+    "dataset_record_id": 134,
+    "expected_input_sha256": "a22ae2b10810deffd3b7ed7f5cd2ad668e4166772d5df8836f80884a13b7440b",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0136",
+    "dataset_record_id": 135,
+    "expected_input_sha256": "f8e5240f66219b1b4c61d64f6235171a2b4f7f5eda683d04a087b679e8a61772",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0137",
+    "dataset_record_id": 136,
+    "expected_input_sha256": "4885889b7cac6bfaa6d62dbd57217215e5b7417709c3fb645e8b2934e8790410",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0138",
+    "dataset_record_id": 137,
+    "expected_input_sha256": "ebf4f78e1c8b4bcbe968cf9aa5f5e49e7866ab52e15ab44e9628a820d5e61145",
+    "age": 43,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0139",
+    "dataset_record_id": 138,
+    "expected_input_sha256": "a80480aba52fd86c11fc7e686af003d9263ab1141c00c3ca6adeb58c990f3d72",
+    "age": 51,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0140",
+    "dataset_record_id": 139,
+    "expected_input_sha256": "9ead7395bbd21bed322d0d9134512fb79d2656b6b0e269d2008dc714af8c6303",
+    "age": 80,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0141",
+    "dataset_record_id": 140,
+    "expected_input_sha256": "09d210afaeefa8f0d87432c7040b98938ddb99ea5430e03e318537d5767ea773",
+    "age": 47,
+    "sex": "female",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0142",
+    "dataset_record_id": 141,
+    "expected_input_sha256": "3ed180dfc7ba8f4ec55af5b0cc658ec3cbc1eca57b2c4683099ad00a952e06b8",
+    "age": 46,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0143",
+    "dataset_record_id": 142,
+    "expected_input_sha256": "ded7cb8aa05056597f92b070e4b18793581b386455d4a415b74f4e05d65adf21",
+    "age": 53,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0144",
+    "dataset_record_id": 143,
+    "expected_input_sha256": "5b50f389807936775d21cd41a9c2a31e448ed325a0d460fc924a6607aebf7c90",
+    "age": 52,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0145",
+    "dataset_record_id": 144,
+    "expected_input_sha256": "9a96baf62de1b0434feca5ae8287df2bce20085d1f1871cb96e05edfe4f6cf2e",
+    "age": 44,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0146",
+    "dataset_record_id": 145,
+    "expected_input_sha256": "8ce151c30f701b359e46c3cdaace19128a5b4f590aafdc2107e0b7f205af18a5",
+    "age": 71,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0147",
+    "dataset_record_id": 146,
+    "expected_input_sha256": "1c26a1a9622c6a874863a75bf864990c2ea53b5e87807a5fe0817359696f574c",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0148",
+    "dataset_record_id": 147,
+    "expected_input_sha256": "8630b4698f3d14ea37cd63396c0469d8fb28abcd6f6c0ad1f9d5905de233b741",
+    "age": 45,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0149",
+    "dataset_record_id": 148,
+    "expected_input_sha256": "f617e6913e839747a7d700e8aaaa7ba13b351bf2e53541f55d4579eabe1f1fc4",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0150",
+    "dataset_record_id": 149,
+    "expected_input_sha256": "76ea0fab425d10c3f03a4b6f7bb9c3b782b1e6209d9fab6811a21f7d469dd969",
+    "age": 71,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0151",
+    "dataset_record_id": 150,
+    "expected_input_sha256": "d53547ecc00fd81c9379fb53d5133dca30d7b280af84ec95db3497af2de09c64",
+    "age": 42,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0152",
+    "dataset_record_id": 151,
+    "expected_input_sha256": "919b9701c24e05b6232a8504caa834cabc2e510983cc208b3ebd8eea8b292db7",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0153",
+    "dataset_record_id": 152,
+    "expected_input_sha256": "a73609bda055c30abc7e476ebf712e92a432f019a41c1e7a08c624e1c9c0dcf0",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0154",
+    "dataset_record_id": 153,
+    "expected_input_sha256": "1e86e787e36ae44b6c86621688525fac921202bd27fbf647b07bc804e91aac3c",
+    "age": 63,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0155",
+    "dataset_record_id": 154,
+    "expected_input_sha256": "615d45ebfd3481b54834c12f2901197993238487be51dab7d3d9231f9cdcf647",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0156",
+    "dataset_record_id": 155,
+    "expected_input_sha256": "3e6c6f01320c15306953c7deddabdd68823887dfd2da3dba951f1c8a02e82870",
+    "age": 58,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0157",
+    "dataset_record_id": 156,
+    "expected_input_sha256": "a38a0f0967badcd19138f0df104c3f96038de6049c0e32402fa3cd3b49a837f7",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0158",
+    "dataset_record_id": 157,
+    "expected_input_sha256": "86d8be79cd68082e7ea7f8d1d2343a8e486842a18b230e38968e82e592af5f40",
+    "age": 57,
+    "sex": "male",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0159",
+    "dataset_record_id": 158,
+    "expected_input_sha256": "6fb86c2f31530f3a0ee341ea9099a33241c4ecc62ce6893780ef60ec63ee4f04",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0160",
+    "dataset_record_id": 159,
+    "expected_input_sha256": "cadf464306b14201cda813aa5f7c5b1180909a5fba47cb58c1983b8830bd332e",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0161",
+    "dataset_record_id": 160,
+    "expected_input_sha256": "ed2d7174afde175d4528612864c7204885583ed60724de8db820937c94f3b67d",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0162",
+    "dataset_record_id": 161,
+    "expected_input_sha256": "32eb3289be690eea9c1e87b054228966f9987765509b45484b9d1dc017c6a30a",
+    "age": 72,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0163",
+    "dataset_record_id": 162,
+    "expected_input_sha256": "e3507b11c6e0f16da8a5c1d46a8348a72f9ca904403b7d945916cc857ca6e8be",
+    "age": 68,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0164",
+    "dataset_record_id": 163,
+    "expected_input_sha256": "19fbf54d1575751949c9fd67d3cd9d70795c90ff48498fccd0d13f247ebdb442",
+    "age": 72,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0165",
+    "dataset_record_id": 164,
+    "expected_input_sha256": "b827fadcc3e33f0f313fbd4f942e9c16b84dd942eeff4176662b4a5be4b85f4d",
+    "age": 74,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0166",
+    "dataset_record_id": 165,
+    "expected_input_sha256": "200a40cf197d90f5e2f71593c1a6d27c600f301b220595b5c41065f73a525301",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0167",
+    "dataset_record_id": 166,
+    "expected_input_sha256": "b84d99f48a504251a82a4ed63cbe0fa3f666e90ebd44c3b4520264128eb9fbed",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0168",
+    "dataset_record_id": 167,
+    "expected_input_sha256": "340e0a5194324cb3a982a2fb13f3e016b7b36334f641f2eab21e0946aefea310",
+    "age": 42,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0169",
+    "dataset_record_id": 168,
+    "expected_input_sha256": "1d26cb879e615d4bcfb40769d1daa69ff8c120aa9e7e608e1aa08b5c17356a8b",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0170",
+    "dataset_record_id": 169,
+    "expected_input_sha256": "f8942c5bdacda653e1e99b779b5ec19d1fdee8caebe2c30f2ab56343b44dd58c",
+    "age": 44,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0171",
+    "dataset_record_id": 170,
+    "expected_input_sha256": "42d553227ec5f002f3fd9c7fa293ae662ff3869cc8d76819d1df8aae76cc344e",
+    "age": 43,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0172",
+    "dataset_record_id": 171,
+    "expected_input_sha256": "c2b0e357c3c7bdd4f6ed17fe41e32b9a032861b5a3fa22811465032362f37287",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0173",
+    "dataset_record_id": 172,
+    "expected_input_sha256": "b20ee0076b46b4dcdeffb663f4588fd40d057b3e64dd1f365ee75d2ee01d29de",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0174",
+    "dataset_record_id": 173,
+    "expected_input_sha256": "678ce62fda0a054302634c1e7490c52d938975445afb82e453ce08d34ac9ebc5",
+    "age": 68,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0175",
+    "dataset_record_id": 174,
+    "expected_input_sha256": "1d8dcddbcef9d42f5f237e57151d79c28be265c69b849e8a6ae68766a6dd7c85",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0176",
+    "dataset_record_id": 175,
+    "expected_input_sha256": "536180316cfa41c31ed006747b653de9450159ce814b139c6c87cb87e33b1e7b",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0177",
+    "dataset_record_id": 176,
+    "expected_input_sha256": "44fdad1c1af4d77fcda1ccd0faabcecfce08de0c9fa7e9c138b8d06dd477ea4c",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0178",
+    "dataset_record_id": 177,
+    "expected_input_sha256": "e861175130595244e3a38cf663ee5a5e398298c4fcd3ef00581df5f4c7cc6003",
+    "age": 74,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0179",
+    "dataset_record_id": 178,
+    "expected_input_sha256": "c04d0ac4de76b8c55f827b4250bd5b73630a33873fe9281ab26016602e551a32",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0180",
+    "dataset_record_id": 179,
+    "expected_input_sha256": "0026cb93b32bf30f6bac255335138b4828023afa2dd7520d6e9b79b11424834b",
+    "age": 49,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0181",
+    "dataset_record_id": 180,
+    "expected_input_sha256": "0f4c99c9bb09189b2d5188012b7716b331e50bae3fa440e9f65e5c2de4b1585f",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0182",
+    "dataset_record_id": 181,
+    "expected_input_sha256": "8eae162203f99e43988344a044f66728dc3dc62bb39ce9678b53fddb6e7e888d",
+    "age": 65,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0183",
+    "dataset_record_id": 182,
+    "expected_input_sha256": "efd0b193e1af893c0a99f1e42a0d7d23ed49cd84fcf29730841af98358ce69de",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0184",
+    "dataset_record_id": 183,
+    "expected_input_sha256": "c097f0e1cc27c08748c1ed03949cbda6aadb870e8e291048bdb6d81a313d7734",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0185",
+    "dataset_record_id": 184,
+    "expected_input_sha256": "54520f43540e3d073ec9baad9e57f6651f074ca36891abceab159ed24baf5e31",
+    "age": 58,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0186",
+    "dataset_record_id": 185,
+    "expected_input_sha256": "e8690e4d7ee55c62e19be9624bf4466e8348fcb0b452400e14ee83b6e5d4981f",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0187",
+    "dataset_record_id": 186,
+    "expected_input_sha256": "3059f60e510f8375c8c25801eab519400dec689e77bae2dcd64911c991df59d9",
+    "age": 79,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0188",
+    "dataset_record_id": 187,
+    "expected_input_sha256": "df3bc7bf37ab5b56edb5bf308b0d707fc1cd9d1419529c02de148114046e5343",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0189",
+    "dataset_record_id": 188,
+    "expected_input_sha256": "3a7762a31a033202133ddd683728af0518368c6af2c91f6ab1f2d210e1c4304c",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0190",
+    "dataset_record_id": 189,
+    "expected_input_sha256": "bcf3e477600aa0b249b6b77cf452f47d038c177202ad9a3f6133530b32f5da56",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0191",
+    "dataset_record_id": 190,
+    "expected_input_sha256": "543673c25645c6d42c1f2aa598efa29202e436e2b891f2a6f3f0ea12202daff7",
+    "age": 51,
+    "sex": "female",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0192",
+    "dataset_record_id": 191,
+    "expected_input_sha256": "d8a27dc81205488f95494fd433e4cda0deb8e748cc8bf24418572e35fe3082af",
+    "age": 42,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0193",
+    "dataset_record_id": 192,
+    "expected_input_sha256": "4c147162441b53ad2604f1c74c76656311e942ab17e251bbe02bc3e0eedcf890",
+    "age": 54,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0194",
+    "dataset_record_id": 193,
+    "expected_input_sha256": "c664621eb784a6dc7f69b50a5bd31bc88b9e07128bdbf25c7599db91512ac19b",
+    "age": 64,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0195",
+    "dataset_record_id": 194,
+    "expected_input_sha256": "b3f90bf742e87dd1410e22c45d4fa082b3f72974b72edba6177ce9a52e7714eb",
+    "age": 46,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0196",
+    "dataset_record_id": 195,
+    "expected_input_sha256": "f2a8d13a783de08358e73360eee8c40b4b87fc0f9f55dc0314722b7e9f4858f9",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0197",
+    "dataset_record_id": 196,
+    "expected_input_sha256": "42e79ba6c418511ef0cfe9292825acec750456b3ae03fa75a2eb30b09194c633",
+    "age": 43,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0198",
+    "dataset_record_id": 197,
+    "expected_input_sha256": "f2435c0c7527886a79bf4ad7c6e6354e3c0fd34871d9e3551a01343360139448",
+    "age": 85,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0199",
+    "dataset_record_id": 198,
+    "expected_input_sha256": "afae7873ec291f416ead0d8a7d89b53ea4f9c580f45f63aa250856393eb6a5cd",
+    "age": 64,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0200",
+    "dataset_record_id": 199,
+    "expected_input_sha256": "68696f1f214cb7bf5114c9ba97cdc1e4622c8e85a482d44af852f03ace91de16",
+    "age": 47,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0201",
+    "dataset_record_id": 200,
+    "expected_input_sha256": "7ca59bbec0d807c25cdab7e283ca6ee5f4d8356a4d350aec43fdbf6fd7cdd8a6",
+    "age": 57,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0202",
+    "dataset_record_id": 201,
+    "expected_input_sha256": "28a9dca16ee760b2c7b06b86db7aa39ebb7b86d8ca3bf975c08fd94e4455a161",
+    "age": 44,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0203",
+    "dataset_record_id": 202,
+    "expected_input_sha256": "45371fafa80dc31c8f816d81a19f682ded19f3e11aec79fa2000ef20969cbe11",
+    "age": 71,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0204",
+    "dataset_record_id": 203,
+    "expected_input_sha256": "96147e40c37d0cc1f3cde472ed0de277ca1306afff6b54655d4b4d2215015878",
+    "age": 41,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0205",
+    "dataset_record_id": 204,
+    "expected_input_sha256": "c4169665e575b9bd1af9b51ed9b39be220ea9b40ecb4e9a33ea8086cbf7cdc55",
+    "age": 50,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0206",
+    "dataset_record_id": 205,
+    "expected_input_sha256": "fa4fc7f7968ae97b7d1128d43c085a9ca0a803d9686302bd79d3bf88fc0be3fc",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0207",
+    "dataset_record_id": 206,
+    "expected_input_sha256": "ea56e465a9207e27d98c2e77ed8cf7d2c2d2b1dda39caa514929099491814919",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0208",
+    "dataset_record_id": 207,
+    "expected_input_sha256": "1b6656b70de4d51749d2f1dee345211670907ec02b010df6a48c7f428030b563",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0209",
+    "dataset_record_id": 208,
+    "expected_input_sha256": "a08c3aa6b97ee34dcb6f028304c062e93a9f3458a4468aa42fa1ce9547bb844c",
+    "age": 44,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0210",
+    "dataset_record_id": 209,
+    "expected_input_sha256": "f6c483ab9b6fb4ccaddae0e19f2df80aaa4bc7a4a6d1b7efbdbda27aef8dd1c5",
+    "age": 60,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0211",
+    "dataset_record_id": 210,
+    "expected_input_sha256": "6ad4cf7815213127f6e4561765bfa49a415021b12a487d407166211070bdfede",
+    "age": 46,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0212",
+    "dataset_record_id": 211,
+    "expected_input_sha256": "d51591282d1a257e95a70cb98e4719cb91d922f81c4ca80f1c8a924d89d52f84",
+    "age": 69,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0213",
+    "dataset_record_id": 212,
+    "expected_input_sha256": "2f39e9525ee72ea1b26bc68d624f8dc8e6db5666c35bf1cd8a430425ad5d9665",
+    "age": 38,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0214",
+    "dataset_record_id": 213,
+    "expected_input_sha256": "6b8c19568720a9b62ff563a96d76c5141e98648007c9a20067f0bf02e4a80eee",
+    "age": 73,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0215",
+    "dataset_record_id": 214,
+    "expected_input_sha256": "66ac0343170756878f2a932411c854798c9ede22421152b293f737fa26a9d30e",
+    "age": 66,
+    "sex": "male",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0216",
+    "dataset_record_id": 215,
+    "expected_input_sha256": "b544a345869ff73d5faebe1ce6a9fe70e3f3d9ae83b905a880ded3436f7b558d",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0217",
+    "dataset_record_id": 216,
+    "expected_input_sha256": "3087d3753a40d6717b21190d156e979453288f4092a79e36c4319518155704cc",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0218",
+    "dataset_record_id": 217,
+    "expected_input_sha256": "2e06227cbffbd37db73a56477c8c064ded6c1a55fc9346412350340c45773524",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0219",
+    "dataset_record_id": 218,
+    "expected_input_sha256": "b3281feaee442735923ccd6165e59cef7b766841ac1de23b79a29cac7a9a32a7",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0220",
+    "dataset_record_id": 219,
+    "expected_input_sha256": "67d3e300993acedb88ef44221984c63843f006fdcbfe8fb87d0a04428f218216",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0221",
+    "dataset_record_id": 220,
+    "expected_input_sha256": "b4ba77abfc9963f79bff44ab2992c4936edfc4a4c065e61f6f1dc03c4eaba051",
+    "age": 68,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0222",
+    "dataset_record_id": 221,
+    "expected_input_sha256": "0e63305fb0252b56572cb6aa622bfa36af6b05bf21d2cb21f00480cb1a5c2528",
+    "age": 57,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0223",
+    "dataset_record_id": 222,
+    "expected_input_sha256": "d603359c1913ecaedac3feba3ea8bffe8acefbca40acb1328597b36a4ca24668",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0224",
+    "dataset_record_id": 223,
+    "expected_input_sha256": "e9b17e165a32359ed14e4e9c8b7c90f077d7c9a9da9f4da1dca57e3ee42e7c5e",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0225",
+    "dataset_record_id": 224,
+    "expected_input_sha256": "3a459d859c152e7992979c62815014a45dd992ed1a58bf02280bfe9f5ffb2793",
+    "age": 70,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0226",
+    "dataset_record_id": 225,
+    "expected_input_sha256": "ca0590ef6c00d1cdedc69a66cd5b2d70c323690391edfaafed25675abbe10c2f",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0227",
+    "dataset_record_id": 226,
+    "expected_input_sha256": "6172f174b7976f0f6cde84566725ff7959be22457b92d74797bb36e2317d8123",
+    "age": 77,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0228",
+    "dataset_record_id": 227,
+    "expected_input_sha256": "b39a36177b2dfc5079afad90fa197b3f259bb73d1f6bb7753e0f43e0112dea7f",
+    "age": 54,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0229",
+    "dataset_record_id": 228,
+    "expected_input_sha256": "91ea4fb717631835a0f0caedd75e9ffc82295e3d99d4deaf5ab9339e3bf27a61",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0230",
+    "dataset_record_id": 229,
+    "expected_input_sha256": "310fc09ada3e881367ea5c95cabbfca6798fa2eba4380936889f294d84f6e4fe",
+    "age": 54,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0231",
+    "dataset_record_id": 230,
+    "expected_input_sha256": "da42c0ff2155bd93e41c00cdb7b7d9d5ef85d9681e1abfee773559b0fd5b8a3c",
+    "age": 75,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0232",
+    "dataset_record_id": 231,
+    "expected_input_sha256": "46d468678397a2d2c5018f89e44fc47ff20b5753f0b71b85f727d77fb07134ce",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0233",
+    "dataset_record_id": 232,
+    "expected_input_sha256": "7554a4bb3e703fd5e7a9011fbcc1448b62f35bf797f0e0a5cb2a94f875df65a3",
+    "age": 48,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0234",
+    "dataset_record_id": 233,
+    "expected_input_sha256": "26262f9c5525904fdbc0d54b5980c6e61f9f08fbebbb23a3ad9b9059a15d9183",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0235",
+    "dataset_record_id": 234,
+    "expected_input_sha256": "06c1c5110a0ccbbf8d345c186083bd507fb1bee280951bd9be15856a0be8307f",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0236",
+    "dataset_record_id": 235,
+    "expected_input_sha256": "6cdc6f74784034706cabc209e0986cb778375e3d59e8a51295e633d53a465eb1",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0237",
+    "dataset_record_id": 236,
+    "expected_input_sha256": "b1ed60e916301dfc8630bd24d0fde833bac428db79b94b45dc61439d69ebec5c",
+    "age": 47,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0238",
+    "dataset_record_id": 237,
+    "expected_input_sha256": "d98c2629de3b1fb937e590967c5f0e1fde24232fc9a0d47b1c949576161fab10",
+    "age": 47,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0239",
+    "dataset_record_id": 238,
+    "expected_input_sha256": "a4b415fca6ed11b8c32333d8ac29a5b5787a51ca9ec747e32653dd761dfdb81d",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0240",
+    "dataset_record_id": 239,
+    "expected_input_sha256": "2b12ecb25365afeac2814a912b4aec3e7a8dd2f2f9898478ca0631991ce5bfe5",
+    "age": 52,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0241",
+    "dataset_record_id": 240,
+    "expected_input_sha256": "38054558f81beb96b079f8187ae688a37cbdfb64b4ef0b36dddeb768e8e0e073",
+    "age": 67,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0242",
+    "dataset_record_id": 241,
+    "expected_input_sha256": "9e72c3540696da34b17d9bd6551f2b9991b9724b4edfc332d716607408ca744c",
+    "age": 63,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0243",
+    "dataset_record_id": 242,
+    "expected_input_sha256": "5cd9d35051d6acd8564a8a08242e38dee390a376c62c4b03ee9d3d7c732ce643",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0244",
+    "dataset_record_id": 243,
+    "expected_input_sha256": "d8ab391bd910794eea0a7b39c5e7cdb301f803c5313bba230f40ef2d119dbad7",
+    "age": 72,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0245",
+    "dataset_record_id": 244,
+    "expected_input_sha256": "87d53104930f6f90c1b18b8749e8833fcd99526ece9618b22c6f4835105d6540",
+    "age": 66,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0246",
+    "dataset_record_id": 245,
+    "expected_input_sha256": "1e0ae6908b6de90e6b292f7a236d3c33f5f7f9b3f8ef4bcd887b48809220e689",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0247",
+    "dataset_record_id": 246,
+    "expected_input_sha256": "ed367d24ca3cfaebfc0fd696d431f55b2916c3df8b9c6594187c1600b1336b41",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0248",
+    "dataset_record_id": 247,
+    "expected_input_sha256": "64f378b216ca413d5ed54680f4ce6cd54f68d8ad5ac6b7a054fd02d7137437f5",
+    "age": 51,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0249",
+    "dataset_record_id": 248,
+    "expected_input_sha256": "d9b1e31782f4e26f542d10bce3065c4f9f038947496c4d86981b6fcc15feedd9",
+    "age": 62,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0250",
+    "dataset_record_id": 249,
+    "expected_input_sha256": "e90381a0b2e79331da7dda7ef57b2d120c172e6797e4f45373534c3e53bfbef6",
+    "age": 54,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0251",
+    "dataset_record_id": 250,
+    "expected_input_sha256": "8458715a98061dbd8c3863c2616cc53e5c47f4a73b3c42b9a97f88687cf777d2",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0252",
+    "dataset_record_id": 251,
+    "expected_input_sha256": "97f9b57c8c4b5803aaacf9e70d8d9d9a519229c3edf44dcc24ca17b16798588d",
+    "age": 49,
+    "sex": "female",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0253",
+    "dataset_record_id": 252,
+    "expected_input_sha256": "579b9608654c2c8f6f3cc163b72950a13c2e93b2d3781042a335449b9cf5dd59",
+    "age": 51,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0254",
+    "dataset_record_id": 253,
+    "expected_input_sha256": "b643384fb1c6034994aac7fb2ce1edc4bd910045bfaa2456da4c93f96592653c",
+    "age": 49,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0255",
+    "dataset_record_id": 254,
+    "expected_input_sha256": "7e36361a3e8251ef48edb811fe48cafa85b871eaa9bd7f58ff7a38789a95da90",
+    "age": 48,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0256",
+    "dataset_record_id": 255,
+    "expected_input_sha256": "a2d06827315e336f5da0c32610f3b0dec909bcbc8615069337d3f80efa8beb53",
+    "age": 38,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0257",
+    "dataset_record_id": 256,
+    "expected_input_sha256": "69d462d02a79ff49a55684b13623279056999a2c3c6c029f21115712104f9109",
+    "age": 52,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0258",
+    "dataset_record_id": 257,
+    "expected_input_sha256": "5b214bebfd8edcdaf69977f4c4ba2dab393ecce3d3b299316cb475cc67d9b968",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0259",
+    "dataset_record_id": 258,
+    "expected_input_sha256": "a8ab829c3992517a40bdc44fb5add213c63e849b7fe70bb87db102cc0417d1e7",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0260",
+    "dataset_record_id": 259,
+    "expected_input_sha256": "2b20cad918e688171df2c4f470c0886dbdde0267b4db71bf19bf197f8b5c7f12",
+    "age": 56,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0261",
+    "dataset_record_id": 260,
+    "expected_input_sha256": "40682f022cbdbfdc7f1b3044c9780dee64832acd351afa5c112526a174fac026",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0262",
+    "dataset_record_id": 261,
+    "expected_input_sha256": "dcb8cf928c93975381fe1c47cb52d95b4cfd80dc0f3ce08e81ccb01288d865b3",
+    "age": 49,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0263",
+    "dataset_record_id": 262,
+    "expected_input_sha256": "81d81ed08cd75fc99e011e57a63b13cdec6d8efe4eb807bc160c0fdcaf711ed0",
+    "age": 57,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0264",
+    "dataset_record_id": 263,
+    "expected_input_sha256": "5ce381b89b42e8448a7f21e01840bbed737166f7cf8f0d7ce3750d0db00c41f9",
+    "age": 51,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0265",
+    "dataset_record_id": 264,
+    "expected_input_sha256": "ec2f9b461a404283f562a78259d1aa5dfcd6c074d9b458e44e60b251b820a5b5",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0266",
+    "dataset_record_id": 265,
+    "expected_input_sha256": "1bf4a315ee016cbc3798381d715c6047efa6d7ed9179eeaed8e5000b44941a1e",
+    "age": 52,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0267",
+    "dataset_record_id": 266,
+    "expected_input_sha256": "6b3a6d5596f7d27a789f9112bd2413bf068f5b23af98fd259f81ade3679b4355",
+    "age": 48,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0268",
+    "dataset_record_id": 267,
+    "expected_input_sha256": "69169a97a1181354e7c6dfc812fcb04b98ad268afce6df8dde9de96a3b59f24d",
+    "age": 61,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0269",
+    "dataset_record_id": 268,
+    "expected_input_sha256": "71ad236dcb0e6a7c70e1c4f4cc6b627edd4472baa8e7e30c8033d2113d788923",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0270",
+    "dataset_record_id": 269,
+    "expected_input_sha256": "08b53b66acb69841046797f18ffbaa00d8ec3ba61669610a4dd9e30dde277f22",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0271",
+    "dataset_record_id": 270,
+    "expected_input_sha256": "41ee710d755504299aec1ffc939355d79f118f7f445f51956bf30cfd257e9efd",
+    "age": 48,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0272",
+    "dataset_record_id": 271,
+    "expected_input_sha256": "41799f31a13d786e966970c014f8c84f0272343a97111cf1a9b889173d7972d8",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0273",
+    "dataset_record_id": 272,
+    "expected_input_sha256": "e48e7a2c9ece1e0916001fad69fa6c68320cf52004925baff5ba38c905e917c8",
+    "age": 76,
+    "sex": "male",
+    "key_risk_factors": []
+   },
+   {
+    "patient_id": "ZAS-0274",
+    "dataset_record_id": 273,
+    "expected_input_sha256": "f49ba0178de039668329882a3c750cf385fd6dd9cddaafd9a393f9bfacce7082",
+    "age": 76,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0275",
+    "dataset_record_id": 274,
+    "expected_input_sha256": "96749662bba023cda429f37317998cfd185651fab57e304672a8ee53400dcc81",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0276",
+    "dataset_record_id": 275,
+    "expected_input_sha256": "eeec489ac5ef4a69b59e2e5224e313561c7b422f2f6f47d8f5bfc47bf0235f9f",
+    "age": 60,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0277",
+    "dataset_record_id": 276,
+    "expected_input_sha256": "87250506215c0d2270eb64500feca8e1294d274f1612e1fd82e26c2ecea129dc",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0278",
+    "dataset_record_id": 277,
+    "expected_input_sha256": "20d0ba77e1131fa2898a0f622d52b22746ec3b86be02a83719a51b911bdb4361",
+    "age": 75,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0279",
+    "dataset_record_id": 278,
+    "expected_input_sha256": "4933e94d25fbe8d2da06be7a710572834a3a1368749762e4ad316f6c8be6dd4d",
+    "age": 73,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0280",
+    "dataset_record_id": 279,
+    "expected_input_sha256": "1d329aeaddc99b8d3848df2c18c76c7cb5bcd8e9f5a362ae8acc5fb395ff516b",
+    "age": 46,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0281",
+    "dataset_record_id": 280,
+    "expected_input_sha256": "16ba0a77b6d60267d7c32aa7af4efd0c59b4edd438d8de9806b90e5e4c49c8bb",
+    "age": 49,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0282",
+    "dataset_record_id": 281,
+    "expected_input_sha256": "3d8503b29d76cef006f6052cf31081373115d7a678012078c06d628b24af6591",
+    "age": 71,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0283",
+    "dataset_record_id": 282,
+    "expected_input_sha256": "aa75078e698149b45b649db6dcec75570b01ca4b29fb26388fc096093f4baf4d",
+    "age": 55,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0284",
+    "dataset_record_id": 283,
+    "expected_input_sha256": "b2fb195533c699b832bdaa0301811e86a8da1889a27e73d3bbe75caf2d90ceb9",
+    "age": 51,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0285",
+    "dataset_record_id": 284,
+    "expected_input_sha256": "f24c203fcbfebd716405bfa97cbbc9ebc977fdf05569ddf136a57a8dfdd0339f",
+    "age": 70,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0286",
+    "dataset_record_id": 285,
+    "expected_input_sha256": "6ca7a7e85cf472b856bd3c0431d29ae86568c25b8f1ef2cee31882185aa2a87f",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0287",
+    "dataset_record_id": 286,
+    "expected_input_sha256": "b59b69beb1b4a0ede610963d14db1189d030c51b6857773a440780059338d9f8",
+    "age": 50,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0288",
+    "dataset_record_id": 287,
+    "expected_input_sha256": "79f5b3fa35be2fbe16045f0052c8f622a8c0f5c26bd8f3caf4ab0104bcf29b4b",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0289",
+    "dataset_record_id": 288,
+    "expected_input_sha256": "b13371e4d2fe01cc699bcc6f8cd671204ed27c7679fc67ab743028878315fb27",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0290",
+    "dataset_record_id": 289,
+    "expected_input_sha256": "9d13662660a34549082a94ba52a280159dd1cfc7540018611c9f7c32c85162ca",
+    "age": 67,
+    "sex": "female",
+    "key_risk_factors": [
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0291",
+    "dataset_record_id": 290,
+    "expected_input_sha256": "8df2a95e0f9958d5086730ce9303fcb5aa516ecd875cb792a59d33bdd78a2f2a",
+    "age": 58,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0292",
+    "dataset_record_id": 291,
+    "expected_input_sha256": "c0ca1a3f2ba0ec37e58c941ee2e35aec6c669015c9b6b3a11b154387a15c4600",
+    "age": 53,
+    "sex": "male",
+    "key_risk_factors": [
+     "hypertension",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0293",
+    "dataset_record_id": 292,
+    "expected_input_sha256": "d89e8deb6dba47e393fd4a7369533459f8b7fb4d4bb77bf5a28d9706b9f822ab",
+    "age": 57,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "hypertension",
+     "dyslipidemia",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0294",
+    "dataset_record_id": 293,
+    "expected_input_sha256": "018569f813673a8b22d1cac8a163a1c705c594172cf5f4c64cde2297f7f570c8",
+    "age": 59,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0295",
+    "dataset_record_id": 294,
+    "expected_input_sha256": "7d6df88a442b8ca91b45475ec9866aaf54b07569e69feb913633bcba060a0932",
+    "age": 64,
+    "sex": "male",
+    "key_risk_factors": [
+     "diabetes",
+     "current_smoker",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0296",
+    "dataset_record_id": 295,
+    "expected_input_sha256": "c02ac695ab6cc7579005e131bdac453f532507ab5bdf5edfd8f1f48ae3c53613",
+    "age": 62,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "dyslipidemia"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0297",
+    "dataset_record_id": 296,
+    "expected_input_sha256": "b441b5392f350b2b37e016a1a8690fe93bb4203858c98015727690b93a840146",
+    "age": 42,
+    "sex": "male",
+    "key_risk_factors": [
+     "family_history"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0298",
+    "dataset_record_id": 297,
+    "expected_input_sha256": "dd18cac08e6ae3ade98727d5d79c5e690b1f762acc606648392299ae0954efd1",
+    "age": 30,
+    "sex": "male",
+    "key_risk_factors": [
+     "current_smoker",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0299",
+    "dataset_record_id": 298,
+    "expected_input_sha256": "f0d86038046e11801e5aa637ca2ff0dc216795a23a783e2df198cd99ce31105c",
+    "age": 58,
+    "sex": "male",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0300",
+    "dataset_record_id": 299,
+    "expected_input_sha256": "de3eeac4bb0e2435255c7eef0718b76fbd983578487d7e8dcd6abc9436f14ba0",
+    "age": 55,
+    "sex": "female",
+    "key_risk_factors": [
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0301",
+    "dataset_record_id": 300,
+    "expected_input_sha256": "bcfbfe1eb54a4c2baf70dacda5a2df5f93a26f731f85a534ec853dd2e21e29e0",
+    "age": 48,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "family_history",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0302",
+    "dataset_record_id": 301,
+    "expected_input_sha256": "8880a75aa1877be1a443aeb726c22e05e088da95ff384db1c60d43e2cde1efb6",
+    "age": 57,
+    "sex": "female",
+    "key_risk_factors": [
+     "diabetes",
+     "obesity"
+    ]
+   },
+   {
+    "patient_id": "ZAS-0303",
+    "dataset_record_id": 302,
+    "expected_input_sha256": "3dfc97d16b872cc44c65b319e1685019a5818e3c0e96d714690143d8cd930e41",
+    "age": 56,
+    "sex": "female",
+    "key_risk_factors": [
+     "hypertension",
+     "current_smoker",
+     "obesity"
+    ]
+   }
+  ],
+  "files": {
+   "patients/ZAS-0001.json": "63afac039e16f0862ded6cb2c2f01d33052042d791613ec89b27aaf13a899c55",
+   "patients/ZAS-0002.json": "6f6a7a129eb9fd209b42293080cba39355c31008132384c568e8d4681e173f0e",
+   "patients/ZAS-0003.json": "392567c15669387ba0de7b0ee1428b1e4f3d9afb9fccaa783cadb020f8016891",
+   "patients/ZAS-0004.json": "25b18eb2b0ffe613a763fb7302f9dd119f401b30c9ec869e1d1ae05130ffc3ab",
+   "patients/ZAS-0005.json": "241e8d5a7546b13a0129cfd73b9c70a69286f598d43d21fbc34cfcca607b6c2d",
+   "patients/ZAS-0006.json": "6cd7566904bf0bef8289ddc5bb70118200ff7454bf1e426cf4ea87e2b8347969",
+   "patients/ZAS-0007.json": "ffdc3a44dad44d656887365af8a4f4c1ecbbe8e3e6d89dba2f7f53dd5003ecab",
+   "patients/ZAS-0008.json": "88eea03bada83507487c8a9e4c6df189d99d6aaf6628a6b0142e5d124bc50d9e",
+   "patients/ZAS-0009.json": "1eb74ea6be5a85659f90dea23af3d06e5f94da02360e910bdef1c5c884b8f6b9",
+   "patients/ZAS-0010.json": "c580af6ccd860c1198b6bca01f9b318fd939847670fcf91915f30008a6261247",
+   "patients/ZAS-0011.json": "0a451936593768281da4ec2643cf9af9d551881fd7c513bb6bc5f914a45e6b3d",
+   "patients/ZAS-0012.json": "d489268366f4a254ded494385b250c2d3d54958124be314c9de6f0fd342639c3",
+   "patients/ZAS-0013.json": "7620c8c9110cacc0590790de723710cb0915c64e0cf9b753d12eb1b58efe5963",
+   "patients/ZAS-0014.json": "fe8cd284f0a75d9ba318f6239817a14c379e1bd1adb03e4400ea723722e5d6bf",
+   "patients/ZAS-0015.json": "c8a56555b9df10fb6ad4e8de00f58c46de3fe3f167db818ba4db025bbbb9d387",
+   "patients/ZAS-0016.json": "48d2b51e3d8eff35c8ff5f0cada34075ac23d8f02e7d2541d36f82d6405057ae",
+   "patients/ZAS-0017.json": "71a385ff67f1508acedd8346f3b1510772f0c108f126bd8127fb9998da0cb12a",
+   "patients/ZAS-0018.json": "2f1bf26c1680cea3955caf61db369b2ad794fb7ee3e75ef8a010f07c29c26a58",
+   "patients/ZAS-0019.json": "b0337467b755b2b2d535ae40dd186f1010a4327df6fdcb47dda91d3b391ef471",
+   "patients/ZAS-0020.json": "8d54685b337f745a893ca4b5476ea721c8e6fc74c8b59f0fdca26de26c748793",
+   "patients/ZAS-0021.json": "12613f3b1f570836503f8bea1eb37cbffb35685abd4fa62a60dee6393ad23479",
+   "patients/ZAS-0022.json": "16f3b9f4fbc53e9eaf0f17de80b06e5aad330cb61672ced59657d873e4f9e013",
+   "patients/ZAS-0023.json": "1ed68f0ef860382bba78ce13dec17b77209ff5296a47997223b00976a49110eb",
+   "patients/ZAS-0024.json": "9c9851ae9c1073cbb99180d75eeea0e0293c7fa2e67c2be35aca0b7179604167",
+   "patients/ZAS-0025.json": "42a0bc57f47796934811e89f3817b339890ee9adf3c217abde7ad5c208176e16",
+   "patients/ZAS-0026.json": "fa7fbe34d2f012f7be27ae249b795b469f9484c4bad10739090471d6f11e6c58",
+   "patients/ZAS-0027.json": "6ed8c3d78746fda9608b199ebecbad603d0e22b3048e494aef750cebb913b75e",
+   "patients/ZAS-0028.json": "0c61fff55520dafc1f6e3778947f53f31ef80ecb8e2dfa47c3da14ae11a46a8b",
+   "patients/ZAS-0029.json": "0c85d7b4b8e42bb7b2cf574c55482b3007777a79d06152bfdbc0dd08e16e8ed9",
+   "patients/ZAS-0030.json": "ec4d8e63cd020023b0f0db4018ecab703cabbdf0c357800f1edbfb4642d4c39e",
+   "patients/ZAS-0031.json": "250ea59592bbbf15b5111af3cd1977237843c9697d2f967197de1cc911dc4a33",
+   "patients/ZAS-0032.json": "869f77d8b9dd2abfa799048301529845f6d3c415f478d4644f66b5f429e50fa6",
+   "patients/ZAS-0033.json": "28cefac26a0a4cb8a4e1ec644013b5581987c1caa5158bade6f7f444e19650bf",
+   "patients/ZAS-0034.json": "75beb2529566da7ccd5e81186736de7dcccf7a363d013a6f16be5ae78362a995",
+   "patients/ZAS-0035.json": "456fc83c04694cf863ae300420b105f4f4195f238714b81815d0fef876c43b72",
+   "patients/ZAS-0036.json": "76582a8608f34fc8d2b5784145a3ff530908547ed448042519757cff2ee6c3b5",
+   "patients/ZAS-0037.json": "f167ec6178b6f9e50675538a27e86e612e342752ecf33e811084ada2e76f3aa0",
+   "patients/ZAS-0038.json": "c40983cfa60ec27fda87e56bb3009360cb842db19d663a5a8a17ab963f3b7419",
+   "patients/ZAS-0039.json": "446b4fc3113eba099622ad4d23f6d7734fef55f2ac4af14b6a5f58daa5acb2e1",
+   "patients/ZAS-0040.json": "350ba877781013f7908015c86181d2dc853d7be1b0376982243318fe53db02ce",
+   "patients/ZAS-0041.json": "374a45bd185426b45f996181fcb94ac626c9d528dcfc2cc5ccbab96fb7753701",
+   "patients/ZAS-0042.json": "259adea955e3d70687687c33979763bac722fb27b7e3cc6c6356fbbf027efbb4",
+   "patients/ZAS-0043.json": "bb1125fbe048608a4836fa524aeb22f88084cba1a0f92e4d43a30cd275836338",
+   "patients/ZAS-0044.json": "4a407df4fe81c52cc6e831c14ffda0f4e5574338a05259241fbc27cef8fe12ee",
+   "patients/ZAS-0045.json": "11ad15cc98cbee7ed88ab3a1b7b89dbb6359e7fdecf88fa3db7bb7ce9344f515",
+   "patients/ZAS-0046.json": "8cf0be7ba50fc48a6db55b1d6b606c4fc2e1b198e814e030e83dc1aa9d24940d",
+   "patients/ZAS-0047.json": "f573b9a9b9c4b0b162763e9cf7dedf4a5b66e4742c993f0a66d5639c9e87fb7d",
+   "patients/ZAS-0048.json": "8a07df232a6180c9f1eef58b170212a475cccccb114eac795d1aa6285b64a5d1",
+   "patients/ZAS-0049.json": "21ebf397644b30bebb78bc73b28035bdfc037e84f87c67da4112035710d5893e",
+   "patients/ZAS-0050.json": "ece21940664f6568df91af9fa189b63256b083a72b58998a3dd690a3b0a7ed95",
+   "patients/ZAS-0051.json": "659a28d9283d1694bfee0ad4a17a8307f5fe39cf33e62fd9723807a8d6dfc611",
+   "patients/ZAS-0052.json": "4cd2e02b9bb64909db57275a8bc9cd44d9a3307b1c8f1097bb7673985a9a3ff2",
+   "patients/ZAS-0053.json": "5a9981ffb1e72205311700702c813bcc4e7fc6ee20fd0cd2db684bd25b444e94",
+   "patients/ZAS-0054.json": "92783c7e8c8bcb0340ef26f6b1359e17b589baac7e2845568d03f2578fdd4e3d",
+   "patients/ZAS-0055.json": "63a95596bfaa0a835546f57122adedc362800c3c7402a0af998b004c1e8eb7ee",
+   "patients/ZAS-0056.json": "cd6f3a117232e2b3e8c64e89793a810b1c36636aed519704140e69a98232193c",
+   "patients/ZAS-0057.json": "ff6209a394971f8c098316f74ea6e62777f92aaead12d982742ba9d2d00034f0",
+   "patients/ZAS-0058.json": "d5d7e3e419ca1e6a8261edee1d74ae80200e228160e9eb67e06b87b1ba12f233",
+   "patients/ZAS-0059.json": "83941327d2cf76b3d2b7085c4cc1348cedddd5d627fe51c6465a942a6d311e97",
+   "patients/ZAS-0060.json": "722b24ea67d3b731a90cc6439f597eefd0de584258b0d8195d532c08ebf0bc8d",
+   "patients/ZAS-0061.json": "a1320fb9949889f63c70b60dbfa32f75e45e2ecbd5619926cbb436018114b8bc",
+   "patients/ZAS-0062.json": "b0814fad554bbe9374a58c1dc3f44f3ddbde93c94f9958a6d5c2979a0e21b894",
+   "patients/ZAS-0063.json": "db3a5e536a1feb15a2bc97d6d05dc025024d896c43e997da6f55c0a6a09a36ef",
+   "patients/ZAS-0064.json": "655df2f52cfecc9e7c85dc3d141bc29ca9725098ff6d5b6999cbe24184b8f090",
+   "patients/ZAS-0065.json": "909e312cb18acd7eb0f2d51829f09537e2e6929e80f8742f20d77e2e5811f401",
+   "patients/ZAS-0066.json": "b210a7dcc01a83dd71e20dc0239725f973e29dabd9d45e9bae69f3838e794d90",
+   "patients/ZAS-0067.json": "533fdbf9a010708af83f44ab207a31c91186b6c01804e8fc910c74f746c05112",
+   "patients/ZAS-0068.json": "0881a9b5cb3e2fe16e08e56afcf3330023687b3798885b11bef1b7939f60e5c5",
+   "patients/ZAS-0069.json": "bd74d68108cf2763ca09fd1e0c25871cca83519c5f5d0a2451292893e452dfca",
+   "patients/ZAS-0070.json": "72035535b60195113e796ed42bba4e37f26764bd696c773bac5d7e86af6d6f79",
+   "patients/ZAS-0071.json": "0cad2a4c9c68515fc3959a6296aefd7179cc3d1151d918dc366488aeacec770d",
+   "patients/ZAS-0072.json": "edf47bd8dbb58c8bee9e6463dff3d40c8c0a2d53ab0beedbd8f30af621a3eb11",
+   "patients/ZAS-0073.json": "55b8c95879bab17e4a571049211ec71421c03fa4ca440266176223e14ac261d9",
+   "patients/ZAS-0074.json": "8c33ede16a131ec18ee3b47275a7c1a796ccc1ca3386ed29ead1416da1f5591d",
+   "patients/ZAS-0075.json": "6dbd58716cc48586c26a7b09a31e09a4e24b5ba6688f3c887c4fdc4c533630e9",
+   "patients/ZAS-0076.json": "fdc561d56133646681fdf8b7857d4c93d1ea1dcaf4ba0315f1801cf7e1168a08",
+   "patients/ZAS-0077.json": "86ca68caf5648da7461d29974a74d89ccbd5e5c544295e55491f962cd915e257",
+   "patients/ZAS-0078.json": "e4e4ba75e22e5b21f1d43b742d37d47db7a59fb89737097f3f84bd7e9298a0f7",
+   "patients/ZAS-0079.json": "c1499412ca250ac779fce21b6d3868de0503aa26b06ae7f6b89821d4df5579e9",
+   "patients/ZAS-0080.json": "bc7cd03714998bd7c14ce160b2adb21eae1c8720dc93b0ebc8ab0bad25c698c3",
+   "patients/ZAS-0081.json": "85f41ab2fad2e3b0cc17f4804c4a05ce9078392ddc9a7f98e9d07c9fafc5cf66",
+   "patients/ZAS-0082.json": "7936bc50e41c825f3a6b7a6362d500c4551501af367a3de7b058dcaaa835067a",
+   "patients/ZAS-0083.json": "89c2163e03eacb1b14172aa10d563879cc1250865688838b3373dbc720e9dfd7",
+   "patients/ZAS-0084.json": "c3263f4b3fd8709ae524b79f900403d062ac535856763a93f17b09c4b83599fe",
+   "patients/ZAS-0085.json": "72c20c7906aca23e7327838fffb867d24378538ea792d7e5ce3534521068e2f3",
+   "patients/ZAS-0086.json": "ae3a8464a52a6fea78f120b0bc5b40e2be363a803448d7183726445a5fa2d7b0",
+   "patients/ZAS-0087.json": "90ea5d31483bc0267f6cc8fbc15b1831ca57f1d3d476724c142dfab5f313a5aa",
+   "patients/ZAS-0088.json": "b5a96d21979921c7245b9ea1431017b036ac08e3542393033b6c2d3b6ca510be",
+   "patients/ZAS-0089.json": "c6b51370e9811384a8ddec1d1c2598b58a85598e0dbd0f2e392ce92964c1fbd2",
+   "patients/ZAS-0090.json": "e6f99fde9bf0df3db8c1584e4ad430cabba9d0753b84e8b1f5a1614eda48dee0",
+   "patients/ZAS-0091.json": "35ea5be0ac8acd8f076d366191d36b1ab89ff0458e8d2d7e7cded6bf12286dda",
+   "patients/ZAS-0092.json": "7b88d2fe5e5af8463dd43ecca17fce0670332876ca3950e4947468f71ed685b8",
+   "patients/ZAS-0093.json": "ee6977d5525b7a1fb8cfe8b543318d4088caf55baffa19750f0f6db78ca68273",
+   "patients/ZAS-0094.json": "2509f6526d7d3b58959d60819df2f6101f1beb5e137b777127ab2bcca45df69b",
+   "patients/ZAS-0095.json": "3efd32b025c4eb8d5c92cf304f24f85cc90f4847a45f4273fc95ff4a2cfe5aa8",
+   "patients/ZAS-0096.json": "46f576870d82b250ad3bef60e26ea83326a459d25faf22b62e815a920522513c",
+   "patients/ZAS-0097.json": "036c69d1c72fb3bf620f14a5e86704adfb9f2666002e337ef7f197f0c626c613",
+   "patients/ZAS-0098.json": "475d9a44f88f439aba148275b8d50e5c57f179c9d7d7642aa57b4ab729ed0fc1",
+   "patients/ZAS-0099.json": "7a2d589c870923712df147cf5d875046a85f94f8b70ec47e23bb049bbd9899af",
+   "patients/ZAS-0100.json": "22b6896a1adde0ee9b0cc835897b38167383e212d77a96ec11e0c97f9850659d",
+   "patients/ZAS-0101.json": "7f4c81b5ec6603b0c9140f3218efb6099d224d711ea03b75ff45c9340f1a9607",
+   "patients/ZAS-0102.json": "66949b0141bca393008ca2ce7b3237c74b111a902534a6d6dc0f74ace6178dec",
+   "patients/ZAS-0103.json": "6c41235b86b5ece31c396730cf02a309faef991d014b597f59f6f147256714df",
+   "patients/ZAS-0104.json": "c952a00b9c15d8d78e1835abe964008a8920cc8cd7f971ed1bc52324d2fc3af2",
+   "patients/ZAS-0105.json": "a85fbd913b7e68dc1cdc52bc6f92e401f29c9a703c3fca0abbe94cd1ea86ec10",
+   "patients/ZAS-0106.json": "23b657a152936168dff06d12568940ad5de5d8c6ec5fed90f332cfc7e7d7f994",
+   "patients/ZAS-0107.json": "7690a75a31c5c366f1aac3802d8692ae0b9a75e0149d21f6de4516f858ec5d6d",
+   "patients/ZAS-0108.json": "73eaf3250f9ffa0a49d950a020ba9863d114d3d8116e690f1b11d2b23ad3221d",
+   "patients/ZAS-0109.json": "2bbbd685c4992ac392e9eafb6e7dd9b562de478a12c6b8a9c6b9a7c927b8b000",
+   "patients/ZAS-0110.json": "22e844ce881ed36472eeb782e74c889e59d82535c02967d35030c03884dd2910",
+   "patients/ZAS-0111.json": "d32ba24a43c245ba88f1a7090b4fffb7ed9df669032820987263dd444db2b361",
+   "patients/ZAS-0112.json": "b2c20393353ce3eee15ea773f02f7715246cc3678c6b06ee22d215caee5a3ece",
+   "patients/ZAS-0113.json": "fd42b0092f0f7e6ed2567c25a9ef0ef2e681e423d11379dc4b839a0a3d4e33c5",
+   "patients/ZAS-0114.json": "8ba04b6bd1c4894e3b6f54715becc69b0cbd6a1f469595dd435164dca54edabf",
+   "patients/ZAS-0115.json": "ea1bafaab670f7b362b07c36682e010cba631f8da1ee17d2089083e0d3b8bcd3",
+   "patients/ZAS-0116.json": "98165f677cf74bc178f0ab622b41fed8baf150899e3d5a39580f0063eb8cc5b8",
+   "patients/ZAS-0117.json": "ffd0fc67d14f243cfed3206cd3dd2f52ca330a9bc9d5c094aefebff2f0bd92e9",
+   "patients/ZAS-0118.json": "10e1ecd0a29c1be3138f1fdb4e40bbaba5fcdd696a6e7ea2fd610250f4ce2c94",
+   "patients/ZAS-0119.json": "92960a0cade14fcd5b50169298260b4d1420fa6dafcefcf40f67d1545c2969b4",
+   "patients/ZAS-0120.json": "13e68683ee30c6e4f3841141bbd1a6636bb8be518032645861c13b6413c79660",
+   "patients/ZAS-0121.json": "7a95efccb84f1f7284df680aa3094e5f3dd8dbbd21812fa4343d0f11f5bdd806",
+   "patients/ZAS-0122.json": "1b7b78679f56a681ca91987350b149d6becc3c62ea155d1a0949b90be64bab38",
+   "patients/ZAS-0123.json": "d03cf547a16b1215f490cdc4f5b6e26ec4972c22133e10c8befcee56762f4936",
+   "patients/ZAS-0124.json": "3f85611af0f1ebdc85e3c79675915bd982a73c437049df5e1e444d4ef58f4484",
+   "patients/ZAS-0125.json": "7201f36e8e675cb419200aac80d7a6272babd39a766e1474b111fc17f61bbad3",
+   "patients/ZAS-0126.json": "0ff244c0c79f8a1468a0c471c617b1ae58985639cf087ccf739cf69e36262845",
+   "patients/ZAS-0127.json": "92abd42e58ad0dcb9b80832096815454a0061f1afacc8ca6beb09caa4506ebb6",
+   "patients/ZAS-0128.json": "1c30093d9243fdfafa65bf05b293bdcede119e5ac47c3fc882fad3c0f8322aa9",
+   "patients/ZAS-0129.json": "cc50d862be7396f284e7afb9bda7377cc886847b4578cf641a40a22d46e8b84a",
+   "patients/ZAS-0130.json": "443c5e4832123c53ada71957647511302c938d5bc499d336bdd544c07e1f8e2c",
+   "patients/ZAS-0131.json": "20f25076472e5997898b56b35918e8fe8a8d13ec2f2b17ab23a7e7c045370b84",
+   "patients/ZAS-0132.json": "6a89d8b7028f731b67d2bbb7fa223403c69795b0bac71950146c0c0992274289",
+   "patients/ZAS-0133.json": "83e8433bda22d522f4a825842d7e98f4542b7bdf377f96476e1e489c5526581b",
+   "patients/ZAS-0134.json": "d912b76a1476fef0c1bae3c5ea240f6e0b14c41f9ccf80e83c04c59d8f27b3e0",
+   "patients/ZAS-0135.json": "1f72a55ed29e4cf36231f176c12cdfeac0949502acd500aa216247f8b5b15311",
+   "patients/ZAS-0136.json": "2871ab32aa1f2900788d55def16b6609a16877b14cb2aaa413a1934b1df0c8dc",
+   "patients/ZAS-0137.json": "d0b97fd97694260216100dbd870fed973188b22c8619570fe856293be96fd8c6",
+   "patients/ZAS-0138.json": "0c65abc517ead330332f2aba702a9a14b8bb472b7f21be731a06509b981f19a7",
+   "patients/ZAS-0139.json": "b34159471e86b0ed5c5687433a416f41bf89f1d88ba4392df9771b397ba99689",
+   "patients/ZAS-0140.json": "4fbfbc9f26615bb21186f70d4a5c205d57cc8de30f934db0372d59d99165b408",
+   "patients/ZAS-0141.json": "a1a979dcc226cb875b83d254a95c5116ab121bc2612ced8518dae54ed60777e3",
+   "patients/ZAS-0142.json": "b3ebcf7845f52d347ef3ff6bdd76349359185b1ccba1178fba767342fead7a07",
+   "patients/ZAS-0143.json": "c479d8580fc360e46503fbe2bb1a13440a4e3446a4f1322513010b15bef926f2",
+   "patients/ZAS-0144.json": "e48c8b407cfa933b7680263a59809550de4f55b62212b81bb891fa14f54615df",
+   "patients/ZAS-0145.json": "93d769c7c6043b7c2e194a48ce7528e227c56efcbfa5cb14ec8514a3c0f34323",
+   "patients/ZAS-0146.json": "147672d511355a19b283ccc0a9aa3209219123fe424146bb9b0569b70b212455",
+   "patients/ZAS-0147.json": "15a6c68e441a12be0d097e8a98da564165431ed8ef06fcb86e6a0daaec517336",
+   "patients/ZAS-0148.json": "f3ba16c44502241e5937f4d527515bf757d0bd8ed4ff9e9872d0ce9255b042f6",
+   "patients/ZAS-0149.json": "6805d87f7908ae21b945169c835b61ff4fde396c89ca1079762c306ceeadc7ee",
+   "patients/ZAS-0150.json": "262ec61f17285e49911cdbb2711ed3bc1345e732bb1ddecde972755a8736cdea",
+   "patients/ZAS-0151.json": "2faebd24dc1b1dc2b73ef514b747f5e28434e2e3fe4f46c2d39356e3f389cfbe",
+   "patients/ZAS-0152.json": "de8fbe53b610af03a8c13b5260abc403ff0b91bcdae94ae29adc2d7f99d1bc6d",
+   "patients/ZAS-0153.json": "f8b1575119184fb14c67f27279409916d0d22d9e0610ef17778e1d2c91ca48a7",
+   "patients/ZAS-0154.json": "d18e4204c9fbaf3d4ea0f3207082a20c62dc4e805661eb1740e56a1f1fb7f847",
+   "patients/ZAS-0155.json": "72b2033ee1afae8cecfcd5aab12eef4160c798fa5490e8de384e6a0f0b74115d",
+   "patients/ZAS-0156.json": "65e8cad27ae531c04aa8898728d031d8b4f44089cdc8bd757a362e8a06c17cc4",
+   "patients/ZAS-0157.json": "891ab6f3b58f245ba683252b094f33a6ce131993acbc589aaf37fb543226783a",
+   "patients/ZAS-0158.json": "261414ca7c46d932feabfd221b0b9ffe4815d9a1eb633f2696efc3ea1b5b5188",
+   "patients/ZAS-0159.json": "d135cc96c5d44df26b3aabccde0673ca61986a80f986bf911f7f2f4e15d89e46",
+   "patients/ZAS-0160.json": "a7fab57095ec889f0c2eb4e822c32865f52c9ec120556a24cc1e3bbecf13b3f2",
+   "patients/ZAS-0161.json": "3c17c54fde7541aed66a9962cad4e768c5e1cc8e426ab0a3cac60a4d8c1dedca",
+   "patients/ZAS-0162.json": "e9bdb9393b2f9f2b6deb8650ae522161918c534b62a2ef9f4d98859fb98cfbfc",
+   "patients/ZAS-0163.json": "3e073e9c3e63ca22193135356675650b9fc9bb10b5ebc9701ff57722d971bdd4",
+   "patients/ZAS-0164.json": "5671ac9c8fcde95f91607baaaa871993400afb1e829f02fb809ec3cf1ee027b8",
+   "patients/ZAS-0165.json": "3ef1e6e6dac6e2c3044c8d3843b5e8dde496091d7a5d28f406766fabb9aa4cdd",
+   "patients/ZAS-0166.json": "671af3b86b53d254a1dc0742ccdc00e1231834534dbdf39e3d3fe9337c47e2e4",
+   "patients/ZAS-0167.json": "ac320b500f835f3faed2211e82989fc3a9d6a87b6d21508b3d8d80a994ee0b05",
+   "patients/ZAS-0168.json": "922e17d7af10ff2099fad02228f6c5bee9feb945d63b84a9947cd4008243ed2d",
+   "patients/ZAS-0169.json": "ece257b3eb5dc37a0e2891500607548bd5241e1d4c1fe2cfdab2210b3d5de77b",
+   "patients/ZAS-0170.json": "2bfc989a112256964f9ef4a82d43c325cdb81075fb4a5d98d57aec4ac5f45889",
+   "patients/ZAS-0171.json": "9e480fa17dddd748c9f0ea50b47df4fda9808157a263208c028816f25f41bbb0",
+   "patients/ZAS-0172.json": "032ba81a3ab79960775283c1196080a8a2ae7a60ff8a3ad291016bc6713c45aa",
+   "patients/ZAS-0173.json": "daa7bd4249f1067d636e11b43b21517dcb5c61f627a4a1c0245ee36ad4c6437c",
+   "patients/ZAS-0174.json": "f3e693c1162f51319b2860f01c1e26ba40250beb5049ed2d73a6cb6151eb52c9",
+   "patients/ZAS-0175.json": "97c6dda2acedd65a1d49dafcb16e92eda709c8365d1aab117b9ba666db0885c0",
+   "patients/ZAS-0176.json": "3b75692a2898985f99c25a573eaf480167beee82d78da52d5cd92d5b50f6df0a",
+   "patients/ZAS-0177.json": "56828b745f6ed650ede2a3cf3d0fd7033911d5dfbcdaaebee4adf3542f283d48",
+   "patients/ZAS-0178.json": "c5e581e21dd8df8433f6034400ae26f32c7c5f05997853a6b2df45571a880464",
+   "patients/ZAS-0179.json": "972b108c12b88d4613a88a55b28a84c10c66b795df66604f4eae068d61ad5e46",
+   "patients/ZAS-0180.json": "b812a4de37e7502706e2c4b672262bf2fd711b062631e04ff4a7c56513c41492",
+   "patients/ZAS-0181.json": "ab0cd00a7e4b29333f9d0129daae6b8ff34a74d308ae507eadb880d89f6ceee5",
+   "patients/ZAS-0182.json": "5b92c0b91d990d79b67121f6af148e849afd40af3dda23aac8b2ba12055294ce",
+   "patients/ZAS-0183.json": "272102a32a222be65d440c802bd2d3a0de8a7c5611df55b58a74916fe3828834",
+   "patients/ZAS-0184.json": "ead7f65ebd1ee22367d996eb7c4524a4449f493516c48569db0fb37bd3bb0e90",
+   "patients/ZAS-0185.json": "276152820eff4355ed0ebdf8a88422dfb6304821db747064edf3130ed52f88c8",
+   "patients/ZAS-0186.json": "3d0acb035e1954dcc15abd14d5fc6dd4f70337c121667e268b3d0fdd5f887193",
+   "patients/ZAS-0187.json": "e4da8c8e2e6888a44209ecb720eec8424bc5cac4c12063b4dfe5cfc842e82e0d",
+   "patients/ZAS-0188.json": "681c32f23ba6a46d6d737e7e7f64082cf5f214816b8073df98f9bc1b5d60e70d",
+   "patients/ZAS-0189.json": "0a3a00504c0af3fa94e5edc072c3e5128b810dfd04ea5a7acb80594a8724087b",
+   "patients/ZAS-0190.json": "aee30c4bd847bec0bd16971c3a23d0e70bedef75f0fcfee8b278a2d830571d23",
+   "patients/ZAS-0191.json": "9b5f6a978e662ecac6bc0da8d2dfdbaeca587235698da32de9fdcb940cb634f5",
+   "patients/ZAS-0192.json": "e38728fad312688184ecc4de873265288d20d5c61cad8ccaf273968e0f79228c",
+   "patients/ZAS-0193.json": "1bc45479e02c74759c4ff36611780411da5cd4a43593818680b2e1051369de07",
+   "patients/ZAS-0194.json": "e5ba4f7d135cf19d483a2d0a100526c997a6859088b15a846428fdf4455dc4c0",
+   "patients/ZAS-0195.json": "0d0bd6a33c00fdf9a0dcc30546daa18c492f5f3dc4ddbafffa9859a943dc109f",
+   "patients/ZAS-0196.json": "c8e8e7bbf86cfe15fe7ffee23fd363c537bb0427b8a576088fabef5adfa7c2cc",
+   "patients/ZAS-0197.json": "2251d2d16885754c96f8cc8f605799f881ba675da4078578385003abedbde66c",
+   "patients/ZAS-0198.json": "72ee5ec4c18fc94de7691701607ac5f1a02fe321595119d5a9f75f115b21d5fd",
+   "patients/ZAS-0199.json": "59ef59a7d2d8198595386ab1252b3fcec511124c00111e84e896f88a93dd8265",
+   "patients/ZAS-0200.json": "481ea0a7d7b01137a413404d94cba63ae124b3b655ba1092e144293b1a942c89",
+   "patients/ZAS-0201.json": "1ebf7e5b392065b0aaaf73647fe7db40ad0432aa26543ef13a83a2a38bf075d0",
+   "patients/ZAS-0202.json": "690da4c1729511f805a2bd61b29205b315adb1e7398315b2034448e07b40adf0",
+   "patients/ZAS-0203.json": "0635404715e64dbe93cc4d2da201960c82b1b42b44da491f9bb90c0f277ef009",
+   "patients/ZAS-0204.json": "419485a75efa5797e34a85915f94e4671992f4f66e939cb29275f56ad68e06fd",
+   "patients/ZAS-0205.json": "27df27d4ff65ad7de71113d5677d9b173140b686a71a99199e3338ac62cac66e",
+   "patients/ZAS-0206.json": "a83fd0b1a1254e24aa9e4be64e8b1fb85f8d77cf7bde1e9c82e7a286e06808ea",
+   "patients/ZAS-0207.json": "7c2a23004a383bae4d3746b449f0e58f327860c8943e46a2d799c33af3c3c792",
+   "patients/ZAS-0208.json": "6e5aa6e0e75aad337dbe605e5c578955d1aa2b530e389331c08ecd87e3d9c6d0",
+   "patients/ZAS-0209.json": "0bf5323451d999a909e734abc3e75c12d03850cbdb762f76ead7efcb0b8c1e7a",
+   "patients/ZAS-0210.json": "70a2d469f2bda989b4e755128d392b7efffe731d26726a3f1f941caa4620e2f0",
+   "patients/ZAS-0211.json": "c7ce50446ebc23390aeeb8158e805e019b179f7abb0fd98b456d7d0227d1b628",
+   "patients/ZAS-0212.json": "36d97832055341333494362212101e2eafe03d6b29f0568423797ad8a76b2b4b",
+   "patients/ZAS-0213.json": "4b04daabfb4986f95ded019c36ab6b542dcf6405187c550983dd70e8136439ab",
+   "patients/ZAS-0214.json": "d6402d49143f482402c937a1c2effc1f0f876f29ea9718ac05a7f9d52e152176",
+   "patients/ZAS-0215.json": "6881f0a57bbd7f18ffbff6d08e0fe43a0be131d07b3cebdfb34bf5fd249a623e",
+   "patients/ZAS-0216.json": "0d9a4a991ae991b34536c94654afbd8cc8fedd2a8871f0c35894cda64dd9c9a0",
+   "patients/ZAS-0217.json": "d3a0097916e8fce1650608b2b350da5753311a4f9a0370545692b33d787b7529",
+   "patients/ZAS-0218.json": "20d11450e3b8b6136f022a95a9264175c7a06b16a9f75954f0e7ae60392ebd57",
+   "patients/ZAS-0219.json": "8b64886b2080b480c8911613f9502da999fcdcb5217eb38b50e8b444e83eb528",
+   "patients/ZAS-0220.json": "70724496aef2b4165056c4afc94c07f59b35ef098afa9b7ba9af6e3860d8b396",
+   "patients/ZAS-0221.json": "ae6aaa1fff93ad5b04f8fd16bb01906366177709852a09c1d46ae8ee5bf9b94e",
+   "patients/ZAS-0222.json": "6613a8e8368ff19c9382b4e4a21c5e85f6df6d5aef758216b3708f5fdcea3945",
+   "patients/ZAS-0223.json": "da84380cdacc3b6eba56ceba9b0e9c780a03c52c1ed20ecd46fb73b38f379075",
+   "patients/ZAS-0224.json": "a4aead502580e54d8e023e6fdf78c0780d701b384ae0f1493297873469a52c44",
+   "patients/ZAS-0225.json": "769b2bbbd7c6f6594d30e1590d8290978056869d95eda1a92e5041b83613b86f",
+   "patients/ZAS-0226.json": "8dd5f34221b125c9f50e13078918c5281fbc4b6bef534dfc8786f4260f198169",
+   "patients/ZAS-0227.json": "e10df19042bec6a82acc96ecfd6c8a808de6a3ada25f35dad7e426f71a17b233",
+   "patients/ZAS-0228.json": "34de4b626c139efedee1c6f6ea58ec39a12d3415ae77e9bbcf04fb0c297c3790",
+   "patients/ZAS-0229.json": "ecccf1e08f50a7e70a7b1bd931b3acc4b16b7c2aba7977fb6a22b80e644f09a9",
+   "patients/ZAS-0230.json": "fe0f78b24d760ddc095e696e26d198a4ce4d9fb7610329ecdf0433d9d2a02d8c",
+   "patients/ZAS-0231.json": "d25f1726664c476ab6eeb435808e6e8cb09bd33be98d8b8676d0e123f6babd42",
+   "patients/ZAS-0232.json": "47e7c82d6aaf11bf413e25b09bdf4d6d2f3c5869639d01f29e2c5dd4fb7f3fe4",
+   "patients/ZAS-0233.json": "150bd574d9d16d4fd17cbbd1e2a4fda41adba70f585049dc6d94e95121e2288e",
+   "patients/ZAS-0234.json": "eac3ad38ab2c2faaafe5f7add6355c215d7895b65c475a28881f0b934bd82dcf",
+   "patients/ZAS-0235.json": "d7998ede3eb36967a466a9686d9fa439f7cc0ae769c91c57e882f82dcbbd3fdf",
+   "patients/ZAS-0236.json": "b1a5c52cc3e364bc13fc184804fdfe2dd958059f40d7671ab59409539005d459",
+   "patients/ZAS-0237.json": "3db6e7c19766a1b9509662165088285815473712d93dc5e5c3ab2e1f4bf8b509",
+   "patients/ZAS-0238.json": "f16760adb02a10485d744e03e2f4afa6f25c91572f6728bfc61a5bc2f3d58786",
+   "patients/ZAS-0239.json": "5f3f66b5b84df731ed64a21b91a82e1cba86202ac8bf165288f3bd441bbe3ee7",
+   "patients/ZAS-0240.json": "0440c95c510810858ab1fe4786c5978f750c7ea1086e66c9e7c9c8f998c9bcfb",
+   "patients/ZAS-0241.json": "fad6fbe12a6f2495e2168bc7d3b5d1fb911c651bc5055d14004f074ef24015a8",
+   "patients/ZAS-0242.json": "60ce396c6ce261634a769078ed6b1d4363007a270d791c1771a2dd2ee9281cfe",
+   "patients/ZAS-0243.json": "ec452d53f02e5302f54746a5f780fac919d56f4bceb9a6b34fc510fc401aed2a",
+   "patients/ZAS-0244.json": "ca48fd41197602c75ef9ae74bbe9b9c5e51b2620321726520dd27e4301d99722",
+   "patients/ZAS-0245.json": "65ca50af3ee3c98cd888c43728e3a8706e70346083e9553d80951970847a8489",
+   "patients/ZAS-0246.json": "9c99a5348a4c51cea9bb0bdf0e7e7bc2a75ddce7daeefeea1a3be44e3f156221",
+   "patients/ZAS-0247.json": "4bd889a79371b65d29451b9ab633ea6f5e04f42222d250944bf776598172ca12",
+   "patients/ZAS-0248.json": "f3afe88931e7111037d95f77cc2a6092b92d3db79c6ed9d78f42fa2ce3a651d0",
+   "patients/ZAS-0249.json": "e6eff6e858ee46e7544aa92ef9003f870b6d9ec6d86dd6563d4025ce5e2d703a",
+   "patients/ZAS-0250.json": "acf3fd45eaa5ead3fb96482d9534bf761c77d6a7267eecca0aaf256cc1f0f122",
+   "patients/ZAS-0251.json": "c4e59f92a6f509337779ebfbe33fda042ec7b0acf6c33d8a82b4ac3b88d12be0",
+   "patients/ZAS-0252.json": "9452c7a9e63eec9f3b8d66f511edbd1b6555e0b81ca5e4c07d08b9c8790f0f2b",
+   "patients/ZAS-0253.json": "f8cbbb65bf2d13737d5fed40bcd1d9acc5f04fdcf07843eb2d46e09f648c1116",
+   "patients/ZAS-0254.json": "d6e469c796dfd06249186795c44c53e9a98676882a8c61882a420f9a5c2e7ec4",
+   "patients/ZAS-0255.json": "0fef917d8922f629b72a85e8a66dc6d5b67986d2b88505e512cc5d9b7580fa39",
+   "patients/ZAS-0256.json": "fc02d3ad3068e98acd7e7cc28adf31a2095d52a4efe9ba49a60b32e006142f3f",
+   "patients/ZAS-0257.json": "ed80619247a6947cad3d2646ff53e621030e852d987864ed84002170945674bf",
+   "patients/ZAS-0258.json": "cb83ae05cb3e30a2b9cbbf444f59bed1f4a5d64bb7edfc65023a5090d69e2a11",
+   "patients/ZAS-0259.json": "dd0417080dd4868992bd365fbf1c0dafeeaa5855a5a9976e8a9f1199ac919ea6",
+   "patients/ZAS-0260.json": "f2068888906e4d8cd2bdc5a9187460a85777e68624cc2b78473c8deae53e8beb",
+   "patients/ZAS-0261.json": "94e42bc49adb23e480f15313131f51ab30f8c53d59dab20b64841bee23dbb853",
+   "patients/ZAS-0262.json": "ae43cff3a674f10b4b68cbb1e3b1c62f445b6e400a7e9f611057352b28a25f80",
+   "patients/ZAS-0263.json": "fcab6b5f5cd2b7ac5a3f563215c92bdb74e48733bb62748de30644edbd14cc0c",
+   "patients/ZAS-0264.json": "251db552af2d7a3ed2346309a5e5dc158d826bc5de99da122d959bc9773159a1",
+   "patients/ZAS-0265.json": "adc8ede732b31e63613b22277be4f6966851ed56f0ecbc18cccc4cacb7c14d29",
+   "patients/ZAS-0266.json": "01f139f30cec235bafadb975556c06df65bb19396abe6eef72df0a35fee2b0cc",
+   "patients/ZAS-0267.json": "1fbdb23a92c72217d214ab3e8a4ca01644ca96c47185501e159c1a893afdcc39",
+   "patients/ZAS-0268.json": "30ed56dc9adb18a0028e9323dce270e0df7cbbafaf2bb1326749b294dcff4944",
+   "patients/ZAS-0269.json": "08d1f22ed3c448718d23b053069669efefed8dad9bf63fb04d2b82ba9395a809",
+   "patients/ZAS-0270.json": "a2a28a8328613816f5b417664e730c47e673ea88a48cfbc24d4710bddb3c88c0",
+   "patients/ZAS-0271.json": "09a77f0fb0864f141b979d72175dcac733e35a38c23306721df4e54e4ef2d39f",
+   "patients/ZAS-0272.json": "594260ee7941a618864e7086289ed3befa00ee8f8765e413b5ba919391661853",
+   "patients/ZAS-0273.json": "4a586afab7ced805e4acfbd3e1b10ce2a724681a9bf29ed4138539227acbe8c8",
+   "patients/ZAS-0274.json": "e9a1bd2e8df4acf6b74d98da63d8ae374c50a109302946b134dcd1c95665bebf",
+   "patients/ZAS-0275.json": "8f1224cc18b6044c38580e26045ff011675c58ab13590e5111821183a70781eb",
+   "patients/ZAS-0276.json": "91098b0d0c6c6466516d408bff8dae73240c5dc706b060236e0575ad31ae9c49",
+   "patients/ZAS-0277.json": "6321d456e519ca222ec5c0a877ac901fa5d9e54671b90f7c2ff96c27e93dc25a",
+   "patients/ZAS-0278.json": "3ef4d51ebbdeaed4b3135b10e73d08dc9cdffc1f20ed84bf92527cadc3679028",
+   "patients/ZAS-0279.json": "5737c6607b5862415c4d2fedc953ccde023fe5841bf99a9e22a63f90cb5ec84b",
+   "patients/ZAS-0280.json": "7acf5d1cec1fd27ede7a6bb6e086f833a22be366263a99afb34855f79850ea0f",
+   "patients/ZAS-0281.json": "4ccd4813b3b41ee2bfe7d9bcec8fdf112ec2a5d085067fe831d1bad5e46506da",
+   "patients/ZAS-0282.json": "2e31dfd4d24d410dd78bba1abf77375e22a2522703add5a1cf16b1ddef3b7783",
+   "patients/ZAS-0283.json": "9475d70e4c6ca4b6eee02111e22f9b762d4fd8785790fcd142646a7b12384511",
+   "patients/ZAS-0284.json": "31f9f230196bd1d3e1133f922f72fb56ce64ced6d61dead8507566ac72f9eb88",
+   "patients/ZAS-0285.json": "0f2ab8cff4a7b1f155b6c3f1e880067ab8831a3de517bb90e05bc5dd0f0566df",
+   "patients/ZAS-0286.json": "98a5b4393a6408d42335c516a1093cb30dcd2391bcfcffc6cece9581ba04f381",
+   "patients/ZAS-0287.json": "689c980033edaf3b0cbdeb15c306b49874954c71791282aac128e27f22a602da",
+   "patients/ZAS-0288.json": "c4096db31c5a1e56c868036bd501b784ca298c08e050b06705e71d0e3a42fab2",
+   "patients/ZAS-0289.json": "c5fd623ff3612abd042537213d7120244b997b5a3bb12106f424bdab89bb2676",
+   "patients/ZAS-0290.json": "82187b578656c08ead06427692a1edb63052bd5e50d79bdbed68a600127ac66b",
+   "patients/ZAS-0291.json": "22c41adf63e1816efdc44421d6669031d32906286012f94427fa33466d1e51cc",
+   "patients/ZAS-0292.json": "5485f6f592cf3d3b3502189e296e2001156afe724229afa4f8f53569983857d5",
+   "patients/ZAS-0293.json": "1d273488aff274fb69418ea15d79d797f523af53674a9f835c2c0bba5a204ab8",
+   "patients/ZAS-0294.json": "b65be6cd528e388c6de235fe82134108e2a5e0070d344d8d827a68209911fa95",
+   "patients/ZAS-0295.json": "ccbccd77de10a35c60db78ff27529b2b96e140f0d3aceb1e13c4693bb84c0fb5",
+   "patients/ZAS-0296.json": "f4dc6a0cbee8e1e95822262bd6e7ce2c5b75ae5b0177eebd6fb497ffa41d81c2",
+   "patients/ZAS-0297.json": "9675b12ae6b2116bb85aa21a9b0f3a94248cbcd0c7adb76eb333af4278e5e95d",
+   "patients/ZAS-0298.json": "2c0c2f363fe5438ee0929d32753bfbdb10ddbd02003d70bc5c5aecb2cb208120",
+   "patients/ZAS-0299.json": "bd41d16968b188d2d818d790d0e6a5b0f0bf7695a08049b05f3dd126b338ff83",
+   "patients/ZAS-0300.json": "932606472235ec9bbfce248189c1e56d443291fc438173a0d7354a22f34d363d",
+   "patients/ZAS-0301.json": "eac3499e47086e36bd33b1ba2766ca474621e44cd221d2c9520262a1e360db56",
+   "patients/ZAS-0302.json": "f424af7614ca88df59e5999bcd01de211909fde5356de2cd0cb994f8d225d1e4",
+   "patients/ZAS-0303.json": "ddcadf8a249c9ff81f9ce30eb7210ce6f0f8fb884064e235e065d0c5ee78a932"
+  }
+ },
+ "demo_bundle_sha256": "5248258c396639ebd746bdf748f23c4763d58075df1fb718ce1d307d489f3b4b"
+}

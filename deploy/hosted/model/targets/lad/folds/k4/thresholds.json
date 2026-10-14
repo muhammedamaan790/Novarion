@@ -1,0 +1,8 @@
+{
+ "t_op": 0.5754415577984179,
+ "t_neg": null,
+ "t_pos": null,
+ "qualification_negative": null,
+ "qualification_positive": null,
+ "selection_rule": "t_op=Youden J; t_neg/t_pos=Wilson-95% LB of NPV/PPV >= target with n >= n_min"
+}

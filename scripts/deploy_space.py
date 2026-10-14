@@ -1,6 +1,6 @@
 """Deploy NOVARION to a Hugging Face Docker Space (D-029).
 
-Stages exactly what the Space image needs (source, the production model bundle, deploy/hf-space/*) into a folder,
+Stages exactly what the Space image needs (source, the production model bundle, deploy/hosted/*) into a folder,
 then uploads it. The sign-in accounts never enter the Space files: they go into the NOVARION_USERS_JSON Space
 secret, as salted scrypt hashes.
 
@@ -27,7 +27,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from app.auth import hash_password, save_users
 
 FILES = ["pyproject.toml", "uv.lock", "release_manifest.json"]
-DIRS = ["ml", "backend", "config", "contracts", "registry", "frontend", "deploy/hf-space"]
+DIRS = ["ml", "backend", "config", "contracts", "registry", "frontend", "deploy/hosted"]
 SKIP = shutil.ignore_patterns(
     "node_modules",
     "dist",
@@ -77,13 +77,13 @@ def stage(out: Path) -> Path:
         shutil.copytree(ROOT / d, out / d, ignore=SKIP)
     bundle = production_bundle()
     if bundle != "artifacts/models/v1.0.2":
-        raise SystemExit(f"production is {bundle}; update deploy/hf-space/Dockerfile to copy that bundle")
-    shutil.copytree(ROOT / bundle, out / bundle)
-    shutil.copy2(ROOT / "deploy" / "hf-space" / "Dockerfile", out / "Dockerfile")
+        raise SystemExit(f"production is {bundle}; update deploy/hosted/Dockerfile to copy that bundle")
+    shutil.copytree(ROOT / bundle, out / "deploy" / "hosted" / "model", dirs_exist_ok=True)
+    shutil.copy2(ROOT / "deploy" / "hosted" / "Dockerfile", out / "Dockerfile")
     (out / ".dockerignore").write_text("**/__pycache__\n**/node_modules\n", encoding="utf-8")
     (out / "README.md").write_text(SPACE_README, encoding="utf-8", newline="\n")
     # The Space builds from a git repo: keep the start script with LF line endings.
-    start = out / "deploy" / "hf-space" / "start.sh"
+    start = out / "deploy" / "hosted" / "start.sh"
     start.write_bytes(start.read_bytes().replace(b"\r\n", b"\n"))
     return out
 

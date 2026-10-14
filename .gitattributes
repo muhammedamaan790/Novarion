@@ -8,3 +8,5 @@
 *.xlsx binary
 *.joblib binary
 *.woff2 binary
+# The hosted model bundle (D-030) is hash-verified byte for byte: never convert anything in it.
+deploy/hosted/model/** -text

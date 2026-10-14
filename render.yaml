@@ -1,0 +1,17 @@
+# Render Blueprint (D-030): the full app as one free Docker web service, built from deploy/hosted/Dockerfile.
+# Render asks for NOVARION_USERS_JSON when the Blueprint is created (the judge account's scrypt hashes); it is never
+# stored in this repository.
+services:
+  - type: web
+    name: novarion
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/hosted/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/v1/health/ready
+    autoDeploy: false
+    envVars:
+      - key: PORT
+        value: "7860"
+      - key: NOVARION_USERS_JSON
+        sync: false

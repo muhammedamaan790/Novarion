@@ -1,0 +1,25 @@
+{
+ "target": "rca",
+ "selected": "lr[penalty=elasticnet,C=0.1]|fs=redundancy_reduced|cw=none",
+ "family": "lr",
+ "best_inner_auc": 0.7403041173064058,
+ "se_best": 0.030617959153975402,
+ "n_eligible": 14,
+ "guard_log": [],
+ "platt": {
+  "method": "platt",
+  "a": 0.91570206172647,
+  "b": -0.009359399356903459,
+  "space": "raw_logit"
+ },
+ "thresholds": {
+  "t_op": 0.33310284485867464,
+  "t_neg": null,
+  "t_pos": null,
+  "qualification_negative": null,
+  "qualification_positive": null,
+  "selection_rule": "t_op=Youden J; t_neg/t_pos=Wilson-95% LB of NPV/PPV >= target with n >= n_min"
+ },
+ "cache_key": "af8e5ccbf059b0e3da4974826f058af0e5389879f4c6e056cfef6ec70d4bf191",
+ "seconds": 680.4441427000565
+}

@@ -1,6 +1,6 @@
-# NOVARION on a Hugging Face Docker Space (D-029): one container, because a Space runs one. nginx serves the built
+# NOVARION as one hosted container (D-029, D-030: Render; also a Hugging Face Docker Space). nginx serves the built
 # frontend on :7860 and proxies /api to uvicorn on 127.0.0.1:8000, as the two-container compose stack does. Only the
-# production model bundle is copied in; the image runs as uid 1000, as Spaces require.
+# production model bundle is copied in; the image runs as uid 1000. Build context: the repository root.
 FROM node:22-alpine AS web
 WORKDIR /app
 COPY frontend/package.json frontend/package-lock.json ./
@@ -23,11 +23,13 @@ COPY backend backend
 COPY config config
 COPY contracts contracts
 COPY registry registry
-COPY artifacts/models/v1.0.2 artifacts/models/v1.0.2
+# The production bundle, committed under deploy/ (artifacts/ stays untracked); the API verifies every file hash
+# against the registry at start-up and refuses to serve a mismatch.
+COPY deploy/hosted/model artifacts/models/v1.0.2
 COPY release_manifest.json release_manifest.json
 COPY --from=web /app/dist /app/web
-COPY deploy/hf-space/nginx.conf /etc/nginx/nginx.conf
-COPY deploy/hf-space/start.sh /app/start.sh
+COPY deploy/hosted/nginx.conf /etc/nginx/nginx.conf
+COPY deploy/hosted/start.sh /app/start.sh
 RUN useradd -m -u 1000 user && chmod +x /app/start.sh
 USER user
 # Hosted mode: no in-app Promote. Sign-in on, from the NOVARION_USERS_JSON Space secret (see start.sh).
