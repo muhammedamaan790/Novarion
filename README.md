@@ -106,8 +106,8 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 89 flows pass with the real model and against the mock (88 there; one needs the real figures), Edge,
-  including axe accessibility checks; release v1.0.6 was verified with 77 on the Docker stack, and the earlier 50-flow
+- Browser E2E: 97 flows on the mock (96 pass; one needs the real model's figures), Edge, including axe accessibility
+  checks; 89 also passed with the real model before the landing-heart work (D-036); release v1.0.6 was verified with 77 on the Docker stack, and the earlier 50-flow
   suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -212,7 +212,9 @@ tests, 39 unit tests and 77 browser flows, against the mock, against the
 rebuilt Docker stack with the real model, and against the hosted image. **After v1.0.6:** a research-grade Model
 evidence page (D-035): shadcn/ui charts on Recharts, a Methods & limitations tab, confidence-tier cards that
 reconcile to the cohort, the guideline comparison as a paired ΔAUC plot, subgroup forest plots and CSV/JSON export of
-every chart; 89 browser flows with the real model (local servers) and against the mock.
+every chart; 89 browser flows with the real model (local servers) and against the mock. Then an explorable landing
+heart, "Explore the coronary arteries" (D-036): artery controls, picking, a stoppable one-pass tour, deliberate zoom
+that never takes page scrolling, opt-in 3D on touch screens, and image fallbacks; 97 browser flows on the mock.
 The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
 clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
 

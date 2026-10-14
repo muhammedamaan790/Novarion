@@ -54,41 +54,7 @@ test("signed out: the landing page explains the problem and approach; Sign in op
   expect(offOrigin).toEqual([]); // nothing from another origin: no CDN, font or remote image
 });
 
-test("landing hero: the 3D heart fades in and visits each artery; reduced motion and no WebGL keep the still image", async ({ page, browser }) => {
-  await stubAuth(page, "right-password");
-  await page.goto("/");
-  await expect(page.getByTestId("landing-heart-3d").locator("canvas")).toBeVisible({ timeout: 30_000 });
-  const caption = page.getByTestId("landing-heart-caption");
-  await expect(caption).toHaveText(/whole heart/);
-  await expect(caption).toHaveText(/^LAD/, { timeout: 10_000 });
-  await expect(caption).toHaveText(/^LCX/, { timeout: 10_000 });
-  await expect(caption).toHaveText(/^RCA/, { timeout: 10_000 });
-  // presentational only: the wheel over the heart scrolls the page
-  const box = (await page.getByTestId("landing-heart-3d").boundingBox())!;
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-  await page.mouse.wheel(0, 400);
-  await expect.poll(() => page.getByTestId("landing").evaluate((n) => n.scrollTop)).toBeGreaterThan(0);
-
-  for (const variant of ["reduced-motion", "no-webgl"] as const) {
-    const context = await browser.newContext({ reducedMotion: variant === "reduced-motion" ? "reduce" : "no-preference" });
-    const other = await context.newPage();
-    if (variant === "no-webgl") {
-      await other.addInitScript(() => {
-        const original = HTMLCanvasElement.prototype.getContext;
-        HTMLCanvasElement.prototype.getContext = function (type: string, ...args: unknown[]) {
-          if (type.startsWith("webgl") || type === "experimental-webgl") return null;
-          return (original as (...a: unknown[]) => unknown).call(this, type, ...args);
-        } as typeof original;
-      });
-    }
-    await stubAuth(other, "right-password");
-    await other.goto("/");
-    await expect(other.locator("img[src='/landing/heart.webp']")).toHaveJSProperty("complete", true);
-    await other.waitForTimeout(2_000);
-    await expect(other.getByTestId("landing-heart-3d"), variant).toHaveCount(0);
-    await context.close();
-  }
-});
+// The landing hero's explorable heart (D-031, D-036) has its own suite: e2e/landing-heart.spec.ts.
 
 test("sign-in gates the app: wrong password refused, then home with NEW CASE; sign out returns to the landing page", async ({ page }) => {
   await stubAuth(page, "right-password");

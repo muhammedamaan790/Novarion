@@ -2,7 +2,7 @@
 // Landwind by Themesberg (MIT, © 2022 Themesberg): navbar, hero with image, logo strip (here: facts), feature grid,
 // content section, statement section and CTA; its footer is left out. Flowbite's script is not used and nothing loads
 // from another origin. Icons from Heroicons (MIT, © Tailwind Labs), inline. The hero heart is the app's own reference
-// anatomy (BodyParts3D, CC BY 4.0), in motion where the browser allows it (LandingHeart, D-031). Only dataset and
+// anatomy (BodyParts3D, CC BY 4.0), explorable where the browser allows it (LandingHeart, D-031, D-036). Only dataset and
 // method facts appear here: model figures need a session and are shown after sign-in, bound to the served model
 // (audit R09).
 import { DisclaimerFooter } from "./Chrome";
@@ -109,8 +109,8 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
                 Read more
               </button>
             </div>
-            <div className="hidden lg:col-span-5 lg:mt-0 lg:flex lg:flex-col lg:items-center">
-              <LandingHeart />
+            <div className="mt-10 flex flex-col items-center lg:col-span-5 lg:mt-0">
+              <LandingHeart onReviewCase={onSignIn} />
             </div>
           </div>
         </section>

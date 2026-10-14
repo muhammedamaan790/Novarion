@@ -1,7 +1,8 @@
 // The 3D heart (plan §9). One store drives everything: a 3D click and a panel click both call selectTarget().
 import { CameraControls, useGLTF } from "@react-three/drei";
+import type CameraControlsImpl from "camera-controls"; // drei's implementation; ACTION comes from the instance
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Component, Suspense, useEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode } from "react";
 import * as THREE from "three";
 import type { DisplayAnalysis, Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
@@ -30,6 +31,27 @@ export interface AnatomyMap {
 /** Called each rendered frame with a label's screen position; the DOM labels live in HeartView (no extra React roots). */
 export type PlaceLabel = (target: TargetId, x: number, y: number, visible: boolean) => void;
 
+/**
+ * Optional behaviour for a scene that is not the app's own (the public landing heart, D-036). Every field defaults to
+ * the app's behaviour, so the case workspace and the 3D heart page are unchanged. Nothing here reads or writes the
+ * app store: a landing scene stays isolated from any signed-in workspace.
+ */
+export interface SceneOptions {
+  isolation?: boolean; // fade the rest of the anatomy around a selected vessel (default: the app setting)
+  showBody?: boolean; // translucent torso and ribs (default: the app setting)
+  accent?: string; // colour of the selected vessel in an anatomy scene (sRGB hex); default: a faint glow only
+  limits?: { minDistance: number; maxDistance: number; minPolarAngle: number; maxPolarAngle: number };
+  wheelZoom?: "always" | "modifier"; // "modifier": the wheel scrolls the page; Ctrl/Cmd + wheel zooms
+  touch?: boolean; // false: touch gestures pass through to the page (it scrolls); default true
+  pan?: boolean; // default true
+  resetKey?: number; // changing it flies back to the current preset
+  zoomRef?: MutableRefObject<((direction: 1 | -1) => void) | null>; // zoom buttons outside the canvas
+  onReady?: () => void; // the model is loaded and its first frame drawn
+  onUserCamera?: () => void; // the visitor started a drag or zoom
+  onError?: () => void; // the scene failed to load or render
+  ariaLabel?: string;
+}
+
 function SceneFallback() {
   return (
     <div role="status" className="flex h-full items-center justify-center p-8 text-center text-sm text-slate-600">
@@ -41,9 +63,10 @@ function SceneFallback() {
   );
 }
 
-class SceneBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
+class SceneBoundary extends Component<{ children: ReactNode; onError?: () => void }, { failed: boolean }> {
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onError?.(); }
   render() { return this.state.failed ? <SceneFallback /> : this.props.children; }
 }
 
@@ -137,22 +160,26 @@ function pixelsToPng(pixels: Uint8Array, width: number, height: number): string 
 }
 
 const SNAPSHOT_SIZE = { width: 1600, height: 1000 };
+const NO_OPTIONS: SceneOptions = {};
 
 const RECOLOUR_TAU_S = 0.15; // exponential ease: ~600 ms to settle (plan §9.2 state 2)
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function HeartModel({ map, analysis, placeLabel, sceneState }: {
-  map: AnatomyMap; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; sceneState: SceneState;
+function HeartModel({ map, analysis, placeLabel, sceneState, options }: {
+  map: AnatomyMap; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; sceneState: SceneState; options: SceneOptions;
 }) {
   const { scene } = useGLTF(MODEL_URL);
   const invalidate = useThree((s) => s.invalidate);
   const selectedTarget = sceneState.selected;
   const anatomy = sceneState.kind === "anatomy";
-  const isolation = useStore((s) => s.isolation);
+  const storeIsolation = useStore((s) => s.isolation);
+  const isolation = options.isolation ?? storeIsolation;
   const hoverNode = sceneState.hover?.node ?? null;
-  const showBody = useStore((s) => s.showBody);
+  const storeShowBody = useStore((s) => s.showBody);
+  const showBody = options.showBody ?? storeShowBody;
+  const accent = anatomy ? options.accent : undefined;
   const nodeTarget = useMemo(() => nodeToTarget(map), [map]);
 
   // One material per named node, created once.
@@ -218,7 +245,8 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
           prediction.model_confidence === "low",
         ).linear;
       }
-      const goal = new THREE.Color().setRGB(...rgb, THREE.LinearSRGBColorSpace);
+      const accented = accent !== undefined && target !== undefined && target !== "cad" && target === selectedTarget;
+      const goal = accented ? new THREE.Color(accent) : new THREE.Color().setRGB(...rgb, THREE.LinearSRGBColorSpace);
       targetColours.current.set(name, goal);
       if (instant) material.color.copy(goal);
       setHatch(material, !!prediction && target !== "cad" && prediction.model_confidence === "low");
@@ -236,7 +264,16 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
       mesh.renderOrder = name === "heart_myocardium" ? 0 : 1;
     }
     invalidate();
-  }, [meshes, analysis, selectedTarget, anatomy, isolation, hoverNode, nodeTarget, map, invalidate]);
+  }, [meshes, analysis, selectedTarget, anatomy, isolation, hoverNode, nodeTarget, map, invalidate, accent]);
+
+  // Ready = the model is in the scene and a frame with it has been drawn (two animation frames after mounting).
+  const onReady = options.onReady;
+  useEffect(() => {
+    if (!onReady) return;
+    invalidate();
+    let id = requestAnimationFrame(() => { id = requestAnimationFrame(() => onReady()); });
+    return () => cancelAnimationFrame(id);
+  }, [onReady, invalidate]);
 
   // Register the off-screen snapshot renderer (plan §12A.6): fixed preset camera, final colours, own render target.
   const gl = useThree((s) => s.gl);
@@ -319,11 +356,14 @@ function HeartModel({ map, analysis, placeLabel, sceneState }: {
   );
 }
 
-function CameraRig({ map, sceneState, onMoving }: { map: AnatomyMap; sceneState: SceneState; onMoving: (moving: boolean) => void }) {
+function CameraRig({ map, sceneState, onMoving, options }: {
+  map: AnatomyMap; sceneState: SceneState; onMoving: (moving: boolean) => void; options: SceneOptions;
+}) {
   const controls = useRef<CameraControls>(null);
   const selectedTarget = sceneState.selected;
   const viewPreset = sceneState.viewPreset;
   const aspect = useThree((s) => s.size.width / Math.max(1, s.size.height));
+  const canvas = useThree((s) => s.gl.domElement);
   // Deterministic: (target, view) → exactly one preset; camera position is never free state (plan §11A).
   const presetName = viewPreset ?? (selectedTarget ? map.targets[selectedTarget].camera_preset : "overview");
 
@@ -336,13 +376,43 @@ function CameraRig({ map, sceneState, onMoving }: { map: AnatomyMap; sceneState:
     offset.multiplyScalar(Math.max(1, 1 / aspect));
     const position = target.clone().add(offset);
     void controls.current.setLookAt(position.x, position.y, position.z, target.x, target.y, target.z, !prefersReducedMotion());
-  }, [presetName, map, aspect]);
+  }, [presetName, map, aspect, options.resetKey]);
+
+  // Landing-style input (SceneOptions): which gestures the camera takes, so the page keeps its scrolling.
+  const { wheelZoom = "always", touch = true, pan = true, zoomRef, onUserCamera } = options;
+  useEffect(() => {
+    const c = controls.current;
+    if (!c) return;
+    const A = (c.constructor as typeof CameraControlsImpl).ACTION;
+    c.mouseButtons.right = pan ? A.TRUCK : A.NONE;
+    c.mouseButtons.middle = pan ? A.DOLLY : A.NONE;
+    c.mouseButtons.wheel = wheelZoom === "always" ? A.DOLLY : A.NONE;
+    c.touches.one = touch ? A.TOUCH_ROTATE : A.NONE;
+    c.touches.two = touch ? (pan ? A.TOUCH_DOLLY_TRUCK : A.TOUCH_DOLLY) : A.NONE;
+    c.touches.three = touch && pan ? A.TOUCH_TRUCK : A.NONE;
+    if (!touch) canvas.style.setProperty("touch-action", "pan-x pan-y"); // camera-controls sets "none" on connect
+    const zoom = (direction: 1 | -1) => { void c.dolly(direction * 0.18 * c.distance, !prefersReducedMotion()); };
+    if (zoomRef) zoomRef.current = zoom;
+    const onWheel = (e: WheelEvent) => {
+      if (wheelZoom !== "modifier" || !(e.ctrlKey || e.metaKey)) return; // a plain wheel scrolls the page
+      e.preventDefault();
+      onUserCamera?.();
+      zoom(e.deltaY < 0 ? 1 : -1);
+    };
+    const onStart = () => onUserCamera?.();
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    c.addEventListener("controlstart", onStart);
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+      c.removeEventListener("controlstart", onStart);
+      if (zoomRef) zoomRef.current = null;
+    };
+  }, [canvas, wheelZoom, touch, pan, zoomRef, onUserCamera]);
 
   // Smooth on integrated graphics (D-033): while the camera moves (a drag or a fly-to) the scene renders at 1x, and
   // at full sharpness again 250 ms after its last movement. Fill rate, not geometry, was the limit: the translucent
   // body shell covers most of the view twice. The resolution is Canvas state (HeartScene), not setDpr: the Canvas
   // re-applies its dpr prop on every render (e.g. on hover), which undid a direct setDpr.
-  const canvas = useThree((s) => s.gl.domElement);
   useEffect(() => {
     const c = controls.current;
     if (!c) return;
@@ -377,8 +447,10 @@ function CameraRig({ map, sceneState, onMoving }: { map: AnatomyMap; sceneState:
   }, [onMoving, canvas]);
 
   // draggingSmoothTime: how far the camera trails the pointer while dragging (library default 0.125 s felt laggy).
-  return <CameraControls ref={controls} makeDefault minDistance={0.9} maxDistance={12} smoothTime={0.45}
-                         draggingSmoothTime={0.06} />;
+  const limits = options.limits;
+  return <CameraControls ref={controls} makeDefault minDistance={limits?.minDistance ?? 0.9}
+                         maxDistance={limits?.maxDistance ?? 12} minPolarAngle={limits?.minPolarAngle ?? 0}
+                         maxPolarAngle={limits?.maxPolarAngle ?? Math.PI} smoothTime={0.45} draggingSmoothTime={0.06} />;
 }
 
 /** The scene renders on demand only, so anything that clears the canvas without a scene change would leave it blank
@@ -405,14 +477,15 @@ function RedrawOnReveal() {
   return null;
 }
 
-export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneState }: {
+export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneState, options = NO_OPTIONS }: {
   meta: Meta; analysis: DisplayAnalysis | null; placeLabel: PlaceLabel; onContextLost?: () => void; sceneState: SceneState;
+  options?: SceneOptions;
 }) {
   const map = meta.anatomy_map as unknown as AnatomyMap;
   const overview = map.camera_presets.overview!;
   const [moving, setMoving] = useState(false); // lower resolution while the camera moves (CameraRig)
   return (
-    <SceneBoundary>
+    <SceneBoundary onError={options.onError}>
     <Canvas
       fallback={<SceneFallback />}
       frameloop="demand"
@@ -428,16 +501,16 @@ export function HeartScene({ meta, analysis, placeLabel, onContextLost, sceneSta
         });
       }}
       role="img" // pointer-only 3D; keyboard and screen-reader users select through the buttons above
-      aria-label="Interactive 3D heart. Use the target buttons above for keyboard selection."
+      aria-label={options.ariaLabel ?? "Interactive 3D heart. Use the target buttons above for keyboard selection."}
     >
       <color attach="background" args={["#f4f5f7"]} />
       <hemisphereLight args={["#ffffff", "#b9c0cc", 1.1]} />
       <directionalLight position={[2, 3, 4]} intensity={1.6} />
       <directionalLight position={[-3, -1, -2]} intensity={0.5} />
       <Suspense fallback={null}>
-        <HeartModel map={map} analysis={analysis} placeLabel={placeLabel} sceneState={sceneState} />
+        <HeartModel map={map} analysis={analysis} placeLabel={placeLabel} sceneState={sceneState} options={options} />
       </Suspense>
-      <CameraRig map={map} sceneState={sceneState} onMoving={setMoving} />
+      <CameraRig map={map} sceneState={sceneState} onMoving={setMoving} options={options} />
       <RedrawOnReveal />
     </Canvas>
     </SceneBoundary>

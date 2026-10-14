@@ -906,3 +906,41 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
   estimable", exports equal to the evaluation outputs, keyboard tabs and info tips, threshold labels, axe on each tab,
   no sideways scroll at 390 px). 89/89 E2E with the real model (local servers); 88 + 1 real-only skip on the mock;
   39 unit tests; lint and build clean.
+
+## D-036 — An explorable landing heart: "Explore the coronary arteries"
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED (branch `landing-explore-heart`)
+- **Context:** The landing hero's heart toured the arteries on its own and took no input (D-031). The goal: within
+  seconds a visitor sees they can interact and that NOVARION works per artery, without the page losing its scrolling,
+  without a patient or a prediction, and without touching a signed-in workspace.
+- **Decision:**
+  - **Controls:** Whole heart / LAD / LCX / RCA buttons (aria-pressed, a ● marker as well as colour), clickable vessels
+    and labels, Reset view, zoom buttons, a one-line hint. Selection flies the camera to the artery's preset, colours
+    it emerald and fades the rest of the heart (isolation); the body context is off.
+  - **Information strip:** the artery's full name, one sentence on its usual territory (checked against StatPearls,
+    NCBI Bookshelf NBK482375 and NBK534790), and "Novarion estimates an artery-level disease label; it does not locate a
+    lesion." The left main shows the anatomy map's own note.
+  - **Camera:** rotation limited to 0.2–0.8 π polar, distance 1.5–4.2, no panning. A plain wheel scrolls the page;
+    Ctrl/⌘ + wheel, pinch (when exploring on touch) and the zoom buttons zoom.
+  - **Tour:** one pass (whole heart → LAD → LCX → RCA → whole heart) on a desktop once the 3D view is ready, with Pause;
+    afterwards only on Play. Any choice, drag, zoom or reset pauses it; it waits off screen and in a hidden tab; it
+    never starts on its own under reduced motion, where views change without flights.
+  - **Loading:** the still image and all controls show at once and work without 3D. The 3D view loads lazily and
+    replaces the image only when its first frame is drawn (a ready callback, not a timer). On touch screens and below
+    1024 px it loads only on "Explore in 3D"; "Done exploring" gives gestures back. The card is capped at 75% of the
+    screen height. A model error or a lost context returns to the image with a note; the release of the canvas on
+    unmount (a deliberate context loss) is not a failure.
+  - **Isolation:** the landing scene is controlled by LandingHeart's own state and passes optional `SceneOptions` to the
+    shared HeartScene (isolation, body, accent, limits, wheel/touch/pan, reset, zoom, ready/error/user-camera callbacks).
+    Every option defaults to the app's behaviour; the landing scene neither reads nor writes the app store and never
+    registers the snapshot renderer.
+  - **Review a case** opens the existing sign-in flow. Badge: "Reference anatomy · Educational demonstration · Not
+    patient-specific", with the BodyParts3D attribution.
+- **Measured (this laptop, Edge, Iris Xe):** 3D ready 1.4 s after load on the local dev server; 0 WebGL draw calls in
+  3 s idle; 5 in 8 s with the tour playing but scrolled off screen (a camera move already in flight) vs ~2,000 on
+  screen; 10 open/close cycles of 3D on a phone leave no canvas and no heap growth (65 → 62 MB). Main bundle 516.7 kB
+  (518.3 kB before); the landing scene is a 6 kB on-demand chunk on top of the shared 3D engine.
+- **Verification:** `e2e/landing-heart.spec.ts` (9 flows; it replaces the D-031 flow in auth.spec.ts). Mock E2E 96
+  passed + 1 real-only skip; 39 unit tests; lint, types and build clean. Screenshots: `results/ui/landing-heart/` (local; results/ui is not committed).
+
