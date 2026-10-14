@@ -181,8 +181,8 @@ paired intervals are wide. That conservatism is by design.
 ## Tests
 
 ```bash
-make test                                        # 190 Python tests
-cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 24 unit + 50 E2E (mock API)
+make test                                        # 238 Python tests
+cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 42 unit + 97 E2E (mock API)
 make docker-e2e                                  # the same E2E flows against the Docker stack + real model
 # Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_WEB_PORT=8081 docker compose up
 ```
@@ -215,6 +215,12 @@ reconcile to the cohort, the guideline comparison as a paired ΔAUC plot, subgro
 every chart; 89 browser flows with the real model (local servers) and against the mock. Then an explorable landing
 heart, "Explore the coronary arteries" (D-036): artery controls, picking, a stoppable one-pass tour, deliberate zoom
 that never takes page scrolling, opt-in 3D on touch screens, and image fallbacks; 97 browser flows on the mock.
+Then the backend fixes from the second external audit (D-039, items N03, N05 scripts, N07 risk factors, N08, N09):
+lifecycle journal events reach the Model Center API, every lifecycle writer is locked and journaled, stability
+intervals carry their own identity and full coverage, reproduction checks are finite-aware, a released version is
+rebuilt only as an unregistered reproduction, published evidence carries the identity of its computation, and the
+Risk factors tab flags borderline ranges; 238 Python and 42 unit tests pass (the real-model browser run for these is
+still to do). The audit's frontend items (N01, N02, N04, N05 frontend, N06, N07 landing copy, N10, N11) are open.
 The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
 clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
 
