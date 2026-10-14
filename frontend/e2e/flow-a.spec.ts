@@ -68,10 +68,15 @@ test("keyboard shortcuts select targets and Esc resets", async ({ page }) => {
 
 test("clicking a vessel in the 3D canvas selects the same target (reverse link)", async ({ page }) => {
   await openPatient(page, "ZAS-0006");
-  await page.waitForTimeout(800);
   const canvas = page.locator("canvas");
+  await expect(canvas).toBeVisible(FIRST_LOAD); // the 3D view loads on demand
   const box = (await canvas.boundingBox())!;
   const tooltip = page.getByRole("tooltip");
+  // ...and the heart model after it: wait until the canvas centre answers a hover before sweeping
+  await expect.poll(async () => {
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    return tooltip.count();
+  }, FIRST_LOAD).toBeGreaterThan(0);
   // Sweep the canvas until the hover tooltip reports a vessel, then click exactly there.
   let hit: { x: number; y: number; label: string } | null = null;
   for (let gy = 0.25; gy <= 0.8 && !hit; gy += 0.025) {
