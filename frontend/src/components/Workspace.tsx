@@ -171,30 +171,3 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
     </div>
   );
 }
-
-export function HomePage({ user }: { user: string | null }) {
-  const st = useStore.getState();
-  return (
-    <div className="flex h-full flex-col items-center justify-center gap-8 p-6">
-      {user && <p className="text-lg font-semibold text-slate-700">Welcome, {user}</p>}
-      <button type="button" onClick={() => st.startNewCase()} data-testid="home-new-case"
-              className="rounded-2xl bg-slate-900 px-16 py-8 text-3xl font-extrabold tracking-[0.15em] text-white shadow-lg hover:bg-slate-700">
-        NEW CASE
-      </button>
-      <div className="flex flex-wrap justify-center gap-3">
-        <button type="button" onClick={() => st.setPage("library")} data-testid="home-library"
-                className="rounded-lg bg-white px-6 py-3 text-base font-bold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50">
-          Dataset library
-        </button>
-        <button type="button" onClick={() => st.openMyCases()} data-testid="home-cases"
-                className="rounded-lg bg-white px-6 py-3 text-base font-bold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50">
-          My cases
-        </button>
-        <button type="button" onClick={() => st.setPage("anatomy")} data-testid="home-anatomy"
-                className="rounded-lg bg-white px-6 py-3 text-base font-bold text-slate-800 ring-1 ring-slate-300 hover:bg-slate-50">
-          Explore the 3D heart
-        </button>
-      </div>
-    </div>
-  );
-}

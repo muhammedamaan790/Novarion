@@ -687,3 +687,23 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Release:** the UI, offline-integrity and lifecycle behaviour changed, so after review and merge this is release
   v1.0.5, still model v1.0.2.
 
+
+## D-027 — A short landing section on the home and sign-in pages
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** Judges saw a sign-in box and a single NEW CASE button, with nothing saying what NOVARION is. The user asked
+  to use a good existing template rather than design one from scratch.
+- **Decision:**
+  - The home page adapts two MIT-licensed HyperUI sections ("Banner · Center" for the hero, "Feature grid · Grid with
+    content" for How it works), with Heroicons inline SVG icons. Credits and licence text are in `CREDITS.md`.
+  - Nothing loads from another origin.
+  - The sign-in card gets a one-sentence description.
+  - **Facts are never written by hand:**
+    - the CAD ROC-AUC comes from `/evaluation` (selected model only);
+    - the high-support share and PPV come from the model-bound displayed-tier evidence, shown only when it is for
+      the served model;
+    - against the mock, both are omitted.
+  - A limits line states internal evaluation on one cohort, no clinical validation, no diagnosis.
+- **Verification:** flow-a checks the facts against the real model (0.93; 98.5%) and checks that the mock shows no
+  model figure; the axe test covers the home page. 70/70 E2E on the mock and on real Docker.
