@@ -56,6 +56,11 @@ export interface WorkspaceEntry {
   snap: CaseSlice; // stale while this workspace is active (the flat fields are authoritative then)
 }
 
+export interface WorkspaceExpectation {
+  analysisId?: string; // the analysis the async work started from
+  caseId?: string; // the stored case the workspace was showing
+}
+
 const EMPTY_SLICE: CaseSlice = {
   mode: "dataset", datasetPatientId: null, analysis: null, selectedTarget: null, view: "overview", caseTab: "result",
   caseRef: null, pendingCase: null, editingCaseId: null,
@@ -70,8 +75,9 @@ interface State extends CaseSlice {
   newCaseCount: number;
   focusWorkspace: (id: string) => void;
   closeWorkspace: (id: string) => void;
-  /** Writes into a workspace whether or not it is on screen: a background case keeps its own late results. */
-  commitToWorkspace: (id: string, partial: Partial<CaseSlice>) => void;
+  /** Writes into a workspace whether or not it is on screen: a background case keeps its own late results.
+   *  `expect` skips the write if that workspace has moved on meanwhile (another analysis or another stored case). */
+  commitToWorkspace: (id: string, partial: Partial<CaseSlice>, expect?: WorkspaceExpectation) => void;
   openSavedCase: (c: { caseId: string; displayId: string; analysis: DisplayAnalysis; editingCaseId: string | null }) => void;
   closeSavedCase: (caseId: string) => void;
   isolation: boolean;
@@ -132,9 +138,15 @@ export const useStore = create<State>((set) => ({
       if (!next) return { workspaces: rest, activeId: null, ...EMPTY_SLICE, page: s.page === "workspace" ? "home" : s.page };
       return { workspaces: rest, activeId: next.id, ...next.snap, notice: null, viewPreset: null, hover: null };
     }),
-  commitToWorkspace: (id, partial) =>
-    set((s) => (s.activeId === id ? partial
-      : { workspaces: s.workspaces.map((w) => (w.id === id ? { ...w, snap: { ...w.snap, ...partial } } : w)) })),
+  commitToWorkspace: (id, partial, expect) =>
+    set((s) => {
+      const slice = s.activeId === id ? sliceOf(s) : s.workspaces.find((w) => w.id === id)?.snap;
+      if (!slice) return {}; // the workspace was closed meanwhile: the stored case is still in My cases
+      if (expect?.analysisId !== undefined && slice.analysis?.analysis_id !== expect.analysisId) return {};
+      if (expect?.caseId !== undefined && slice.caseRef?.caseId !== expect.caseId) return {};
+      return s.activeId === id ? partial
+        : { workspaces: s.workspaces.map((w) => (w.id === id ? { ...w, snap: { ...w.snap, ...partial } } : w)) };
+    }),
   openSavedCase: ({ caseId, displayId, analysis, editingCaseId }) =>
     set((s) => {
       // Reopening always shows the stored analysis as it is now (it may have been re-analysed since).

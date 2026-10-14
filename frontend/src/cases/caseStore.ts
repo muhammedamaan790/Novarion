@@ -2,6 +2,7 @@
 // commits it in a single IndexedDB transaction"). Status is DERIVED: an analysis is reviewed iff a review references it.
 import { api, type DisplayAnalysis, type InputValue, type Meta, type PatientBundle } from "../api/client";
 import { backupCases, isWellFormedCase } from "./backup";
+import { canonicalize } from "./jcs";
 import { CASE_SCHEMA_VERSION, db, type CaseRecord, type CaseSource, type DraftRecord, type OutcomeRecord,
   type PersistedAnalysis, type Review, type Scenario, type SnapshotRecord, type StoredSnapshot } from "./db";
 
@@ -260,6 +261,17 @@ export const clearDraft = () => {
   pendingDraft = null;
   return db.drafts.delete("current");
 };
+/** Clear the draft only if it is still the one just saved: with several New cases open, the single draft slot may
+ *  meanwhile hold another case's unsaved edits, which must survive (audit R02). */
+export async function clearDraftIfMatches(inputs: Record<string, unknown>): Promise<void> {
+  const same = (other: Record<string, unknown> | undefined) => !!other && canonicalize(other) === canonicalize(inputs);
+  if (pendingDraft && same(pendingDraft.inputs)) {
+    clearTimeout(draftTimer);
+    pendingDraft = null;
+  }
+  const stored = await db.drafts.get("current");
+  if (stored && same(stored.inputs)) await db.drafts.delete("current");
+}
 export const getCase = (caseId: string) => db.cases.get(caseId);
 
 export interface CaseImportReport {
