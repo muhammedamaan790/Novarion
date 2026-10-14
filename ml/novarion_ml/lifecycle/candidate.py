@@ -107,7 +107,10 @@ def build_candidate(*, records: dict[str, PackageRecord], manifest: dict[str, An
                     champion_version: str, champion_dir: Path, version: str, out_dir: Path,
                     feature_schema_sha256: str, preprocessing_version: str, tests_pass: bool = True) -> dict[str, Any]:
     rows, notes = eligible_rows(records, manifest, log)
-    report: dict[str, Any] = {"version": version, "champion_version": champion_version, "created_at": now(),
+    # The champion is bound by version AND artifact digest: promotion refuses a gate run against another champion (R06).
+    champion_sha = json.loads((champion_dir / "manifest.json").read_text(encoding="utf-8"))["artifact_manifest_sha256"]
+    report: dict[str, Any] = {"version": version, "champion_version": champion_version,
+                              "champion_artifact_manifest_sha256": champion_sha, "created_at": now(),
                               "eligible_cases": len(rows), "notes": notes,
                               "verification_manifest_sha256": manifest["verification_manifest_sha256"],
                               "grid": {"configs": len(train.configs),
@@ -157,8 +160,11 @@ def build_candidate(*, records: dict[str, PackageRecord], manifest: dict[str, An
         (d / "frozen_config.json").write_text(json.dumps(frozen[t], indent=1), encoding="utf-8")
     (out_dir / "forward_holdout_manifest.json").write_text(json.dumps(holdout_manifest, indent=1), encoding="utf-8")
     # The rows the promotion refit needs (local artifact; never published): remaining + holdout learning rows
-    (out_dir / "learning_rows.json").write_text(json.dumps([r.__dict__ for r in rows], indent=1), encoding="utf-8")
+    learning_rows = [r.__dict__ for r in rows]
+    (out_dir / "learning_rows.json").write_text(json.dumps(learning_rows, indent=1), encoding="utf-8")
     report |= {"gate_status": status, "tests_pass": tests_pass, "targets": results, "frozen_configs": frozen,
+               # Exactly the rows this gate approved: promotion refuses any edit, addition or removal (audit R05).
+               "learning_rows_sha256": sha256_jcs(learning_rows), "learning_rows_count": len(learning_rows),
                "forward_holdout_size": size, "challenger_training_cases": len(train_frame),
                "challenger_training_data_sha256": training_data_sha256(train_frame, train_y),
                "challenger_training_row_hashes_sha256": hashlib.sha256(
