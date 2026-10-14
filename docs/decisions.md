@@ -944,3 +944,20 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Verification:** `e2e/landing-heart.spec.ts` (9 flows; it replaces the D-031 flow in auth.spec.ts). Mock E2E 96
   passed + 1 real-only skip; 39 unit tests; lint, types and build clean. Screenshots: `results/ui/landing-heart/` (local; results/ui is not committed).
 
+## D-038 — A red Delete button in My cases; a full-width New case form
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** From the user's review of the hosted app: the "Delete…" link under each saved case was easy to miss,
+  and the New case form sat in a narrow column beside an empty "Fill in the patient data" panel, with small controls.
+- **Decision:**
+  - **My cases:** a small red Delete button at the right end of each case row; the confirmation (text, red Delete,
+    Cancel) appears in the same place. Deletion still keeps an automatic backup.
+  - **New case:** the form takes the full width until there is a prediction; the live summary column appears beside
+    it once there is one. The field grid follows the form's own width (one, two or three columns, CSS container
+    queries). Inputs and selects are 36 px tall at 14 px text; the UNKNOWN "?" button is 28 px, and rows without it
+    keep the slot so columns align. Prefill and Import are 40 px; Recover and Discard are full-size buttons.
+- **Verification:** mock E2E 95 passed + 1 real-only skip, with one load-related timeout in auth.spec.ts (the run took
+  6.8 min against the usual 2.6 min while other sessions ran their suites); it passed 4/4 when re-run alone. Lint and
+  types clean.
+

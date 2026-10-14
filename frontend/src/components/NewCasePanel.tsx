@@ -60,18 +60,18 @@ function Field({ f, value, onChange, idPrefix }: {
   const testId = `field-${f.id}`;
   const blank = value === undefined || value === null || value === "";
   const label = (
-    <label htmlFor={id} className="truncate text-slate-700" title={f.display}>
+    <label htmlFor={id} className="truncate font-medium text-slate-700" title={f.display}>
       {f.display}
       {f.canonical_unit && <span className="ml-1 text-slate-500">({f.canonical_unit})</span>}
     </label>
   );
-  const cls = `w-full rounded border px-1.5 py-0.5 text-xs ${blank ? "border-amber-400 bg-amber-50" : "border-slate-200"}`;
+  const cls = `h-9 w-full rounded-md border px-2 text-sm ${blank ? "border-amber-400 bg-amber-50" : "border-slate-300"}`;
   if (f.kind === "continuous") {
     const isUnknown = value === UNKNOWN;
     return (
-      <div className="grid grid-cols-[1fr_6.5rem] items-center gap-2 text-xs">
+      <div className="grid grid-cols-[minmax(0,1fr)_10rem] items-center gap-3 text-sm">
         {label}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <input
             id={id}
             type="number"
@@ -92,11 +92,12 @@ function Field({ f, value, onChange, idPrefix }: {
               aria-label={`${isUnknown ? "Clear UNKNOWN for" : "Mark UNKNOWN for"} ${f.display}`}
               aria-pressed={isUnknown}
               onClick={() => onChange(isUnknown ? null : UNKNOWN)}
-              className={`rounded px-1 text-[10px] ${isUnknown ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-600"}`}
+              className={`size-7 shrink-0 rounded-md text-xs font-semibold ${isUnknown ? "bg-slate-700 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
               ?
             </button>
           )}
+          {!f.allow_unknown && <span aria-hidden className="size-7 shrink-0" />}
         </div>
       </div>
     );
@@ -107,7 +108,7 @@ function Field({ f, value, onChange, idPrefix }: {
       : (f.categories ?? []).map((c) => ({ value: c, label: c }));
   const current = blank ? "" : value === UNKNOWN ? UNKNOWN : String(value);
   return (
-    <div className="grid grid-cols-[1fr_6.5rem] items-center gap-2 text-xs">
+    <div className="grid grid-cols-[minmax(0,1fr)_10rem] items-center gap-3 text-sm">
       {label}
       <select
         id={id}
@@ -315,8 +316,8 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
     <div className="flex h-full flex-col gap-2 overflow-hidden">
       <div className="flex items-center justify-between"
            title="De-identified or synthetic values only. Every field needs a value or an explicit UNKNOWN (where allowed). BMI and obesity are computed.">
-        <h2 className="text-sm font-bold text-slate-900">Patient data <span className="font-normal text-slate-500">ⓘ</span></h2>
-        <span className="text-[11px] text-slate-500">
+        <h2 className="text-base font-bold text-slate-900">Patient data <span className="font-normal text-slate-500">ⓘ</span></h2>
+        <span className="text-xs text-slate-500">
           sample files:{" "}
           <a className="underline" href="/samples/novarion_case_template.csv" download>template</a>{" · "}
           <a className="underline" href="/samples/dataset_patient_ZAS-0003.csv" download>dataset patient</a>{" · "}
@@ -324,21 +325,21 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
         </span>
       </div>
       {recoverable && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-sky-300 bg-sky-50 px-2 py-1 text-[11px] text-sky-900"
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-300 bg-sky-50 px-3 py-2 text-sm text-sky-900"
              data-testid="draft-recovery">
           <p>Recover unsaved draft from {recoverable.saved_at.replace("T", " ").replace("Z", " UTC")}?</p>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button type="button" onClick={recover} data-testid="draft-recover"
-                    className="rounded bg-sky-800 px-2 py-0.5 font-semibold text-white">Recover</button>
+                    className="h-9 rounded-md bg-sky-800 px-4 font-semibold text-white hover:bg-sky-900">Recover</button>
             <button type="button" onClick={discard} data-testid="draft-discard"
-                    className="rounded px-2 py-0.5 text-sky-900 ring-1 ring-sky-300">Discard</button>
+                    className="h-9 rounded-md bg-white px-4 font-semibold text-sky-900 ring-1 ring-sky-300 hover:bg-sky-100">Discard</button>
           </div>
         </div>
       )}
       <div className="flex items-center gap-2">
       <select
         aria-label="Prefill from a dataset patient"
-        className="min-w-0 flex-1 rounded border border-slate-200 px-1.5 py-1 text-xs"
+        className="h-10 min-w-0 flex-1 rounded-md border border-slate-300 px-2.5 text-sm"
         value={prefillId}
         onChange={(e) => void prefill(e.target.value)}
       >
@@ -350,7 +351,7 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
         ))}
       </select>
         <button type="button" onClick={() => fileInput.current?.click()} data-testid="import-button"
-                className="shrink-0 rounded bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white hover:bg-slate-700">
+                className="h-10 shrink-0 rounded-md bg-slate-900 px-4 text-sm font-semibold text-white hover:bg-slate-700">
           Import CSV / JSON…
         </button>
         <input ref={fileInput} type="file" accept=".csv,.json,text/csv,application/json" className="hidden"
@@ -407,7 +408,7 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
         </div>
       )}
 
-      <div role="status" className="rounded bg-slate-50 px-2 py-1 text-[11px] text-slate-700" data-testid="case-status">
+      <div role="status" className="rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-700" data-testid="case-status">
         {prefillStatus === "loading" ? "Loading selected patient…"
           : prefillStatus === "error" ? "Could not load the selected patient. No results shown; retry or enter values."
           : missing > 0
@@ -440,13 +441,13 @@ export function NewCasePanel({ meta, wsId, offerDraft }: { meta: Meta; wsId: str
       </div>
       <IssuesPanel issues={[...blocks, ...warnings].filter((i) => i.code !== "missing_required")} features={features} />
 
-      <form className="min-h-0 flex-1 space-y-3 overflow-auto pr-1" onSubmit={(e) => e.preventDefault()}>
+      <form className="@container min-h-0 flex-1 space-y-4 overflow-auto pr-1" onSubmit={(e) => e.preventDefault()}>
         {groups.map(([group, fs]) => (
-          <fieldset key={group} className="rounded-lg border border-slate-200 px-3 pb-2 pt-1">
+          <fieldset key={group} className="rounded-lg border border-slate-200 px-4 pb-3 pt-1">
             <legend className="px-1 text-xs font-bold uppercase tracking-wider text-slate-600">
               {GROUP_LABEL[group] ?? group}
             </legend>
-            <div className="grid grid-cols-1 gap-x-10 gap-y-1 xl:grid-cols-2">
+            <div className="grid grid-cols-1 gap-x-10 gap-y-2 @2xl:grid-cols-2 @6xl:grid-cols-3">
               {fs.map((f) => (
                 <Field key={f.id} idPrefix={wsId} f={f} value={inputs[f.id]} onChange={(v) => editField(f.id, v)} />
               ))}

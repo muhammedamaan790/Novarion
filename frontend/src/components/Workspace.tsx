@@ -138,7 +138,7 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
         )}
         {/* Every open New case form stays mounted (only the active one is shown), so each keeps its values and its
             live prediction while you look at other workspaces (D-023). */}
-        <div className={`grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(320px,32%)] ${
+        <div className={`grid h-full min-h-0 grid-cols-1 gap-4 ${analysis ? "lg:grid-cols-[minmax(0,1fr)_minmax(320px,32%)]" : ""} ${
           mode === "new" && runMode !== "offline" ? "" : "hidden"}`}>
           <div className="min-h-[34rem] lg:min-h-0">
             {newCases.map((w) => (
@@ -147,10 +147,11 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
               </div>
             ))}
           </div>
-          {/* The form and a live summary side by side: every edit re-predicts (brief: real-time updates). */}
-          <aside className="space-y-3 overflow-auto">
+          {/* The form uses the full width until there is a prediction; then a live summary sits beside it and every
+              edit re-predicts (brief: real-time updates). */}
+          <aside className={`space-y-3 overflow-auto ${analysis ? "" : "hidden"}`}>
             {mode === "new" && analysis && <CaseBar analysis={analysis} meta={meta} />}
-            {analysis ? <Summary analysis={analysis} testId="live-summary" /> : emptyNote}
+            {analysis && <Summary analysis={analysis} testId="live-summary" />}
             {analysis && (
               <button type="button" onClick={() => useStore.getState().setCaseTab("result")} data-testid="see-result"
                       className="w-full rounded-lg bg-slate-900 py-2 text-sm font-bold text-white hover:bg-slate-700">

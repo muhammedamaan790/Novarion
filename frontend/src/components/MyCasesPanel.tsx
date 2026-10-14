@@ -154,9 +154,9 @@ export function MyCasesPanel() {
         {cases.data?.map((c) => {
           const status = caseStatus(c);
           return (
-            <li key={c.case_id}>
+            <li key={c.case_id} className="flex items-stretch gap-2">
               <button type="button" onClick={() => open(c, queryClient)} data-testid={`case-${c.display_id}`}
-                      className={`w-full rounded border px-2 py-1 text-left text-xs ${
+                      className={`min-w-0 flex-1 rounded border px-2 py-1 text-left text-xs ${
                         caseRef?.caseId === c.case_id ? "border-slate-900 bg-slate-50" : "border-slate-200 bg-white hover:bg-slate-50"}`}>
                 <span className="font-semibold">{c.display_id}</span> · {SOURCE_LABEL[c.source]}
                 {c.dataset_patient_id ? ` · ${c.dataset_patient_id}` : ""}
@@ -169,11 +169,14 @@ export function MyCasesPanel() {
                   model v{currentAnalysis(c).model_version}
                 </span>
               </button>
-              <div className="flex justify-end gap-2 text-[10px]">
+              <div className="flex shrink-0 items-center gap-1.5 text-xs">
                 {confirmDelete === c.case_id ? (
                   <>
-                    <span className="text-red-800">Delete {c.display_id} from this browser? A backup is kept.</span>
-                    <button type="button" className="font-semibold text-red-700 underline" data-testid={`case-delete-confirm-${c.display_id}`}
+                    <span className="max-w-[14rem] text-right text-[11px] leading-tight text-red-800">
+                      Delete {c.display_id} from this browser? A backup is kept.
+                    </span>
+                    <button type="button" data-testid={`case-delete-confirm-${c.display_id}`}
+                            className="rounded-md bg-red-600 px-2.5 py-1 font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700"
                             onClick={async () => {
                               setDeleteError(null);
                               try {
@@ -187,12 +190,16 @@ export function MyCasesPanel() {
                             }}>
                       Delete
                     </button>
-                    <button type="button" className="text-slate-600 underline" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                    <button type="button" onClick={() => setConfirmDelete(null)}
+                            className="rounded-md px-2.5 py-1 font-semibold text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50">
+                      Cancel
+                    </button>
                   </>
                 ) : (
-                  <button type="button" className="text-slate-500 underline hover:text-red-700" data-testid={`case-delete-${c.display_id}`}
-                          onClick={() => setConfirmDelete(c.case_id)}>
-                    Delete…
+                  <button type="button" data-testid={`case-delete-${c.display_id}`} aria-label={`Delete ${c.display_id}`}
+                          onClick={() => setConfirmDelete(c.case_id)}
+                          className="rounded-md bg-red-600 px-2.5 py-1 font-semibold text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-700">
+                    Delete
                   </button>
                 )}
               </div>
