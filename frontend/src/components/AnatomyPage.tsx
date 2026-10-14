@@ -3,7 +3,8 @@
 import type { Meta, TargetId } from "../api/client";
 import { useStore } from "../store/useStore";
 import { useAnatomyScene } from "../three/sceneState";
-import { ANATOMY_NAME, HeartView } from "./HeartView";
+import { HeartView } from "./HeartViewLazy";
+import { ANATOMY_NAME } from "./wording";
 
 // General anatomy, worded for a reference heart; the dataset labels are defined in the evidence and the report.
 const ABOUT: Record<TargetId, { course: string; supplies: string; inNovarion: string }> = {
