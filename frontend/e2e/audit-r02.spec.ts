@@ -68,6 +68,7 @@ test("each open New case form has unique field ids, and labels focus their own i
   await page.goto("/");
   await page.getByTestId("page-new").click();
   await page.getByTestId("page-new").click(); // two New case forms mounted
+  await expect(page.getByTestId("field-age")).toHaveCount(2); // both forms rendered before counting
   const ids = await page.locator("form [id]").evaluateAll((els) => els.map((e) => e.id));
   expect(ids.length).toBeGreaterThan(50);
   expect(new Set(ids).size).toBe(ids.length);
