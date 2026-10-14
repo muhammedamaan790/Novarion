@@ -9,7 +9,7 @@ services:
     dockerfilePath: ./deploy/hosted/Dockerfile
     dockerContext: .
     healthCheckPath: /api/v1/health/ready
-    autoDeploy: false
+    autoDeploy: true
     envVars:
       - key: PORT
         value: "7860"

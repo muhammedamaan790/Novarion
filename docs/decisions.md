@@ -768,7 +768,8 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
 - **Decision:**
   - `deploy/hf-space/` becomes `deploy/hosted/` (the same single-container image serves both hosts). `render.yaml`
     is a Blueprint for one free Docker web service: port 7860, health check `/api/v1/health/ready`, the judge
-    accounts asked for as the `NOVARION_USERS_JSON` secret, no auto-deploy (judges see what was deployed on purpose).
+    accounts asked for as the `NOVARION_USERS_JSON` secret, auto-deploy on every push to main (the user's choice in
+    the Render dashboard; every push to main is CI-tested work).
   - The production bundle v1.0.2 is committed as `deploy/hosted/model/`, byte-identical to `artifacts/models/v1.0.2`
     and marked `-text` so git never alters it; the API verifies every hash against the registry at start-up.
     `artifacts/` stays untracked, so CI's bundle-dependent tests are unchanged.
