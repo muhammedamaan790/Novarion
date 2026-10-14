@@ -1,10 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SIGNED_OUT_EVENT, TARGET_IDS, api, detectRunMode, switchToOffline, type AuthSession, type TargetId } from "./api/client";
 import { DisclaimerFooter, Header } from "./components/Chrome";
 import { EvidencePage } from "./components/evidence/EvidencePage";
 import { ModelCenterPage } from "./components/modelcenter/ModelCenterPage";
 import { MyCasesPanel } from "./components/MyCasesPanel";
+import { selectAccountStorage } from "./cases/backup";
 import { AnatomyPage } from "./components/AnatomyPage";
 import { DatasetLibrary } from "./components/PatientPanel";
 import { SignInPage } from "./components/SignInPage";
@@ -78,8 +79,17 @@ export default function App() {
     window.addEventListener(SIGNED_OUT_EVENT, onSignedOut);
     return () => window.removeEventListener(SIGNED_OUT_EVENT, onSignedOut);
   }, [queryClient]);
-  if (session.isPending) return <div className="min-h-screen bg-slate-50" aria-busy />;
   const s = session.data; // an unreachable backend falls through: Main shows the error and the offline switch
+  const storageUser = s?.auth_required && !s.user ? undefined : s?.user ?? null; // undefined: not signed in yet
+  // Each account reads and writes only its own local stores (audit R04). Nothing below renders until they are open.
+  const [openStorage, setOpenStorage] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    if (session.isPending || storageUser === undefined) return;
+    let alive = true;
+    void selectAccountStorage(storageUser).then(() => { if (alive) setOpenStorage(storageUser); });
+    return () => { alive = false; };
+  }, [session.isPending, storageUser]);
+  if (session.isPending) return <div className="min-h-screen bg-slate-50" aria-busy />;
   if (s?.auth_required && !s.user) {
     return <SignInPage accountsConfigured={s.accounts_configured} onSignedIn={(next) => {
       queryClient.setQueryData(["session"], next);
@@ -90,6 +100,7 @@ export default function App() {
     await api.logout().catch(() => undefined);
     window.location.replace(window.location.pathname); // a clean slate: nothing of the previous user stays in memory
   };
+  if (openStorage !== storageUser) return <div className="min-h-screen bg-slate-50" aria-busy />;
   return <Main user={s?.user ?? null} onSignOut={() => void signOut()} />;
 }
 
@@ -98,7 +109,8 @@ function Main({ user, onSignOut }: { user: string | null; onSignOut: () => void 
   const runMode = useQuery({ queryKey: ["runMode"], queryFn: detectRunMode, staleTime: Infinity });
   const queryClient = useQueryClient();
   const offlineSwitch = async () => {
-    if (await switchToOffline()) await queryClient.resetQueries();
+    // The session stays: a signed-in user keeps their own case store offline (audit R04).
+    if (await switchToOffline()) await queryClient.resetQueries({ predicate: (q) => q.queryKey[0] !== "session" });
     else window.alert("No offline demo bundle is available in this build (scripts/export_demo_bundle.py).");
   };
   const switchButton = runMode.data !== "offline" && (

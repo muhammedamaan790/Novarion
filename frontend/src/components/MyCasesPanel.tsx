@@ -4,8 +4,8 @@ import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-quer
 import { useRef, useState } from "react";
 import { listBackups, storageErrorMessage, storageHealth } from "../cases/backup";
 import { caseStatus, currentAnalysis, deleteCase, exportCases, exportLearningPackage, importCases, listCasesChecked,
-  toDisplay, type CaseImportReport } from "../cases/caseStore";
-import type { CaseRecord } from "../cases/db";
+  legacyCases, moveLegacyCases, toDisplay, type CaseImportReport, type LegacyMoveReport } from "../cases/caseStore";
+import { LEGACY_DB, db, type CaseRecord } from "../cases/db";
 import { download } from "../cases/snapshot";
 import { useStore } from "../store/useStore";
 
@@ -34,6 +34,10 @@ export function MyCasesPanel() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [importReport, setImportReport] = useState<CaseImportReport | null>(null);
   const withOutcomes = cases.data?.filter((c) => c.source !== "dataset" && c.outcomes?.length).length ?? 0;
+  const accountStore = db.name !== LEGACY_DB;
+  // Cases saved in this browser before accounts existed: offered once to the signed-in account, moved only on click.
+  const legacy = useQuery({ queryKey: ["cases", "legacy", db.name], queryFn: legacyCases, enabled: accountStore, retry: false });
+  const [moveReport, setMoveReport] = useState<LegacyMoveReport | null>(null);
   const onImport = async (file: File | undefined) => {
     if (!file) return;
     setImportReport(await importCases(await file.text()));
@@ -42,6 +46,33 @@ export function MyCasesPanel() {
   };
   return (
     <div className="flex h-full flex-col gap-2 overflow-hidden" data-testid="my-cases">
+      <p className="text-xs text-slate-600" data-testid="storage-scope"
+         title="Cases live in this browser's local storage. Each signed-in account has its own store; this separates accounts, it does not encrypt them: anyone with access to this computer's browser profile can read them. Use de-identified data only.">
+        {accountStore ? "Stored in this browser for your account only · not encrypted ⓘ"
+          : "Stored in this browser, shared by everyone who uses it without signing in ⓘ"}
+      </p>
+      {legacy.data && legacy.data.length > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900"
+             data-testid="legacy-cases">
+          <span>
+            {legacy.data.length} case{legacy.data.length === 1 ? " was" : "s were"} saved in this browser before accounts
+            existed. They stay where they are unless you move them to your account.
+          </span>
+          <button type="button" data-testid="legacy-move" className="shrink-0 rounded bg-amber-700 px-2 py-1 font-semibold text-white"
+                  onClick={async () => {
+                    setMoveReport(await moveLegacyCases());
+                    await queryClient.invalidateQueries({ queryKey: ["cases"] });
+                  }}>
+            Move to my account
+          </button>
+        </div>
+      )}
+      {moveReport && (
+        <p className="text-xs text-slate-700" data-testid="legacy-report">
+          {moveReport.moved.length > 0 && `Moved: ${moveReport.moved.join(", ")}. `}
+          {moveReport.kept.length > 0 && `Kept in the shared store (number already used in your account): ${moveReport.kept.join(", ")}.`}
+        </p>
+      )}
       <div className="flex items-center justify-between gap-2">
         <h2 className="mr-auto text-xs font-semibold uppercase tracking-wider text-slate-500">My cases</h2>
         <button type="button" className="text-[11px] text-slate-600 underline" disabled={!cases.data?.length}

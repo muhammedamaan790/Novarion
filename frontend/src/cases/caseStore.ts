@@ -1,10 +1,10 @@
 // Case operations. Each write is a single IndexedDB transaction, so a case is never half-saved (plan §1 "the client
 // commits it in a single IndexedDB transaction"). Status is DERIVED: an analysis is reviewed iff a review references it.
 import { api, type DisplayAnalysis, type InputValue, type Meta, type PatientBundle } from "../api/client";
-import { backupCases, isWellFormedCase } from "./backup";
+import { backupCases, isWellFormedCase, storeBackup } from "./backup";
 import { canonicalize } from "./jcs";
 import { caseProblem } from "./validate";
-import { CASE_SCHEMA_VERSION, db, type CaseRecord, type CaseSource, type DraftRecord, type OutcomeRecord,
+import { CASE_SCHEMA_VERSION, LEGACY_DB, NovarionDB, db, type CaseRecord, type CaseSource, type DraftRecord, type OutcomeRecord,
   type PersistedAnalysis, type Review, type Scenario, type SnapshotRecord, type StoredSnapshot } from "./db";
 
 /** After a case write commits, refresh the automatic local backup (best effort, never blocks the write). */
@@ -274,6 +274,45 @@ export async function clearDraftIfMatches(inputs: Record<string, unknown>): Prom
   if (stored && same(stored.inputs)) await db.drafts.delete("current");
 }
 export const getCase = (caseId: string) => db.cases.get(caseId);
+
+/** Valid cases saved in the shared pre-account store, while an account's own store is open (audit R04). */
+export async function legacyCases(): Promise<CaseRecord[]> {
+  if (db.name === LEGACY_DB) return [];
+  const legacy = new NovarionDB(LEGACY_DB);
+  try {
+    return (await legacy.cases.orderBy("number").toArray()).filter(isWellFormedCase);
+  } catch {
+    return [];
+  } finally {
+    legacy.close();
+  }
+}
+
+export interface LegacyMoveReport { moved: string[]; kept: string[] }
+
+/** Move the shared store's cases into the signed-in account, only when the user asks. A case whose id or number is
+ *  already used in the account stays where it is (reported), so no case number is ever reused or rewritten. */
+export async function moveLegacyCases(): Promise<LegacyMoveReport> {
+  const report: LegacyMoveReport = { moved: [], kept: [] };
+  const candidates = await legacyCases();
+  if (candidates.length === 0) return report;
+  const existing = await db.cases.toArray();
+  const ids = new Set(existing.map((c) => c.case_id));
+  const numbers = new Set(existing.map((c) => c.number));
+  const movable = candidates.filter((c) => !ids.has(c.case_id) && !numbers.has(c.number));
+  report.kept = candidates.filter((c) => !movable.includes(c)).map((c) => c.display_id);
+  if (movable.length === 0) return report;
+  await storeBackup(movable, "before moving cases saved before accounts"); // a copy first, in this account's backups
+  await db.cases.bulkAdd(movable); // the account copy exists before anything is removed from the shared store
+  const legacy = new NovarionDB(LEGACY_DB);
+  try {
+    await legacy.cases.bulkDelete(movable.map((c) => c.case_id));
+  } finally {
+    legacy.close();
+  }
+  report.moved = movable.map((c) => c.display_id);
+  return report;
+}
 
 export interface CaseImportReport {
   imported: string[];

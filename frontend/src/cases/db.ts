@@ -95,15 +95,30 @@ export interface DraftRecord {
   saved_at: string;
 }
 
-class NovarionDB extends Dexie {
+/** The store used without sign-in (dev, tests, offline demo) and by every case saved before accounts existed. */
+export const LEGACY_DB = "novarion";
+/** Each signed-in account gets its own stores (audit R04): separation between accounts in one browser profile, not
+ *  encryption; anyone with access to the profile can still read IndexedDB. */
+export const accountDbName = (user: string | null) => (user ? `novarion:${user}` : LEGACY_DB);
+
+export class NovarionDB extends Dexie {
   cases!: Table<CaseRecord, string>;
   drafts!: Table<DraftRecord, string>;
 
-  constructor() {
-    super("novarion");
+  constructor(name: string = LEGACY_DB) {
+    super(name);
     this.version(1).stores({ cases: "case_id, number, updated_at" });
     this.version(2).stores({ cases: "case_id, number, updated_at", drafts: "draft_id" }); // additive: no data migration
   }
 }
 
-export const db = new NovarionDB();
+// A live binding: importers always see the current account's store after switchCaseDb().
+export let db = new NovarionDB();
+
+/** Point every case read and write at `name`. Returns false if it was already the current store. */
+export function switchCaseDb(name: string): boolean {
+  if (db.name === name) return false;
+  db.close();
+  db = new NovarionDB(name);
+  return true;
+}
