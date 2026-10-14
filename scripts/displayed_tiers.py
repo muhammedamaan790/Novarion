@@ -29,7 +29,11 @@ def main() -> None:
     docs = [json.loads(p.read_text(encoding="utf-8")) for p in patients]
     train = default_train_config()
     boot = train.raw["bootstrap_metric_ci"]
-    out = {"model_version": entry["version"], "n_patients": len(docs),
+    out = {"model_version": entry["version"],
+           # Written where the numbers are computed (audit N05): the exact bundle whose served analyses these are.
+           "source_identity": {"kind": "bundle", "model_version": entry["version"],
+                               "artifact_manifest_sha256": entry["artifact_manifest_sha256"]},
+           "n_patients": len(docs),
            "scope": "served OOF analyses (prespecified repeat) after every display gate; patient-level bootstrap",
            "targets": {}}
     for t in TARGETS:

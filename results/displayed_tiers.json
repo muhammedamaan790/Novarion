@@ -1,5 +1,10 @@
 {
  "model_version": "1.0.2",
+ "source_identity": {
+  "kind": "bundle",
+  "model_version": "1.0.2",
+  "artifact_manifest_sha256": "790a8dece9e982a4b4d76e64db3884ad40af1bb6d2209d2b83de092037c60c66"
+ },
  "n_patients": 303,
  "scope": "served OOF analyses (prespecified repeat) after every display gate; patient-level bootstrap",
  "targets": {

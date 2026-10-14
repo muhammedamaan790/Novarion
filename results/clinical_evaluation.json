@@ -1,6 +1,13 @@
 {
  "scope": "pooled OOF, prespecified evaluation repeat (each patient once)",
  "bootstrap": 2000,
+ "source_identity": {
+  "kind": "training_run",
+  "split_manifest_sha256": "17c7493851bc985213faa7fdb96c04ee703d0b81410e4a5a1963b367c0967f5e",
+  "training_data_sha256": "3864a1ab3cd78d7295b900ec4b001890593dc0f174316e4ae4ad2f82c80d10bb",
+  "train_config_sha256": "ddb6ff5c8af1500df8c73e9a7d3adb60858636d0c9698de50226d495739b5dbd",
+  "training_cache_key": "2ab786f90fa22981f99a88869b18872b3fdcd3b40ae672ca7d19b5546642ac76"
+ },
  "reference": "Parizad et al., Vasc Health Risk Manag 2026 (umbrella review): reporting gaps",
  "clinical_baseline": {
   "population": "273 of 303 patients with a chest-pain type (Diamond-Forrester's domain); 30 without chest pain are outside the published table",

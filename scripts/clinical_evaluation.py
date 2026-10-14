@@ -28,6 +28,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "ml"))
 
 from novarion_ml.calibrate.platt import calibration_slope_intercept
+from novarion_ml.data.canonical import training_data_sha256
 from novarion_ml.data.load import build_targets, build_X, load_source, patient_id
 from novarion_ml.train.config import default_train_config
 
@@ -155,7 +156,15 @@ def main() -> None:
                 if t == "cad":
                     fold_of[int(rid)] = k
     ids = np.array(sorted(oof["cad"]))
+    metrics = json.loads((ROOT / "results" / "metrics.json").read_text(encoding="utf-8"))
+    split = json.loads((ROOT / "results" / "split_manifest.json").read_text(encoding="utf-8"))
     out: dict = {"scope": "pooled OOF, prespecified evaluation repeat (each patient once)", "bootstrap": B,
+                 # Written where the numbers are computed (audit N05): the training run whose out-of-fold predictions
+                 # these are, by its split, training data and training config; every bundle built from that run
+                 # records the same three in its manifest. The cache key is informational (its scheme changed, R14).
+                 "source_identity": {"kind": "training_run", "split_manifest_sha256": split["split_manifest_sha256"],
+                                     "training_data_sha256": training_data_sha256(X, Y),
+                                     "train_config_sha256": train.sha256, "training_cache_key": metrics["cache_key"]},
                  "reference": "Parizad et al., Vasc Health Risk Manag 2026 (umbrella review): reporting gaps"}
 
     # ---- 1. clinical baseline (CAD)
