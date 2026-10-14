@@ -722,7 +722,8 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     to the sign-in form, since that user was already working.
   - With sign-in off (development, E2E, offline demo) nothing changes: the app opens on its home page.
   - The layout adapts Landwind by Themesberg (MIT): navbar, hero with image, a strip of facts in place of the logo
-    strip, feature grid, content section, statement section, call to action and footer. Flowbite's script is not used
+    strip, feature grid, content section, statement section and call to action (no footer; the credits are in
+    `CREDITS.md` and the image caption). Flowbite's script is not used
     and nothing loads from another origin. Icons are Heroicons (MIT), inline. The hero image is a screenshot of the
     app's own reference heart (BodyParts3D, CC BY 4.0), 22 kB WebP in `frontend/public/landing/`.
   - Content: the problem (WHO: ischaemic heart disease is the leading cause of death; angiography is invasive; in

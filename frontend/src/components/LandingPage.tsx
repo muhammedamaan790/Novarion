@@ -1,7 +1,7 @@
 // Public landing page, shown before sign-in (D-028): what problem NOVARION addresses and how. Layout adapted from
 // Landwind by Themesberg (MIT, © 2022 Themesberg): navbar, hero with image, logo strip (here: facts), feature grid,
-// content section, statement section, CTA and footer; Flowbite's script is not used and nothing loads from another
-// origin. Icons from Heroicons (MIT, © Tailwind Labs), inline. The hero image is the app's own reference heart
+// content section, statement section and CTA; its footer is left out. Flowbite's script is not used and nothing loads
+// from another origin. Icons from Heroicons (MIT, © Tailwind Labs), inline. The hero image is the app's own reference heart
 // (BodyParts3D, CC BY 4.0). Only dataset and method facts appear here: model figures need a session and are shown
 // after sign-in, bound to the served model (audit R09).
 import { DisclaimerFooter } from "./Chrome";
@@ -228,39 +228,6 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
           </div>
         </section>
       </main>
-
-      <footer className="bg-white p-4 sm:p-6">
-        <div className="mx-auto max-w-screen-xl">
-          <div className="md:flex md:justify-between">
-            <div className="mb-6 md:mb-0">
-              <span className="text-2xl font-extrabold tracking-[0.25em]">NOVARION</span>
-              <p className="mt-2 text-sm text-slate-700">A new light on every coronary artery.</p>
-            </div>
-            <div className="grid grid-cols-2 gap-8 text-sm sm:grid-cols-3 sm:gap-6">
-              <div>
-                <h2 className="mb-4 font-semibold text-slate-900 uppercase">Data</h2>
-                <ul className="space-y-2 text-slate-700">
-                  <li>Z-Alizadeh Sani, extension (UCI #411)</li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="mb-4 font-semibold text-slate-900 uppercase">3D anatomy</h2>
-                <ul className="space-y-2 text-slate-700">
-                  <li>BodyParts3D, © DBCLS, CC BY 4.0</li>
-                </ul>
-              </div>
-              <div>
-                <h2 className="mb-4 font-semibold text-slate-900 uppercase">Page design</h2>
-                <ul className="space-y-2 text-slate-700">
-                  <li>Landwind, © Themesberg, MIT</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-          <hr className="my-6 border-slate-200" />
-          <p className="text-sm text-slate-700">Multimodal AI Hackathon 2026 · Track A: Cardiovascular Risk Visualization &amp; Prediction</p>
-        </div>
-      </footer>
       <DisclaimerFooter />
     </div>
   );
