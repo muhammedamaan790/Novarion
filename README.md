@@ -7,6 +7,13 @@ Track A (Cardiovascular Risk Visualization & Prediction).
 > Predictions estimate the probability of the dataset's CAD / ≥50% vessel-stenosis labels from routine clinical
 > features. They are not diagnoses, do not locate lesions, and do not recommend tests or treatment.
 
+## Try it online
+
+**Live demo: https://novarion.onrender.com** · sign in with **judge / judge123**
+
+It runs the real model (v1.0.2). The server is on a free plan: if it has been idle, the first load can take a few
+minutes while it wakes up; after that a prediction takes about a second.
+
 NOVARION predicts overall **CAD** and **LAD / LCX / RCA stenosis** for the 303 patients of the Extension of Z-Alizadeh
 Sani dataset (UCI #411). It colours each vessel of an interactive 3D heart by its calibrated probability and explains
 every prediction with exact SHAP contributions beside the patient's measurements. Around that it builds a review
@@ -27,9 +34,9 @@ learning loop lets verified outcomes reach a model update only through a validat
 docker compose up -d --build        # → http://localhost:8080   (API at :8080/api/v1, READY in ~15 s)
 ```
 
-**Public demo (Hugging Face Space):** `uv run python scripts/deploy_space.py upload USER/SPACE --users USERS_JSON`
-builds a single-container Space from `deploy/hosted/` with the production model; accounts go into a Space secret,
-never into its files (D-029).
+**Hosted (Render, free plan):** `render.yaml` is a Blueprint that builds the single-container image in
+`deploy/hosted/` (nginx + API, the published v1.0.2 bundle). Accounts come from the `NOVARION_USERS_JSON` secret
+(scrypt hashes, made with `scripts/deploy_space.py judge-account`), never from the repository (D-029, D-030).
 
 **Development:**
 
@@ -196,9 +203,11 @@ from an external audit (D-026: wrong-workspace saves, per-account local storage,
 the release, model-bound evidence and both confidence scopes, safer promotion/rollback/rebuilds, narrower claims;
 confidence now reads "high support · internal evaluation" / "outside qualified range"), a 4x smaller first download
 (the 3D view and PDF code load on demand), a landing section on the home page (D-027), and a public landing page
-before sign-in that explains the problem and the approach (D-028). Verified: 221 Python tests, 34 unit tests and 71
-browser flows, against the mock and against the rebuilt Docker stack with the real model.
-Still not published: the trained model bundle (audit R01); a fresh clone needs `make reproduce` for real predictions.
+before sign-in that explains the problem and the approach (D-028), and a public deployment on Render with the real
+model (D-029, D-030). Verified: 221 Python tests, 34 unit tests and 71 browser flows, against the mock, against the
+rebuilt Docker stack with the real model, and against the hosted image.
+The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
+clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
 
 Still open, for the team:
 - the second-machine run;
