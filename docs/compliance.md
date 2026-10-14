@@ -52,7 +52,7 @@ v1.0.0, plus stability intervals (D-017) and fold-safe evidence ledgers (D-019).
 
 | Deliverable | Evidence | Status |
 |---|---|---|
-| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~15 s; `NOVARION_API_PORT` / `NOVARION_WEB_PORT` move it off busy ports) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
+| Web app | Docker stack (`docker compose up` → http://localhost:8080, READY in ~15 s; the API is reached through it at /api/v1, the backend port is not published (audit R17); `NOVARION_WEB_PORT` moves it off a busy port) and a dev setup. Offline demo mode serves a hash-verified static bundle. | Met (local); **Open:** a public hosted URL, if the submission requires one |
 | Trained pipeline + weights | `make reproduce` reruns everything. Bundle `artifacts/models/v1.0.2` has per-file hashes, and the backend refuses a modified bundle. Weights are gitignored and rebuilt by `make reproduce`. | Met; **Open:** decide whether to attach the bundle to a GitHub release |
 | ≤ 6-page documentation | `docs/report.pdf`, 4 pages, with every number read from `results/` at build time. Also `docs/model_card.md` and `docs/decisions.md`. | Met |
 | 3–10 min YouTube demo | Recorded at the end of the project, by the team. | **Open** |

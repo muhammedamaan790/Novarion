@@ -24,7 +24,7 @@ learning loop lets verified outcomes reach a model update only through a validat
 **Docker (recommended):** this needs a built model bundle; see *Reproduce* below.
 
 ```bash
-docker compose up -d --build        # → http://localhost:8080   (backend :8000, READY in ~15 s)
+docker compose up -d --build        # → http://localhost:8080   (API at :8080/api/v1, READY in ~15 s)
 ```
 
 **Development:**
@@ -171,7 +171,7 @@ paired intervals are wide. That conservatism is by design.
 make test                                        # 190 Python tests
 cd frontend && npm run typecheck && npm run lint && npm test && npx playwright test   # 24 unit + 50 E2E (mock API)
 make docker-e2e                                  # the same E2E flows against the Docker stack + real model
-# Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_API_PORT=8001 docker compose up
+# Port 8000 or 5173 busy? E2E_API_PORT=8010 E2E_WEB_PORT=5180 npx playwright test; NOVARION_WEB_PORT=8081 docker compose up
 ```
 
 ## Status
