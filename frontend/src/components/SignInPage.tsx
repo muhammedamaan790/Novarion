@@ -29,17 +29,19 @@ export function SignInPage({ accountsConfigured, onSignedIn }: {
   };
   return (
     <div className="flex min-h-screen flex-col bg-slate-100 text-slate-900">
-      <main className="flex flex-1 items-center justify-center p-4">
-        <form onSubmit={(e) => void submit(e)} data-testid="sign-in"
+      <main className="flex flex-1 flex-col items-center justify-center gap-6 p-4">
+        {/* What this is, above the card; the card itself is only for signing in. */}
+        <header className="max-w-xl text-center" data-testid="sign-in-intro">
+          <h1 className="text-3xl font-extrabold tracking-[0.25em]">NOVARION</h1>
+          <p className="mt-1 text-base font-semibold text-slate-600">Coronary case review</p>
+          <p className="mt-4 text-base font-bold text-slate-800">
+            Estimates CAD and LAD, LCX and RCA stenosis from routine clinical measurements and shows them on a 3D heart,
+            with the reasons. An educational research prototype.
+          </p>
+        </header>
+        <form onSubmit={(e) => void submit(e)} data-testid="sign-in" aria-label="Sign in"
               className="w-full max-w-sm space-y-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="text-center">
-            <p className="text-2xl font-extrabold tracking-[0.25em]">NOVARION</p>
-            <p className="mt-1 text-sm font-medium text-slate-600">Coronary case review</p>
-            <p className="mt-3 text-sm text-slate-700">
-              Estimates CAD and LAD, LCX and RCA stenosis from routine clinical measurements and shows them on a 3D heart,
-              with the reasons. An educational research prototype.
-            </p>
-          </div>
+          <h2 className="text-center text-lg font-bold text-slate-900">Sign in</h2>
           {!accountsConfigured && (
             <p role="alert" className="rounded bg-amber-50 p-2 text-sm text-amber-900">
               No accounts exist yet. Create one with <code>uv run python scripts/users.py add NAME</code> and restart the backend.
