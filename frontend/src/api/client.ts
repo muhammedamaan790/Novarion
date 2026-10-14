@@ -1,4 +1,5 @@
 // Typed API client. Types are generated from contracts/openapi.json (npm run gen:api); never hand-written.
+import { jcsSha256, sha256Hex } from "../cases/jcs";
 import type { components } from "./types";
 
 export type Schemas = components["schemas"];
@@ -135,7 +136,6 @@ async function loadDemoBundle(): Promise<DemoIndex | null> {
     const response = await fetch("/demo_bundle/index.json");
     if (!response.ok) return null;
     const doc = (await response.json()) as { index: DemoIndex; demo_bundle_sha256: string };
-    const { jcsSha256 } = await import("../cases/jcs");
     if ((await jcsSha256(doc.index)) !== doc.demo_bundle_sha256) {
       console.error("offline demo bundle failed its integrity check");
       return null;
@@ -206,7 +206,6 @@ async function staticJson<T>(path: string): Promise<ApiResult<T>> {
   const response = await fetch(`/demo_bundle/${path}`);
   if (!response.ok) throw new ApiError(response.status, null);
   const bytes = new Uint8Array(await response.arrayBuffer());
-  const { sha256Hex } = await import("../cases/jcs");
   if ((await sha256Hex(bytes)) !== expected) {
     console.error(`offline file failed its integrity check: ${path}`);
     throw new IntegrityFailure(`offline file failed its integrity check: ${path}`);

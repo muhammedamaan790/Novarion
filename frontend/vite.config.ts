@@ -20,5 +20,8 @@ export default defineConfig({
     port: 5173,
     proxy: { "/api": { target: process.env.NOVARION_API ?? "http://127.0.0.1:8000", changeOrigin: false } },
   },
+  // The 3D engine (three.js + React Three Fiber + drei, ~675 kB) is one indivisible chunk, loaded only on pages that show
+  // a heart; the app shell is ~510 kB. Warn above that, so a real regression still shows up.
+  build: { chunkSizeWarningLimit: 700 },
   test: { environment: "node", include: ["src/**/*.test.ts"] },
 });

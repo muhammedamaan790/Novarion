@@ -74,6 +74,7 @@ test("WebGL unavailable: the 2D schematic appears and is driven by the same stor
 test("WebGL context lost: an explanatory overlay, then the 3D view can be restored", async ({ page }) => {
   await page.goto("/?dataset=ZAS-0003");
   await expect(page.getByTestId("card-cad")).toBeVisible(FIRST_LOAD);
+  await expect(page.locator("canvas")).toBeVisible(FIRST_LOAD); // the 3D view loads on demand
   await page.waitForTimeout(1000);
   await page.evaluate(() => {
     const canvas = document.querySelector("canvas")!;

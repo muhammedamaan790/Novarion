@@ -172,11 +172,4 @@ export async function snapshotPdf(stored: StoredSnapshot): Promise<jsPDF> {
   return doc;
 }
 
-export function download(filename: string, data: Blob): void {
-  const url = URL.createObjectURL(data);
-  const a = Object.assign(document.createElement("a"), { href: url, download: filename });
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
+export { download } from "./download";

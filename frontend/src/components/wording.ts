@@ -68,6 +68,12 @@ export const REASON_SHORT: Record<string, string> = {
   no_qualified_region: "no qualified range for this target",
 };
 
+/** Plain anatomical names for the "3D heart" page (no predictions there). */
+export const ANATOMY_NAME: Record<TargetId, string> = {
+  cad: "Heart (myocardium)", lad: "LAD · left anterior descending artery", lcx: "LCX · left circumflex artery",
+  rca: "RCA · right coronary artery",
+};
+
 export const MODE_BADGE: Record<string, string> = {
   oof: "OOF VALIDATION",
   final_model: "FINAL PRODUCTION MODEL",

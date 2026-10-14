@@ -6,7 +6,7 @@ import { listBackups, storageErrorMessage, storageHealth } from "../cases/backup
 import { caseStatus, currentAnalysis, deleteCase, exportCases, exportLearningPackage, importCases, listCasesChecked,
   legacyCases, moveLegacyCases, toDisplay, type CaseImportReport, type LegacyMoveReport } from "../cases/caseStore";
 import { LEGACY_DB, db, type CaseRecord } from "../cases/db";
-import { download } from "../cases/snapshot";
+import { download } from "../cases/download";
 import { useStore } from "../store/useStore";
 
 const SOURCE_LABEL = { dataset: "Dataset (OOF)", manual: "Manual", import: "Imported" } as const;

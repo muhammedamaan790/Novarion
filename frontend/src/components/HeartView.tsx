@@ -6,7 +6,7 @@ import { HeartScene, LABELLED_TARGETS, nodeToTarget, type AnatomyMap } from "../
 import { rampColor } from "../three/colors";
 import { useStore } from "../store/useStore";
 import { type SceneState, useCaseScene } from "../three/sceneState";
-import { CONFIDENCE_LABEL, CONFIDENCE_SHORT, SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
+import { ANATOMY_NAME, CONFIDENCE_LABEL, CONFIDENCE_SHORT, SHORT, TOOLTIPS, predictionText, probPct } from "./wording";
 
 function Legend({ map }: { map: AnatomyMap }) {
   const ramp = (family: "warm" | "cool") =>
@@ -31,11 +31,6 @@ function Legend({ map }: { map: AnatomyMap }) {
   );
 }
 
-/** Plain anatomical names for the "3D heart" page (no predictions there). */
-export const ANATOMY_NAME: Record<TargetId, string> = {
-  cad: "Heart (myocardium)", lad: "LAD · left anterior descending artery", lcx: "LCX · left circumflex artery",
-  rca: "RCA · right coronary artery",
-};
 
 function Tooltip({ analysis, map, sceneState }: { analysis: DisplayAnalysis | null; map: AnatomyMap; sceneState: SceneState }) {
   const hover = sceneState.hover;

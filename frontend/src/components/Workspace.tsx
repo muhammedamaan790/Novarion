@@ -5,7 +5,7 @@ import { TARGET_IDS, type DisplayAnalysis, type Meta, type RunMode, type TargetI
 import { type CaseTab, useStore } from "../store/useStore";
 import { CaseBar } from "./CaseBar";
 import { CompareHeatmap } from "./CompareHeatmap";
-import { HeartView } from "./HeartView";
+import { HeartView } from "./HeartViewLazy";
 import { NewCasePanel } from "./NewCasePanel";
 import { PatientData } from "./PatientPanel";
 import { Summary, TargetCards } from "./TargetCards";

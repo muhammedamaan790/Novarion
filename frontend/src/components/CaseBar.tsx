@@ -8,7 +8,7 @@ import { activeOutcomes, addOutcome, addReview, addSnapshot, caseStatus, clearDr
   type OutcomeInput } from "../cases/caseStore";
 import { storageErrorMessage } from "../cases/backup";
 import { CORRECTION_REASONS, SOURCE_SYSTEMS, SOURCE_TYPES, type CaseRecord } from "../cases/db";
-import { buildSnapshot, download, snapshotPdf } from "../cases/snapshot";
+import { download } from "../cases/download";
 import { useStore } from "../store/useStore";
 
 const SOURCE_LABEL = { dataset: "Dataset (OOF)", manual: "Manual entry", import: "Imported file" } as const;
@@ -198,12 +198,18 @@ export function CaseBar({ analysis, meta }: { analysis: DisplayAnalysis; meta: M
     setReviewing(false);
   });
   const snapshot = () => run("Generating snapshot", async () => {
-    const renderer = useStore.getState().snapshotRenderer;
+    // The 3D view loads on demand: give it time to come up instead of failing a quick click.
+    let renderer = useStore.getState().snapshotRenderer;
+    for (let waited = 0; !renderer && waited < 15_000; waited += 100) {
+      await new Promise((r) => setTimeout(r, 100));
+      renderer = useStore.getState().snapshotRenderer;
+    }
     if (!renderer) throw new Error("3D view not ready");
     const st = useStore.getState();
     const preset = st.selectedTarget ? meta.anatomy_map && (meta.anatomy_map as { targets: Record<string, { camera_preset: string }> })
       .targets[st.selectedTarget]!.camera_preset : "overview";
     const image = renderer(preset ?? "overview");
+    const { buildSnapshot, snapshotPdf } = await import("../cases/snapshot"); // PDF code loads on first use
     const storedSnapshot = await buildSnapshot(record, stAnalysis, latestReview, {
       png_data_url: image.png_data_url, camera: image.camera,
       view: { camera_preset: preset ?? "overview", target: st.selectedTarget, isolation: st.isolation,
