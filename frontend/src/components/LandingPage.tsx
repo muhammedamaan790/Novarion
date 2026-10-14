@@ -84,7 +84,7 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
       </header>
 
       <main className="flex-1">
-        <section className="bg-white">
+        <section className="bg-linear-to-b from-emerald-50 to-white" data-testid="landing-hero">
           <div className="mx-auto grid max-w-screen-xl px-4 py-8 lg:grid-cols-12 lg:gap-8 lg:py-16 xl:gap-0">
             <div className="mr-auto place-self-center lg:col-span-7">
               <p className="mb-3 font-bold tracking-wide text-emerald-700">Coronary case review · AI research prototype</p>
@@ -108,9 +108,9 @@ export function LandingPage({ onSignIn }: { onSignIn: () => void }) {
               </button>
             </div>
             <div className="hidden lg:col-span-5 lg:mt-0 lg:flex lg:flex-col lg:items-center">
-              <img src="/landing/heart.webp" width={870} height={773} className="h-auto w-full"
+              <img src="/landing/heart.webp" width={870} height={773} className="h-auto w-full rounded-2xl shadow-xl ring-1 ring-slate-900/5"
                    alt="NOVARION's 3D reference heart with the LAD, LCX and RCA arteries labelled" />
-              <p className="mt-2 text-xs text-slate-600">Reference anatomy from BodyParts3D (CC BY 4.0), not a patient.</p>
+              <p className="mt-3 text-xs text-slate-600">Reference anatomy from BodyParts3D (CC BY 4.0), not a patient.</p>
             </div>
           </div>
         </section>
