@@ -138,7 +138,7 @@ function MetricsTable({ rows, target }: { rows: Schemas["Table1Row"][]; target: 
 }
 
 function Forest({ rows, selected, onSelect }: {
-  rows: { target: TargetId; mean: number; sd: number }[]; selected: TargetId; onSelect: (t: TargetId) => void;
+  rows: { target: TargetId; mean: number | null; sd: number | null }[]; selected: TargetId; onSelect: (t: TargetId) => void;
 }) {
   const W = 560;
   const rowH = 30;
@@ -170,11 +170,14 @@ function Forest({ rows, selected, onSelect }: {
               <text x={8} y={cy + 4} className={`text-[12px] ${active ? "fill-slate-900 font-semibold" : "fill-slate-700"}`}>
                 {SHORT[r.target]}
               </text>
-              <line x1={x(Math.max(0.5, r.mean - r.sd))} x2={x(Math.min(1, r.mean + r.sd))} y1={cy} y2={cy}
-                    stroke={C.primary} strokeWidth="2" strokeLinecap="round" />
-              <circle cx={x(r.mean)} cy={cy} r="5" fill={C.primary} stroke="#fff" strokeWidth="2" />
-              <text x={W - right + 8} y={cy + 4} className="fill-slate-700 text-[11px] tabular-nums">
-                {r.mean.toFixed(2)} ± {r.sd.toFixed(2)}
+              {r.mean !== null && r.sd !== null && (
+                <line x1={x(Math.max(0.5, r.mean - r.sd))} x2={x(Math.min(1, r.mean + r.sd))} y1={cy} y2={cy}
+                      stroke={C.primary} strokeWidth="2" strokeLinecap="round" />
+              )}
+              {r.mean !== null && <circle cx={x(r.mean)} cy={cy} r="5" fill={C.primary} stroke="#fff" strokeWidth="2" />}
+              <text x={W - right + 8} y={cy + 4} className="fill-slate-700 text-[11px] tabular-nums"
+                    data-testid={`forest-value-${r.target}`}>
+                {r.mean === null ? "N/A" : `${r.mean.toFixed(2)}${r.sd === null ? "" : ` ± ${r.sd.toFixed(2)}`}`}
               </text>
             </g>
           );
@@ -200,7 +203,8 @@ export function EvidencePage() {
   const figures = ((ev.figures ?? {}) as Record<string, Figures>)[target] ?? {};
   const forest = TARGET_IDS.map((t) => {
     const row = ev.table1.find((r) => r.target === t && r.model === "nested_cv_selected");
-    return { target: t, mean: row?.metrics.roc_auc?.mean ?? 0.5, sd: row?.metrics.roc_auc?.sd ?? 0 };
+    // Absent stays absent (audit R11): never a plausible default for a scientific measurement.
+    return { target: t, mean: row?.metrics.roc_auc?.mean ?? null, sd: row?.metrics.roc_auc?.sd ?? null };
   });
   const t1 = ev.table1.filter((r) => r.target === target);
   const thr = figures.deployed_thresholds;

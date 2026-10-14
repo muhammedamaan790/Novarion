@@ -131,6 +131,10 @@ test("Model Evidence page shows scoped tables and figures for each target", asyn
   await expect(page.getByTestId("evidence-page")).toBeVisible();
   await expect(page).toHaveURL(/page=evidence/);
   await expect(page.getByTestId("evidence-key-numbers")).toContainText("Sensitivity · CAD"); // summary first
+  // audit R11: a missing measurement is shown as missing, never as a plausible 0.50 (the mock has no selected-model row)
+  for (const t of ["cad", "lad", "lcx", "rca"]) {
+    await expect(page.getByTestId(`forest-value-${t}`)).toHaveText(REAL ? /^0\.\d\d ± 0\.\d\d$/ : "N/A");
+  }
   await page.getByTestId("evidence-section-performance").click();
   await expect(page.getByText("Table 1 · official metrics · CAD")).toBeVisible();
   await expect(page.getByTestId("metrics-table").locator("thead th")).toHaveCount(7); // model + 6 core metrics
