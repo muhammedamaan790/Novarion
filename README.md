@@ -106,7 +106,7 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 71 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+- Browser E2E: 72 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
   accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -188,10 +188,10 @@ make docker-e2e                                  # the same E2E flows against th
 
 ## Status
 
-**Release v1.0.5 (frozen; `release_manifest.json`, git tag `v1.0.5`), serving model v1.0.2.** Built:
+**Release v1.0.6 (frozen; `release_manifest.json`, git tag `v1.0.6`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (71/71 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (72/72 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 **New since release v1.0.2 (the model is unchanged):** a sign-in page with
@@ -204,7 +204,8 @@ the release, model-bound evidence and both confidence scopes, safer promotion/ro
 confidence now reads "high support · internal evaluation" / "outside qualified range"), a 4x smaller first download
 (the 3D view and PDF code load on demand), a landing section on the home page (D-027), and a public landing page
 before sign-in that explains the problem and the approach (D-028), and a public deployment on Render with the real
-model (D-029, D-030). Verified: 221 Python tests, 34 unit tests and 71 browser flows, against the mock, against the
+model (D-029, D-030). In v1.0.6: the landing page's 3D heart moves, visiting each artery in turn (D-031).
+Verified: 221 Python tests, 34 unit tests and 72 browser flows, against the mock, against the
 rebuilt Docker stack with the real model, and against the hosted image.
 The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
 clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
@@ -216,7 +217,7 @@ Still open, for the team:
 - a public hosted URL, if the submission requires one.
 
 Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
-(v1.0.6 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
+(v1.0.7 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
 
 ## Data and credits
 
