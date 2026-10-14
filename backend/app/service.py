@@ -129,6 +129,12 @@ def _operation_text(plan: dict[str, Any]) -> str:
         return f"rejection of candidate v{plan.get('candidate')}"
     if op == "rollback":
         return f"rollback to v{plan.get('production')} (production was v{plan.get('previous_production')})"
+    if op == "publish":
+        return f"publication of bundle v{plan.get('production')} (production was v{plan.get('previous_production')})"
+    if op == "candidate":
+        return f"registration of candidate v{plan.get('candidate')}"
+    if op == "verify_outcomes":
+        return "a new verification manifest"
     return f"{op} operation"
 
 
@@ -142,7 +148,8 @@ def _event_summary(e: dict[str, Any]) -> str:
         return (f"Steward verification: {c.get('verified', 0)} verified, {c.get('rejected', 0)} rejected, "
                 f"{c.get('conflicted', 0)} conflicted, {c.get('pending_no_attestation', 0)} left pending")
     if event == "candidate":
-        return f"Candidate v{d.get('candidate')} gated against production v{d.get('champion')}: {d.get('gate_status')}"
+        return (f"Candidate v{d.get('candidate')} gated against production v{d.get('champion')}: "
+                f"{d.get('gate_status')}{recovered}")
     if event == "promote":
         return (f"v{d.get('candidate')} promoted to production by a human approver "
                 f"(previous v{d.get('previous_production')}){recovered}")
@@ -150,6 +157,9 @@ def _event_summary(e: dict[str, Any]) -> str:
         return f"Candidate v{d.get('candidate')} rejected by a human reviewer (gate {d.get('gate_status')}){recovered}"
     if event == "rollback":
         return f"Production restored to v{d.get('restored')} (from v{d.get('previous_production')}){recovered}"
+    if event == "publish":
+        return (f"Bundle v{d.get('published')} published as production by a fresh build "
+                f"(previous v{d.get('previous_production')}){recovered}")
     if event == "intent":
         return f"Started: {_operation_text(d)}; a later entry records whether it completed"
     if event == "aborted":

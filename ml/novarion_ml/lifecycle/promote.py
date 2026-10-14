@@ -66,46 +66,66 @@ def lifecycle_lock(directory: Path) -> Iterator[None]:
         lock.unlink(missing_ok=True)
 
 
-def _registry_matches(registry: dict[str, Any], plan: dict[str, Any]) -> bool:
-    if plan["operation"] == "reject":
+def _state_matches(registry_file: Path, plan: dict[str, Any]) -> bool:
+    """Did the planned change happen? Judged from the actual files, never from what the journal hoped."""
+    op = plan["operation"]
+    if op == "verify_outcomes":
+        manifest = registry_file.parent / "verification_manifest.json"
+        return manifest.exists() and json.loads(manifest.read_text(encoding="utf-8")).get(
+            "verification_manifest_sha256") == plan["verification_manifest_sha256"]
+    registry = read_registry(registry_file) if registry_file.exists() else {"production_version": None, "models": []}
+    if op == "reject":
         return any(m["version"] == plan["candidate"] and m["status"] == "rejected" for m in registry["models"])
-    return registry["production_version"] == plan["production"]
+    if op == "candidate":
+        return any(m["version"] == plan["candidate"] for m in registry["models"])
+    return registry["production_version"] == plan["production"]  # promote, rollback, publish
+
+
+def _unresolved_intents(entries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Intents no later entry closes (by intent_seq), wherever they are in the log: an older, uncoordinated writer may
+    have appended after an interrupted operation (audit N08)."""
+    closed = {e["details"].get("intent_seq") for e in entries if e["event"] != "intent"}
+    return [e for e in entries if e["event"] == "intent" and e["seq"] not in closed]
 
 
 def reconcile(log: LifecycleLog, registry_file: Path, actor: str) -> str | None:
-    """Close an operation interrupted between its intent and its completion entry, by the registry's ACTUAL state:
-    completed if the registry shows the planned change, aborted if it does not. Returns what was recorded, if anything."""
-    entries = log.verify()
-    if not entries or entries[-1]["event"] != "intent":
-        return None
-    intent = entries[-1]
-    plan = intent["details"]
-    if _registry_matches(read_registry(registry_file), plan):
-        log.append(plan["operation"], actor, {**plan["completion"], "intent_seq": intent["seq"], "recovered": True})
-        return f"{plan['operation']} recorded as completed (recovered)"
-    log.append("aborted", actor, {"operation": plan["operation"], "intent_seq": intent["seq"],
-                                  "reason": "interrupted before the registry changed"})
-    return f"{plan['operation']} recorded as aborted (recovered)"
+    """Close every operation interrupted between its intent and its completion entry, by the ACTUAL state: completed
+    if the planned change is there, aborted if it is not. Returns what was recorded, if anything."""
+    recorded = []
+    for intent in _unresolved_intents(log.verify()):
+        plan = intent["details"]
+        if _state_matches(registry_file, plan):
+            log.append(plan["operation"], actor, {**plan["completion"], "intent_seq": intent["seq"], "recovered": True})
+            recorded.append(f"{plan['operation']} recorded as completed (recovered)")
+        else:
+            log.append("aborted", actor, {"operation": plan["operation"], "intent_seq": intent["seq"],
+                                          "reason": "interrupted before the change was made"})
+            recorded.append(f"{plan['operation']} recorded as aborted (recovered)")
+    return "; ".join(recorded) or None
 
 
-def _apply(log: LifecycleLog, registry_file: Path, actor: str, plan: dict[str, Any], new_registry: dict[str, Any],
-           completion: dict[str, Any]) -> None:
-    """intent → atomic registry write → completion. The intent append validates the actor and the log chain before
-    anything changes; any later interruption is resolved by reconcile() from the registry's actual state."""
+def _apply(log: LifecycleLog, registry_file: Path, actor: str, plan: dict[str, Any],
+           change: dict[str, Any] | Callable[[], None], completion: dict[str, Any]) -> None:
+    """intent -> atomic change -> completion. `change` is the new registry, or a function making another atomic write
+    (the verification manifest). The intent append validates the actor and the log chain before anything changes;
+    any later interruption is resolved by reconcile() from the actual state."""
     intent = log.append("intent", actor, {**plan, "completion": completion})
     try:
-        write_registry(registry_file, new_registry)
+        if callable(change):
+            change()
+        else:
+            write_registry(registry_file, change)
     except Exception:
         # Best effort: if this append fails too, the next command's reconcile() records the abort instead.
         with contextlib.suppress(Exception):
             log.append("aborted", actor, {"operation": plan["operation"], "intent_seq": intent["seq"],
-                                          "reason": "registry write failed; nothing changed"})
+                                          "reason": "write failed; nothing changed"})
         raise
     try:
         log.append(plan["operation"], actor, {**completion, "intent_seq": intent["seq"]})
     except Exception as exc:
-        raise LifecycleIncomplete(f"the registry now reflects the {plan['operation']}, but its completion entry could not "
-                                  f"be written ({exc}); the next lifecycle command records it") from exc
+        raise LifecycleIncomplete(f"the registry now reflects the {plan['operation']}, but its completion entry could "
+                                  f"not be written ({exc}); the next lifecycle command records it") from exc
 
 
 # ------------------------------------------------------------------------------------------------ registry helpers
@@ -142,15 +162,67 @@ def _set_production(registry: dict[str, Any], version: str) -> dict[str, Any]:
     return {**registry, "production_version": version, "models": models}
 
 
-def register_candidate(registry_file: Path, version: str, doc: dict[str, Any], path: str, training_cases: int) -> None:
-    registry = read_registry(registry_file)
-    if any(m["version"] == version for m in registry["models"]):
-        raise PromotionError(f"version {version} already exists in the registry (versions are immutable)")
-    registry["models"].append({"version": version, "status": "candidate", "created_at": doc["report"]["created_at"],
-                               "training_cases": training_cases, "gate_status": doc["report"]["gate_status"],
-                               "gate_report_sha256": doc["gate_report_sha256"],
-                               "artifact_manifest_sha256": doc["gate_report_sha256"], "path": path})
-    write_registry(registry_file, registry)
+def write_json_atomic(path: Path, doc: dict[str, Any]) -> None:
+    """Atomic: temp file in the same directory + fsync + rename."""
+    fd, tmp = tempfile.mkstemp(dir=path.parent, prefix=f".{path.stem}.", suffix=".json")
+    with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(doc, indent=1, ensure_ascii=False) + "\n")
+        fh.flush()
+        os.fsync(fh.fileno())
+    os.replace(tmp, path)
+
+
+def register_candidate(*, registry_file: Path, log: LifecycleLog, actor: str, version: str, doc: dict[str, Any],
+                       path: str, training_cases: int, champion: str, details: dict[str, Any]) -> None:
+    """Register a gated candidate under the lifecycle lock, journaled like every other registry change (audit N08).
+    The gate was computed against `champion`; if production changed meanwhile, the candidate must be rebuilt."""
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        registry = read_registry(registry_file)
+        if registry["production_version"] != champion:
+            raise PromotionError(f"production changed from v{champion} to v{registry['production_version']} while the "
+                                 "candidate was being built; build it again against the current production")
+        if any(m["version"] == version for m in registry["models"]):
+            raise PromotionError(f"version {version} already exists in the registry (versions are immutable)")
+        new = {**registry, "models": [*registry["models"], {
+            "version": version, "status": "candidate", "created_at": doc["report"]["created_at"],
+            "training_cases": training_cases, "gate_status": doc["report"]["gate_status"],
+            "gate_report_sha256": doc["gate_report_sha256"], "artifact_manifest_sha256": doc["gate_report_sha256"],
+            "path": path}]}
+        _apply(log, registry_file, actor, {"operation": "candidate", "candidate": version}, new, details)
+
+
+def record_verification(*, registry_file: Path, log: LifecycleLog, actor: str, manifest: dict[str, Any],
+                        base_sha256: str | None, details: dict[str, Any]) -> None:
+    """Write a new verification manifest under the lifecycle lock, journaled (audit N08). `base_sha256` is the manifest
+    the verification was computed from (None: there was none); a manifest changed meanwhile is refused."""
+    manifest_file = registry_file.parent / "verification_manifest.json"
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        current = (json.loads(manifest_file.read_text(encoding="utf-8")).get("verification_manifest_sha256")
+                   if manifest_file.exists() else None)
+        if current != base_sha256:
+            raise PromotionError("the verification manifest changed while this verification ran; run it again")
+        sha = manifest["verification_manifest_sha256"]
+        _apply(log, registry_file, actor, {"operation": "verify_outcomes", "verification_manifest_sha256": sha},
+               lambda: write_json_atomic(manifest_file, manifest), {**details, "verification_manifest_sha256": sha})
+
+
+def publish_bundle(*, registry_file: Path, log: LifecycleLog, actor: str, entry_fields: dict[str, Any]) -> None:
+    """Make a freshly built bundle production (scripts/build_bundle.py) under the lifecycle lock, journaled (audit N08).
+    Earlier versions are kept and retired: bundles referenced by the registry are never deleted."""
+    registry_file.parent.mkdir(parents=True, exist_ok=True)
+    version = entry_fields["version"]
+    with lifecycle_lock(registry_file.parent):
+        reconcile(log, registry_file, actor)
+        previous = read_registry(registry_file) if registry_file.exists() else {"production_version": None, "models": []}
+        history = [{**m, "status": "retired" if m["status"] == "production" else m["status"]}
+                   for m in previous["models"] if m["version"] != version]
+        new = {"production_version": version, "models": [*history, entry_fields]}
+        prev = previous["production_version"]
+        _apply(log, registry_file, actor, {"operation": "publish", "production": version, "previous_production": prev},
+               new, {"published": version, "previous_production": prev,
+                     "artifact_manifest_sha256": entry_fields["artifact_manifest_sha256"]})
 
 
 # ------------------------------------------------------------------------------------------------ actions

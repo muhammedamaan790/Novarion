@@ -19,8 +19,9 @@ import rfc8785
 
 GENESIS = "0" * 64
 # "intent" is written before a registry change and the operation's own event after it; "aborted" closes an intent
-# whose change never happened (audit R07). See promote.reconcile.
-EVENTS = ("verify_outcomes", "candidate", "promote", "reject", "rollback", "intent", "aborted")
+# whose change never happened (audit R07). Every writer goes through promote._apply (audit N08); "publish" is a freshly
+# built bundle made production by scripts/build_bundle.py. See promote.reconcile.
+EVENTS = ("verify_outcomes", "candidate", "promote", "reject", "rollback", "publish", "intent", "aborted")
 
 
 class LogIntegrityError(RuntimeError):

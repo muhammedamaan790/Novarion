@@ -172,6 +172,7 @@ def test_every_journal_event_is_an_api_event():
     import typing
 
     from app.schemas import LifecycleEvent
+
     from novarion_ml.lifecycle.log import EVENTS
 
     api_events = set(typing.get_args(LifecycleEvent.model_fields["event"].annotation))
@@ -197,7 +198,7 @@ def test_intent_completion_and_abort_reach_the_model_center_with_accurate_summar
     assert "vNone" not in summaries
     assert any("Started: rollback to v0.9.0" in s for s in text.values())
     assert any(s.startswith("Production restored to v0.9.0 (from v1.0.0)") for s in text.values())
-    assert any(s.startswith("Aborted: rollback") and "registry write failed" in s for s in text.values())
+    assert any(s.startswith("Aborted: rollback") and "write failed; nothing changed" in s for s in text.values())
 
 
 def test_a_recovered_completion_says_it_was_recovered(world, monkeypatch):
@@ -215,3 +216,87 @@ def test_a_recovered_completion_says_it_was_recovered(world, monkeypatch):
     monkeypatch.setattr(LifecycleLog, "append", real_append)
     P.reconcile(log, registry_file, "next-operator")
     assert "recorded on recovery after an interruption" in _view_events(registry_file)[0].summary
+
+
+# ------------------------------------------------------- audit N08: every lifecycle writer is coordinated and journaled
+GATE_DOC = {"report": {"created_at": "2026-10-14T00:00:00Z", "gate_status": "PASS"}, "gate_report_sha256": "d" * 64}
+CANDIDATE_DETAILS = {"candidate": "1.2.0", "gate_status": "PASS", "gate_report_sha256": "d" * 64,
+                     "verification_manifest_sha256": "e" * 64, "champion": "1.0.0"}
+
+
+def register(registry_file, log, champion="1.0.0"):
+    return P.register_candidate(registry_file=registry_file, log=log, actor="steward", version="1.2.0", doc=GATE_DOC,
+                                path="candidates/1.2.0", training_cases=304, champion=champion,
+                                details=CANDIDATE_DETAILS)
+
+
+def test_an_interrupted_operation_is_found_even_after_later_entries(world):
+    _, registry_file, log = world
+    log.append("intent", "approver", {"operation": "rollback", "production": "0.9.0", "previous_production": "1.0.0",
+                                      "completion": {"restored": "0.9.0"}})  # died here...
+    log.append("verify_outcomes", "steward", {"counts": {}})  # ...and an older, uncoordinated writer appended after it
+    assert P.reconcile(log, registry_file, "next-operator") == "rollback recorded as aborted (recovered)"
+    assert P.reconcile(log, registry_file, "next-operator") is None  # closed once, not twice
+
+
+def test_candidate_registration_is_locked_journaled_and_bound_to_its_champion(world):
+    _, registry_file, log = world
+    with P.lifecycle_lock(registry_file.parent), pytest.raises(P.PromotionError, match="another lifecycle operation"):
+        register(registry_file, log)  # cannot race a running promotion
+    with pytest.raises(P.PromotionError, match="production changed"):
+        register(registry_file, log, champion="0.9.0")  # gated against a champion that is no longer production
+    register(registry_file, log)
+    events = [(e["event"], e["details"].get("operation")) for e in log.verify()]
+    assert events[-2:] == [("intent", "candidate"), ("candidate", None)]
+    assert log.verify()[-1]["details"]["gate_report_sha256"] == "d" * 64
+    assert P.entry(P.read_registry(registry_file), "1.2.0")["status"] == "candidate"
+    with pytest.raises(P.PromotionError, match="already exists"):
+        register(registry_file, log)
+
+
+def test_a_candidate_whose_completion_entry_was_lost_is_recovered(world, monkeypatch):
+    _, registry_file, log = world
+    real_append = LifecycleLog.append
+
+    def fail_on_completion(self, event, actor, details):
+        if event == "candidate":
+            raise OSError("log volume full")
+        return real_append(self, event, actor, details)
+
+    monkeypatch.setattr(LifecycleLog, "append", fail_on_completion)
+    with pytest.raises(P.LifecycleIncomplete):
+        register(registry_file, log)
+    monkeypatch.setattr(LifecycleLog, "append", real_append)
+    assert P.reconcile(log, registry_file, "next-operator") == "candidate recorded as completed (recovered)"
+    assert log.verify()[-1]["details"]["gate_report_sha256"] == "d" * 64
+
+
+def test_verification_is_locked_journaled_and_refuses_a_stale_manifest(world):
+    _, registry_file, log = world
+    manifest_file = registry_file.parent / "verification_manifest.json"
+    first = {"verification_manifest": {"records": {}}, "verification_manifest_sha256": "1" * 64}
+    P.record_verification(registry_file=registry_file, log=log, actor="steward", manifest=first, base_sha256=None,
+                          details={"counts": {"verified": 0}})
+    assert json.loads(manifest_file.read_text(encoding="utf-8")) == first
+    events = [(e["event"], e["details"].get("operation")) for e in log.verify()]
+    assert events[-2:] == [("intent", "verify_outcomes"), ("verify_outcomes", None)]
+    second = {**first, "verification_manifest_sha256": "2" * 64}
+    with pytest.raises(P.PromotionError, match="changed while"):  # computed from no manifest, but one exists now
+        P.record_verification(registry_file=registry_file, log=log, actor="steward", manifest=second,
+                              base_sha256=None, details={"counts": {}})
+    assert json.loads(manifest_file.read_text(encoding="utf-8")) == first
+
+
+def test_bundle_publication_is_locked_and_journaled(world):
+    _, registry_file, log = world
+    entry_fields = {"version": "2.0.0", "status": "production", "created_at": "2026-10-14T00:00:00Z",
+                    "training_cases": 303, "artifact_manifest_sha256": "f" * 64, "path": "bundles/v2.0.0"}
+    with P.lifecycle_lock(registry_file.parent), pytest.raises(P.PromotionError, match="another lifecycle operation"):
+        P.publish_bundle(registry_file=registry_file, log=log, actor="build", entry_fields=entry_fields)
+    P.publish_bundle(registry_file=registry_file, log=log, actor="build", entry_fields=entry_fields)
+    reg = P.read_registry(registry_file)
+    assert reg["production_version"] == "2.0.0"
+    assert P.entry(reg, "1.0.0")["status"] == "retired"
+    last = log.verify()[-1]
+    assert last["event"] == "publish" and last["details"]["previous_production"] == "1.0.0"
+    assert any(e.summary.startswith("Bundle v2.0.0 published as production") for e in _view_events(registry_file))

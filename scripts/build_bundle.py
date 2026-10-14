@@ -15,6 +15,7 @@ hashed in its own index → no hash cycle (D-011). Usage: uv run --group train p
 
 from __future__ import annotations
 
+import getpass
 import hashlib
 import json
 import os
@@ -41,6 +42,8 @@ from novarion_ml.data.load import build_targets, build_X, load_source, patient_i
 from novarion_ml.data.registry import CONFIG_DIR, default_registry, load_targets
 from novarion_ml.hashing import text_sha256
 from novarion_ml.inference.engine import Engine, TargetArtifact
+from novarion_ml.lifecycle.log import LifecycleLog
+from novarion_ml.lifecycle.promote import publish_bundle
 from novarion_ml.thresholds.layers import Qualification, Thresholds
 from novarion_ml.train.config import default_train_config
 from novarion_ml.uncertainty.reference import Ledger, ReferenceContext
@@ -412,15 +415,13 @@ def _build(results: Path, final: Path, OUT: Path, registry_file: Path) -> None:
     OUT = final
 
     # ---------------------------------------------------------------- registry pointer
-    # Keep the history: earlier versions become "retired" (bundles referenced by the registry are never deleted).
-    previous = json.loads(registry_file.read_text(encoding="utf-8"))["models"] if registry_file.exists() else []
-    history = [{**m, "status": "retired" if m["status"] == "production" else m["status"]}
-               for m in previous if m["version"] != VERSION]
-    write_json(registry_file, {"production_version": VERSION, "models": [*history, {
-        "version": VERSION, "status": "production", "created_at": manifest["created_at"], "training_cases": len(X),
-        "artifact_manifest_sha256": artifact_sha, "path": str(OUT.relative_to(ROOT)).replace("\\", "/")
-        if OUT.is_relative_to(ROOT) else str(OUT),
-    }]})
+    # Under the lifecycle lock and journaled like every other registry change (audit N08); earlier versions are kept
+    # and retired (bundles referenced by the registry are never deleted).
+    publish_bundle(registry_file=registry_file, log=LifecycleLog(registry_file.parent / "lifecycle_log.jsonl"),
+                   actor=f"build_bundle ({getpass.getuser()})", entry_fields={
+                       "version": VERSION, "status": "production", "created_at": manifest["created_at"],
+                       "training_cases": len(X), "artifact_manifest_sha256": artifact_sha,
+                       "path": str(OUT.relative_to(ROOT)).replace("\\", "/") if OUT.is_relative_to(ROOT) else str(OUT)})
     print(f"bundle v{VERSION}: {len(files)} artifact files, {len(patient_files)} patient files, "
           f"artifact_manifest_sha256={artifact_sha[:12]}...")
 

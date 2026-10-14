@@ -889,7 +889,7 @@ class LifecycleEvent(Strict):
     timestamp: str
     # Every event the lifecycle journal writes (novarion_ml.lifecycle.log.EVENTS; a test keeps the two equal): an
     # "intent" precedes each registry change and is closed by the operation's own event or by "aborted" (audit N03).
-    event: Literal["verify_outcomes", "candidate", "promote", "reject", "rollback", "intent", "aborted"]
+    event: Literal["verify_outcomes", "candidate", "promote", "reject", "rollback", "publish", "intent", "aborted"]
     summary: str
     entry_hash: Sha256
 

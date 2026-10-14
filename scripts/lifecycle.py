@@ -41,6 +41,7 @@ from novarion_ml.lifecycle.promote import (
     entry,
     promote,
     read_registry,
+    record_verification,
     register_candidate,
     reject,
     rollback,
@@ -83,12 +84,13 @@ def cmd_verify_outcomes(a, paths: Paths) -> int:
     records, notes = load_package(Path(a.package).read_text(encoding="utf-8"))
     attest = json.loads(Path(a.attest).read_text(encoding="utf-8"))
     X, _ = _data()
-    manifest, report = verify_outcomes(records, attest, _manifest(paths), set(training_row_hashes(X).values()))
-    paths.manifest.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8")
+    base = _manifest(paths) if paths.manifest.exists() else None
+    manifest, report = verify_outcomes(records, attest, base or empty_manifest(), set(training_row_hashes(X).values()))
     package_sha = hashlib.sha256(Path(a.package).read_bytes()).hexdigest()
-    paths.log.append("verify_outcomes", a.steward, {
-        "verification_manifest_sha256": manifest["verification_manifest_sha256"], "package_sha256": package_sha,
-        "counts": {k: len(v) for k, v in report.items()}})
+    # Locked and journaled like every registry change; refused if the manifest changed while this ran (audit N08).
+    record_verification(registry_file=paths.registry, log=paths.log, actor=a.steward, manifest=manifest,
+                        base_sha256=base["verification_manifest_sha256"] if base else None,
+                        details={"package_sha256": package_sha, "counts": {k: len(v) for k, v in report.items()}})
     for note in notes:
         print(f"note: {note}")
     for k, v in report.items():
@@ -119,12 +121,15 @@ def cmd_candidate(a, paths: Paths) -> int:
                           feature_schema_sha256=text_sha256(CONFIG_DIR / "feature_registry.yaml"),
                           preprocessing_version="1.0.0", tests_pass=paths.tests_runner())
     report = doc["report"]
-    register_candidate(paths.registry, a.version, doc, str(out.relative_to(paths.root)).replace("\\", "/"),
-                       report.get("challenger_training_cases", len(X)))
-    paths.log.append("candidate", a.actor, {"candidate": a.version, "gate_status": report["gate_status"],
-                                            "gate_report_sha256": doc["gate_report_sha256"],
-                                            "verification_manifest_sha256": report["verification_manifest_sha256"],
-                                            "champion": reg["production_version"]})
+    # Locked and journaled; refused if production changed while the candidate was built (audit N08).
+    register_candidate(registry_file=paths.registry, log=paths.log, actor=a.actor, version=a.version, doc=doc,
+                       path=str(out.relative_to(paths.root)).replace("\\", "/"),
+                       training_cases=report.get("challenger_training_cases", len(X)),
+                       champion=reg["production_version"],
+                       details={"candidate": a.version, "gate_status": report["gate_status"],
+                                "gate_report_sha256": doc["gate_report_sha256"],
+                                "verification_manifest_sha256": report["verification_manifest_sha256"],
+                                "champion": reg["production_version"]})
     for note in notes + report["notes"]:
         print(f"note: {note}")
     print(f"candidate v{a.version}: gate {report['gate_status']}" + (f" ({report['reason']})" if "reason" in report else ""))
