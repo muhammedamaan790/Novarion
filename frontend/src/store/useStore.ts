@@ -25,7 +25,7 @@ export interface PendingCase {
 }
 /** Top-level screens. "workspace" is the active open case, split into CaseTab tabs. */
 export type Page = "home" | "library" | "cases" | "workspace" | "anatomy" | "evidence" | "models";
-export type CaseTab = "result" | "why" | "data" | "whatif";
+export type CaseTab = "result" | "why" | "data" | "whatif" | "risk";
 
 export interface Hover {
   node: string;

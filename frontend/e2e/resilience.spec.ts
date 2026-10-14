@@ -141,7 +141,8 @@ test("accessibility: the 2D fallback (no WebGL, e.g. a GPU-less CI runner) has n
 
 for (const [name, url] of [["home page", "/"], ["dataset library", "/?page=library"],
   ["case result", "/?dataset=ZAS-0003&target=lad"], ["case why tab", "/?dataset=ZAS-0003&tab=why&target=lad"],
-  ["case patient data tab", "/?dataset=ZAS-0003&tab=data"], ["model evidence", "/?page=evidence"]]) {
+  ["case patient data tab", "/?dataset=ZAS-0003&tab=data"], ["case risk factors tab", "/?dataset=ZAS-0003&tab=risk"],
+  ["model evidence", "/?page=evidence"]]) {
   test(`accessibility: no serious or critical axe violations on the ${name}`, async ({ page }) => {
     await page.goto(url);
     await page.waitForTimeout(2500);

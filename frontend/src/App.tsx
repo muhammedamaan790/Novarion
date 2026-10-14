@@ -19,7 +19,7 @@ import { type CaseTab, type Page, useStore } from "./store/useStore";
 const KEY_TO_TARGET: Record<string, TargetId> = { "0": "cad", "1": "lad", "2": "lcx", "3": "rca" };
 
 const URL_PAGES: readonly Page[] = ["library", "cases", "anatomy", "evidence", "models"];
-const CASE_TABS: readonly CaseTab[] = ["result", "why", "data", "whatif"];
+const CASE_TABS: readonly CaseTab[] = ["result", "why", "data", "whatif", "risk"];
 
 /** Deep links (plan §9.2): ?dataset=ZAS-0003&tab=why&target=lad, ?page=library. Camera state is never in the URL. */
 function useUrlSync() {

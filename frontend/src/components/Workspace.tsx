@@ -9,12 +9,13 @@ import { HeartView } from "./HeartViewLazy";
 import { NewCasePanel } from "./NewCasePanel";
 import { PatientData } from "./PatientPanel";
 import { Summary, TargetCards } from "./TargetCards";
+import { RiskFactorsPanel } from "./RiskFactorsPanel";
 import { WhatIfPanel } from "./WhatIfPanel";
 import { WhyPanel } from "./WhyPanel";
 import { MODE_BADGE, SHORT } from "./wording";
 
 const TABS: readonly (readonly [CaseTab, string])[] = [
-  ["result", "Result"], ["why", "Why"], ["data", "Patient data"], ["whatif", "What-if"],
+  ["result", "Result"], ["why", "Why"], ["data", "Patient data"], ["whatif", "What-if"], ["risk", "Risk factors"],
 ];
 
 function TargetPicker({ withCompare = false, testPrefix }: { withCompare?: boolean; testPrefix: string }) {
@@ -167,6 +168,10 @@ export function Workspace({ meta, analysis, runMode }: { meta: Meta; analysis: D
           {analysis ? <WhatIfPanel key={`${analysis.analysis_id}-${target}`} analysis={analysis} target={target} initiallyOpen />
             : emptyNote}
         </div>
+      </section>
+
+      <section className={`${pane("risk")} rounded-lg border border-slate-200 bg-white p-4`} aria-label="Risk factors">
+        <div className="mx-auto max-w-4xl">{analysis ? <RiskFactorsPanel analysis={analysis} /> : emptyNote}</div>
       </section>
     </div>
   );

@@ -844,3 +844,26 @@ Entries are append-only; a changed decision gets a new entry that supersedes the
     so it awaits the user's decision on a narrower, educational version.
 - **Verification:** 75/75 E2E on the mock and on real Docker; 34 unit tests.
 
+## D-034 — A "Risk factors" case tab: education, not advice
+
+- **Date:** 2026-10-14
+- **Status:** DECIDED
+- **Context:** The user asked for a tab showing what precautions the patient should take. The app's scope excludes
+  recommending tests or treatment, so personal advice derived from a prediction was ruled out; the user approved a
+  narrower, educational version.
+- **Decision:**
+  - A fifth case tab, "Risk factors", lists the modifiable coronary risk factors present in the case's recorded
+    values, each with the triggering value, one line of general, well-established information and its threshold's
+    source: current smoking (WHO); diabetes or fasting glucose ≥ 126 mg/dL (ADA); hypertension or blood pressure
+    ≥ 140 mmHg (WHO); dyslipidemia or LDL ≥ 160 mg/dL, HDL < 40 mg/dL, triglycerides ≥ 200 mg/dL (NCEP ATP III);
+    BMI ≥ 25 (WHO).
+  - It reads the entered values (from the CAD explanation, which lists every measurement), never the prediction, and
+    says so in a note above the cards: "Educational information, not medical advice … discuss with a doctor."
+  - It names no medicine, dose or test. Unknown (imputed) values are listed as not assessed, never counted as healthy.
+    Non-modifiable factors (age, sex, family history) are mentioned, not scored. WHO's general heart-healthy habits
+    close the tab.
+  - The rules are a pure module (`cases/riskFactors.ts`) with unit tests: exact thresholds, unknown values, no
+    medicine names.
+- **Verification:** 5 new unit tests (39 in all); a new E2E flow (ZAS-0003, a smoker with otherwise normal values,
+  gets exactly one card and the education note) and axe on the tab. 77/77 E2E on the mock and on real Docker.
+

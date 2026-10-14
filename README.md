@@ -106,7 +106,7 @@ over (Table 7, subgroups).
 - 3D frame rate: median 59.9 fps on Intel Iris Xe integrated graphics.
 - Backend memory: 178 MB after start, 184 MB peak under load.
 - Offline bundle: 3.5 MB gzipped. Browser JS heap: 13 MB after opening 30 patients.
-- Browser E2E: 75 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
+- Browser E2E: 77 flows pass against the mock and on the Docker stack with the real model (Edge), including axe
   accessibility checks; the earlier 50-flow suite also ran in Chrome and Firefox.
 
 ## How it works
@@ -191,7 +191,7 @@ make docker-e2e                                  # the same E2E flows against th
 **Release v1.0.6 (frozen; `release_manifest.json`, git tag `v1.0.6`), serving model v1.0.2.** Built:
 - every feature of the plan's Tiers 1, 1P and 2, plus Tier 3: what-if sensitivity, input uncertainty, model
   agreement, permutation test, stability visuals and a local-only Promote wrapper;
-- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (75/75 browser
+- the verification gates: GitHub CI green, fresh-clone reproduction exact, the Docker stack verified (77/77 browser
   flows), performance and memory budgets met, browser storage hardening and the secret scan (D-020).
 
 **New since release v1.0.2 (the model is unchanged):** a sign-in page with
@@ -206,7 +206,8 @@ confidence now reads "high support · internal evaluation" / "outside qualified 
 before sign-in that explains the problem and the approach (D-028), and a public deployment on Render with the real
 model (D-029, D-030). In v1.0.6: the landing page's 3D heart moves, visiting each artery in turn (D-031);
 form problems in a corner panel and a hand cursor on clickables (D-032); fixes from a live walk-through and a smoother
-3D heart (D-033). Verified: 221 Python tests, 34 unit tests and 75 browser flows, against the mock, against the
+3D heart (D-033); a "Risk factors" case tab with educational, non-advisory information (D-034). Verified: 221 Python
+tests, 39 unit tests and 77 browser flows, against the mock, against the
 rebuilt Docker stack with the real model, and against the hosted image.
 The trained bundle v1.0.2 is published in `deploy/hosted/model/` (audit R01, D-030): for `docker compose` on a fresh
 clone, copy it to `artifacts/models/v1.0.2` (or rebuild it with `make reproduce`).
