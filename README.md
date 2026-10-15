@@ -9,6 +9,8 @@ Track A (Cardiovascular Risk Visualization & Prediction).
 
 ## Try it online
 
+**Demo video (6 min 48 s):** https://youtu.be/16pGEqjtqeM
+
 **Live demo: https://novarion.onrender.com** · sign in with **judge / judge123**
 
 It runs the real model (v1.0.2). The server is on a free plan: if it has been idle, the first load can take a few
