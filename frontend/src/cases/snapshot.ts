@@ -110,7 +110,13 @@ async function toJpeg(pngDataUrl: string, quality = 0.88): Promise<string> {
   return canvas.toDataURL("image/jpeg", quality);
 }
 
-const DIRECTION_WORD = { up: "up", down: "down", neutral: "no effect" } as Record<string, string>;
+const DIRECTION_WORD = { up: "raises the estimate", down: "lowers the estimate", neutral: "no effect" } as Record<string, string>;
+
+// Print sizes (pt): readable on A4 without zooming. Body 11, table and contribution rows 10, headings 13; hashes and
+// the footer stay smaller (8) because they are for verification, not reading.
+const PT = { title: 20, heading: 13, body: 11, row: 10, note: 9, small: 8 };
+const MM_PER_PT = 0.3528;
+const SLATE = { text: [15, 23, 42], muted: [71, 85, 105], rule: [203, 213, 225] } as const;
 
 export async function snapshotPdf(stored: StoredSnapshot): Promise<jsPDF> {
   const s = stored.snapshot as unknown as Snap;
@@ -118,56 +124,127 @@ export async function snapshotPdf(stored: StoredSnapshot): Promise<jsPDF> {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = 210;
   const M = 14;
-  let y = 16;
-  const line = (text: string, size = 9, bold = false, gap = 1.5) => {
-    doc.setFont("helvetica", bold ? "bold" : "normal").setFontSize(size);
-    for (const part of doc.splitTextToSize(text, W - 2 * M) as string[]) {
-      if (y > 272) {
-        doc.addPage();
-        y = 16;
-      }
-      doc.text(part, M, y);
-      y += size * 0.42 + gap * 0.3;
+  const BOTTOM = 268; // the footer sits below this on every page
+  let y = 18;
+  const lh = (size: number) => size * MM_PER_PT * 1.35;
+  const need = (h: number) => {
+    if (y + h > BOTTOM) {
+      doc.addPage();
+      y = 18;
     }
-    y += gap;
   };
-  line("NOVARION Review Snapshot", 16, true, 1);
-  line(STATEMENT, 9, true);
-  line(`Case ${s.case.display_id} · source: ${s.case.source}${s.case.dataset_patient_id ? ` (${s.case.dataset_patient_id})` : ""} · `
-    + `scenario ${s.case.scenario_kind} · prediction mode: ${s.analysis.prediction_mode === "oof" ? "OOF validation" : "final production model"}`);
-  line(`Created ${s.created_at} · model v${s.analysis.model_version} · app v${s.analysis.app_version} · `
-    + `UNKNOWN inputs: ${s.data_quality.unknown_input_count} · atypical profile: ${s.data_quality.atypical_profile.flag ? "yes" : "no"}`);
-  doc.addImage(jpeg, "JPEG", M, y, W - 2 * M, ((W - 2 * M) * SNAPSHOT_VIEWPORT.height) / SNAPSHOT_VIEWPORT.width);
-  y += ((W - 2 * M) * SNAPSHOT_VIEWPORT.height) / SNAPSHOT_VIEWPORT.width + 4;
-  line("Predictions (stored analysis; every number comes from the stored prediction)", 11, true);
+  const font = (size: number, bold = false, color: readonly number[] = SLATE.text) =>
+    doc.setFont("helvetica", bold ? "bold" : "normal").setFontSize(size).setTextColor(color[0]!, color[1]!, color[2]!);
+  /** Wrapped text at x, within width; returns nothing, advances y. */
+  const text = (t: string, size = PT.body, opts: { bold?: boolean; x?: number; width?: number; color?: readonly number[]; after?: number } = {}) => {
+    const x = opts.x ?? M;
+    font(size, opts.bold, opts.color);
+    for (const part of doc.splitTextToSize(t, opts.width ?? W - M - x) as string[]) {
+      need(lh(size));
+      doc.text(part, x, y + size * MM_PER_PT);
+      y += lh(size);
+    }
+    y += opts.after ?? 1;
+  };
+  /** `keep`: height of what must follow on the same page (a heading never ends a page alone). */
+  const heading = (t: string, keep = lh(PT.body) * 2) => {
+    y += 3;
+    need(lh(PT.heading) + 1.5 + keep);
+    text(t, PT.heading, { bold: true, after: 1.5 });
+  };
+  /** A bullet whose wrapped lines align with its first word. */
+  const bullet = (t: string, x: number, after = 0.3) => {
+    font(PT.row);
+    need(lh(PT.row));
+    doc.text("•", x, y + PT.row * MM_PER_PT);
+    text(t, PT.row, { x: x + 4, after });
+  };
+  const rule = () => {
+    doc.setDrawColor(SLATE.rule[0], SLATE.rule[1], SLATE.rule[2]).setLineWidth(0.2).line(M, y, W - M, y);
+    y += 1.5;
+  };
+
+  text("NOVARION Review Snapshot", PT.title, { bold: true, after: 2 });
+  text(STATEMENT, PT.body, { bold: true, after: 2 });
+  text(`Case ${s.case.display_id} · source: ${s.case.source}${s.case.dataset_patient_id ? ` (${s.case.dataset_patient_id})` : ""} · `
+    + `scenario ${s.case.scenario_kind} · prediction mode: ${s.analysis.prediction_mode === "oof" ? "OOF validation" : "final production model"}`,
+    PT.note, { color: SLATE.muted });
+  text(`Created ${s.created_at} · model v${s.analysis.model_version} · app v${s.analysis.app_version} · `
+    + `UNKNOWN inputs: ${s.data_quality.unknown_input_count} · atypical profile: ${s.data_quality.atypical_profile.flag ? "yes" : "no"}`,
+    PT.note, { color: SLATE.muted, after: 3 });
+  const imgH = ((W - 2 * M) * SNAPSHOT_VIEWPORT.height) / SNAPSHOT_VIEWPORT.width;
+  need(imgH);
+  doc.addImage(jpeg, "JPEG", M, y, W - 2 * M, imgH);
+  y += imgH + 2;
+
+  heading("Predictions");
+  text("Every number comes from the stored prediction.", PT.note, { color: SLATE.muted, after: 2 });
+  const COL = [M, M + 16, M + 76, M + 104]; // artery · prediction · probability · model confidence
+  font(PT.row, true, SLATE.muted);
+  need(lh(PT.row) * 3);
+  ["Artery", "Prediction", "Probability", "Model confidence"].forEach((h, i) => doc.text(h, COL[i]!, y + PT.row * MM_PER_PT));
+  y += lh(PT.row) + 1;
+  rule();
   for (const t of TARGET_IDS) {
     const p = (s.predictions as Record<string, { predicted_class: string; probability: number; model_confidence: string;
       model_confidence_reasons: string[] }>)[t]!;
     const reasons = p.model_confidence_reasons.map((r) => REASON_TEXT[r] ?? r).join("; ");
-    line(`${SHORT[t]}: ${predictionText(t, p as never)} · probability ${probPct(p.probability)} · `
-      + `${CONFIDENCE_LABEL[p.model_confidence === "high" ? "high" : "low"]}${reasons ? ` (${reasons})` : ""}`);
+    const confidence = CONFIDENCE_LABEL[p.model_confidence === "high" ? "high" : "low"];
+    const confLines = doc.setFontSize(PT.row).splitTextToSize(confidence, W - M - COL[3]!) as string[];
+    need(lh(PT.row) * (confLines.length + (reasons ? 2 : 0)) + 2);
+    const top = y;
+    font(PT.row, true);
+    doc.text(SHORT[t], COL[0]!, y + PT.row * MM_PER_PT);
+    font(PT.row);
+    doc.text(predictionText(t, p as never), COL[1]!, y + PT.row * MM_PER_PT);
+    doc.text(probPct(p.probability), COL[2]!, y + PT.row * MM_PER_PT);
+    font(PT.row, p.model_confidence === "high");
+    confLines.forEach((l, i) => doc.text(l, COL[3]!, top + PT.row * MM_PER_PT + i * lh(PT.row)));
+    y = top + lh(PT.row) * confLines.length + 0.5;
+    if (reasons) text(`Reason: ${reasons}`, PT.note, { x: COL[1], color: SLATE.muted, after: 0.5 });
+    y += 1;
+    rule();
   }
-  line("Top model contributions (calibrated log-odds; associations, not causes)", 11, true);
+
+  const contribs = s.top_contributions as Record<string, { measurement: string; value: string; direction: string; strength: string }[]>;
+  const firstList = (contribs[TARGET_IDS[0]!] ?? []).length;
+  heading("Top model contributions", lh(PT.note) + 3 + lh(PT.body) + 0.5 + firstList * (lh(PT.row) + 0.3));
+  text("Calibrated log-odds: associations in the model, not causes.", PT.note, { color: SLATE.muted, after: 2 });
   for (const t of TARGET_IDS) {
-    const rows = (s.top_contributions as Record<string, { measurement: string; value: string; direction: string; strength: string }[]>)[t] ?? [];
-    line(`${SHORT[t]}: ${rows.map((r) => `${r.measurement} = ${r.value} (${DIRECTION_WORD[r.direction] ?? r.direction}, ${r.strength})`).join("; ")}`, 8);
+    const rows = contribs[t] ?? [];
+    need(lh(PT.body) + 0.5 + rows.length * (lh(PT.row) + 0.3)); // an artery's list never splits across pages
+    text(SHORT[t], PT.body, { bold: true, after: 0.5 });
+    for (const r of rows) bullet(`${r.measurement} = ${r.value}: ${DIRECTION_WORD[r.direction] ?? r.direction} (${r.strength})`, M + 2);
+    y += 1.5;
   }
-  line("Human review", 11, true);
+
+  heading("Human review");
   if (s.review) {
-    line(`Review recorded ${s.review.created_at}: ${s.review.note || "(no note)"}`);
-    if (s.review.limitations.length) line(`Limitations noted: ${s.review.limitations.join("; ")}`);
-  } else line("No review recorded for this analysis.");
-  line("Model limitations", 11, true);
-  for (const l of s.model_limitations) line(`• ${l}`, 8);
-  line("Provenance", 11, true);
-  line(`analysis_id ${s.analysis.analysis_id} · input_sha256 ${s.analysis.input_sha256} · training_data_sha256 `
-    + `${s.analysis.training_data_sha256} · artifact_manifest_sha256 ${s.analysis.artifact_manifest_sha256} · image_sha256 `
-    + `${s.image.image_sha256} · snapshot_sha256 ${stored.snapshot_sha256}`, 7);
+    text(`Recorded ${s.review.created_at}`, PT.note, { color: SLATE.muted, after: 0.5 });
+    text(s.review.note || "(no note)", PT.body);
+    if (s.review.limitations.length) text(`Limitations noted: ${s.review.limitations.join("; ")}`, PT.body);
+  } else text("No review recorded for this analysis.", PT.body);
+
+  heading("Model limitations");
+  for (const l of s.model_limitations) bullet(l, M, 0.6);
+
+  heading("Provenance");
+  for (const [k, v] of [["analysis_id", s.analysis.analysis_id], ["input_sha256", s.analysis.input_sha256],
+    ["training_data_sha256", s.analysis.training_data_sha256], ["artifact_manifest_sha256", s.analysis.artifact_manifest_sha256],
+    ["image_sha256", s.image.image_sha256], ["snapshot_sha256", stored.snapshot_sha256]] as const) {
+    text(`${k}  ${v}`, PT.small, { color: SLATE.muted, after: 0.3 });
+  }
+
   const pages = doc.getNumberOfPages();
   for (let i = 1; i <= pages; i++) {
-    doc.setPage(i).setFont("helvetica", "normal").setFontSize(7);
-    doc.text(doc.splitTextToSize(`${DISCLAIMER} ${STATEMENT} snapshot_sha256 ${stored.snapshot_sha256} · page ${i}/${pages}`,
-      W - 2 * M) as string[], M, 286);
+    doc.setPage(i);
+    font(PT.small, false, SLATE.muted);
+    doc.setDrawColor(SLATE.rule[0], SLATE.rule[1], SLATE.rule[2]).setLineWidth(0.2).line(M, 276, W - M, 276);
+    const foot = doc.splitTextToSize(`${DISCLAIMER} ${STATEMENT}`, W - 2 * M) as string[];
+    doc.text(foot, M, 280);
+    const last = 280 + foot.length * lh(PT.small);
+    doc.text(`snapshot_sha256 ${stored.snapshot_sha256}`, M, last);
+    doc.text(`page ${i} of ${pages}`, W - M, last, { align: "right" });
   }
   return doc;
 }
