@@ -26,13 +26,29 @@ learning loop lets verified outcomes reach a model update only through a validat
 |---|---|
 | ![Compare all vessels](docs/img/compare-vessels.png) | ![Model Center](docs/img/model-center.png) |
 
+## Prerequisites
+
+- **To run it (recommended):** [Docker](https://docs.docker.com/get-docker/) with Compose v2 (Docker Desktop on
+  Windows and macOS), Git, and a browser with WebGL (current Chrome, Edge or Firefox).
+- **For development:** Python 3.11 via [uv](https://docs.astral.sh/uv/), Node.js 22 with npm, and optionally GNU
+  make (each `make` target is a single `uv`/`npm` command in the `Makefile`).
+- **Dependencies** are pinned: Python in `uv.lock` (installed by `uv sync`), the frontend in
+  `frontend/package-lock.json` (installed by `npm ci`). The trained model bundle v1.0.2 is in `deploy/hosted/model/`.
+- **Hardware:** any recent laptop runs the app. The full retraining (`make reproduce`) takes about 2-4 h.
+
 ## Run it
 
-**Docker (recommended):** this needs a built model bundle; see *Reproduce* below.
+**Docker (recommended):** uses the published trained model.
 
 ```bash
+git clone https://github.com/muhammedamaan790/Novarion && cd Novarion
+mkdir -p artifacts/models && cp -r deploy/hosted/model artifacts/models/v1.0.2   # once: the published model bundle
 docker compose up -d --build        # → http://localhost:8080   (API at :8080/api/v1, READY in ~15 s)
 ```
+
+On Windows PowerShell, the copy step is
+`New-Item -ItemType Directory -Force artifacts/models; Copy-Item -Recurse deploy/hosted/model artifacts/models/v1.0.2`.
+If port 8080 is taken, run `NOVARION_WEB_PORT=8081 docker compose up -d --build` instead.
 
 **Hosted (Render, free plan):** `render.yaml` is a Blueprint that builds the single-container image in
 `deploy/hosted/` (nginx + API, the published v1.0.2 bundle). Accounts come from the `NOVARION_USERS_JSON` secret
@@ -243,6 +259,13 @@ Still open, for the team:
 
 Any change to the model, features, anatomy, thresholds, explanations, API or demo patients now needs a new version
 (v1.0.7 and up) with its own release manifest (`scripts/release_manifest.py --version X.Y.Z --final`).
+
+## AI assistance
+
+This project was built with Claude Code (Anthropic). It wrote most of the code, tests and documentation from my
+instructions. I chose the problem and the approach, made the design decisions (recorded in `docs/decisions.md`),
+reviewed and merged the changes, and tested the app. Every number reported here (metrics, figures, tables) is produced
+by the scripts in this repository from the public dataset, not written by an AI.
 
 ## Data and credits
 
